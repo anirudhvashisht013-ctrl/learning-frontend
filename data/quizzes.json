@@ -1,247 +1,1598 @@
 [
   {
-    "id": "q-tailwind-1",
-    "lessonId": "tailwind-padding-vs-margin",
+    "id": "quiz-tailwind-ch1-utility-first-1",
+    "lessonId": "tailwind-ch1-utility-first",
     "topicSlug": "tailwind",
     "codebaseSlug": "learning-lab",
-    "question": "What does `p-4` add to an element in Tailwind?",
+    "question": "What's the core idea behind utility-first CSS?",
     "type": "recall",
-    "answer": "1rem of padding on all four sides (inside the element's border).",
-    "distractors": ["1rem of margin on all sides", "4px of padding on all sides", "Padding only on top"]
+    "options": [
+      { "id": "a", "text": "Writing one CSS class per component, scoped to that component", "isCorrect": false, "explanation": "That's closer to CSS Modules or component-scoped CSS, not the utility-first idea." },
+      { "id": "b", "text": "Composing styles from many small, single-purpose class names in markup", "isCorrect": true, "explanation": "Correct. Each class does one thing, and you build up styles by combining them directly in HTML." },
+      { "id": "c", "text": "Generating CSS automatically from a design tokens file", "isCorrect": false, "explanation": "Tokens can feed utility frameworks, but token-driven generation isn't the defining idea of utility-first itself." },
+      { "id": "d", "text": "Avoiding CSS entirely by using inline styles for everything", "isCorrect": false, "explanation": "Inline styles bypass CSS, while utility-first still uses CSS — just delivered as pre-made class names." }
+    ]
   },
   {
-    "id": "q-tailwind-2",
-    "lessonId": "tailwind-padding-vs-margin",
+    "id": "quiz-tailwind-ch1-utility-first-2",
+    "lessonId": "tailwind-ch1-utility-first",
     "topicSlug": "tailwind",
     "codebaseSlug": "learning-lab",
-    "question": "A designer says 'add breathing room inside this card.' Padding or margin?",
+    "question": "Which situation does utility-first CSS most help with?",
     "type": "application",
-    "answer": "Padding — it's space inside the element.",
-    "distractors": ["Margin", "Either works the same way", "Border"]
+    "options": [
+      { "id": "a", "text": "Hunting through stylesheets to find which rule applies", "isCorrect": true, "explanation": "Correct. Styles live next to the markup, so you read both in one place instead of jumping files." },
+      { "id": "b", "text": "Letting designers write CSS without touching markup", "isCorrect": false, "explanation": "Utility-first puts styling into the markup, which is the opposite of separating the two." },
+      { "id": "c", "text": "Reducing the total size of CSS files shipped to users", "isCorrect": false, "explanation": "Bundle size is a side benefit but isn't the defining motivation — readability and locality are." },
+      { "id": "d", "text": "Replacing JavaScript with declarative styling rules", "isCorrect": false, "explanation": "That's about CSS in general, not specifically about the utility-first approach." }
+    ]
   },
   {
-    "id": "q-tailwind-3",
-    "lessonId": "tailwind-padding-vs-margin",
+    "id": "quiz-tailwind-ch1-utility-first-3",
+    "lessonId": "tailwind-ch1-utility-first",
     "topicSlug": "tailwind",
     "codebaseSlug": "learning-lab",
-    "question": "You want consistent vertical spacing between cards in a flex column. What's the cleanest Tailwind approach?",
-    "type": "application",
-    "answer": "Use `gap-4` (or similar) on the flex parent.",
-    "distractors": ["Add `mb-4` to every card", "Use `p-4` on each card", "Use `space-y-*` always"]
+    "question": "Which is NOT a typical benefit of utility-first CSS?",
+    "type": "discrimination",
+    "options": [
+      { "id": "a", "text": "You stop renaming things and inventing class names", "isCorrect": false, "explanation": "That's a real benefit — utility-first sidesteps the naming-things problem entirely." },
+      { "id": "b", "text": "Styling lives next to the markup it applies to", "isCorrect": false, "explanation": "That's a real benefit — locality is the point of utility-first." },
+      { "id": "c", "text": "Markup becomes shorter and easier to scan", "isCorrect": true, "explanation": "Correct — utility-first actually makes markup longer and noisier. That's its main trade-off, not a benefit." },
+      { "id": "d", "text": "You avoid most CSS specificity and cascade fights", "isCorrect": false, "explanation": "That's a real benefit — utilities sidestep specificity conflicts almost by design." }
+    ]
   },
   {
-    "id": "q-tailwind-4",
-    "lessonId": "tailwind-padding-vs-margin",
+    "id": "quiz-tailwind-ch2-reading-class-1",
+    "lessonId": "tailwind-ch2-reading-class",
     "topicSlug": "tailwind",
     "codebaseSlug": "learning-lab",
-    "question": "Why might `gap` on a parent be preferable to `margin` on children?",
-    "type": "critique",
-    "answer": "Gap doesn't double up between adjacent elements and lives in one place on the parent — easier to change."
-  },
-  {
-    "id": "q-react-1",
-    "lessonId": "react-props-vs-state",
-    "topicSlug": "react",
-    "codebaseSlug": "learning-lab",
-    "question": "What's the key difference between props and state?",
+    "question": "What does the prefix `hover:` mean in a Tailwind class like `hover:bg-blue-500`?",
     "type": "recall",
-    "answer": "Props are passed in from a parent and are read-only. State is owned by the component and can change.",
-    "distractors": ["Props are mutable; state is not", "They're interchangeable", "State is global; props are local"]
+    "options": [
+      { "id": "a", "text": "Apply this style only when the element is being hovered", "isCorrect": true, "explanation": "Correct. State prefixes attach the class conditionally — here, only during a hover." },
+      { "id": "b", "text": "Apply this style only when the element is focused", "isCorrect": false, "explanation": "Focus has its own prefix (`focus:`). Hover is its own state, separate from focus." },
+      { "id": "c", "text": "Apply this style only at the medium screen breakpoint", "isCorrect": false, "explanation": "Breakpoints use prefixes like `md:` or `lg:`. Hover isn't a screen size." },
+      { "id": "d", "text": "Apply this style to the parent on hover", "isCorrect": false, "explanation": "Group-hover (`group-hover:`) applies based on a parent's hover. Plain `hover:` is the element itself." }
+    ]
   },
   {
-    "id": "q-react-2",
-    "lessonId": "react-props-vs-state",
-    "topicSlug": "react",
+    "id": "quiz-tailwind-ch2-reading-class-2",
+    "lessonId": "tailwind-ch2-reading-class",
+    "topicSlug": "tailwind",
     "codebaseSlug": "learning-lab",
-    "question": "Two sibling components need to read the same value. Where should it live?",
+    "question": "How would you write \"large text on medium screens and up\" in Tailwind?",
     "type": "application",
-    "answer": "In their lowest common ancestor — lift state up and pass it down via props.",
-    "distractors": ["In a global variable", "Duplicate it in both", "In localStorage"]
+    "options": [
+      { "id": "a", "text": "`text-lg md:hover:text-lg`", "isCorrect": false, "explanation": "Adding `hover:` makes it apply only on hover, not on all medium screens." },
+      { "id": "b", "text": "`md:text-lg`", "isCorrect": true, "explanation": "Correct. The `md:` prefix means \"at the md breakpoint and above\" — no base size needed if you want the default below md." },
+      { "id": "c", "text": "`max-md:text-lg`", "isCorrect": false, "explanation": "`max-md:` means \"below medium\" — the opposite of what we want." },
+      { "id": "d", "text": "`text-lg-md`", "isCorrect": false, "explanation": "That isn't valid Tailwind syntax. Prefixes go before the class, separated by a colon." }
+    ]
   },
   {
-    "id": "q-react-3",
-    "lessonId": "react-props-vs-state",
-    "topicSlug": "react",
+    "id": "quiz-tailwind-ch2-reading-class-3",
+    "lessonId": "tailwind-ch2-reading-class",
+    "topicSlug": "tailwind",
     "codebaseSlug": "learning-lab",
-    "question": "When would `useReducer` be more appropriate than `useState`?",
-    "type": "application",
-    "answer": "When state has multiple fields and many transitions — a reducer makes changes more predictable."
+    "question": "Which is NOT a valid Tailwind class structure?",
+    "type": "discrimination",
+    "options": [
+      { "id": "a", "text": "`bg-blue-500` — property + value", "isCorrect": false, "explanation": "That's valid — a property (`bg`) and a value (`blue-500`) with no prefix." },
+      { "id": "b", "text": "`md:hover:bg-blue-500` — two stacked prefixes", "isCorrect": false, "explanation": "Stacking prefixes is valid — Tailwind applies both conditions together." },
+      { "id": "c", "text": "`bg:hover-blue-500` — prefix in the middle", "isCorrect": true, "explanation": "Correct. Prefixes always come first, separated by a colon. This shape isn't valid Tailwind." },
+      { "id": "d", "text": "`focus:text-red-600` — state prefix on a property", "isCorrect": false, "explanation": "That's valid — state prefixes can apply to any property." }
+    ]
   },
   {
-    "id": "q-react-4",
-    "lessonId": "react-props-vs-state",
-    "topicSlug": "react",
+    "id": "quiz-tailwind-ch3-spacing-1",
+    "lessonId": "tailwind-ch3-spacing",
+    "topicSlug": "tailwind",
     "codebaseSlug": "learning-lab",
-    "question": "What's the typical mistake beginners make about where state should live?",
-    "type": "critique",
-    "answer": "Over-localizing state and then prop-drilling setters to siblings. Lift state up sooner."
-  },
-  {
-    "id": "q-nextjs-1",
-    "lessonId": "nextjs-server-vs-client",
-    "topicSlug": "nextjs",
-    "codebaseSlug": "learning-lab",
-    "question": "In the App Router, what's the default — server or client component?",
+    "question": "Which Tailwind keyword adds space *inside* an element, between its border and content?",
     "type": "recall",
-    "answer": "Server component. You opt into client with 'use client' at the top of the file.",
-    "distractors": ["Client component", "Neither — you choose per render", "Both at the same time"]
+    "options": [
+      { "id": "a", "text": "`margin` (e.g. `m-4`, `mb-2`)", "isCorrect": false, "explanation": "Margin pushes neighbors away — it's outside-the-box space, not inside." },
+      { "id": "b", "text": "`gap` (e.g. `gap-4`)", "isCorrect": false, "explanation": "Gap is set on a flex/grid parent and spaces children apart — neither inside nor outside one element." },
+      { "id": "c", "text": "`padding` (e.g. `p-4`, `px-4`)", "isCorrect": true, "explanation": "Correct. Padding adds space inside the element's border, around its content." },
+      { "id": "d", "text": "`space-y` (e.g. `space-y-4`)", "isCorrect": false, "explanation": "`space-y` adds gaps between siblings, not inside one element." }
+    ]
   },
   {
-    "id": "q-nextjs-2",
-    "lessonId": "nextjs-server-vs-client",
-    "topicSlug": "nextjs",
+    "id": "quiz-tailwind-ch3-spacing-2",
+    "lessonId": "tailwind-ch3-spacing",
+    "topicSlug": "tailwind",
     "codebaseSlug": "learning-lab",
-    "question": "Can a server component import a client component?",
-    "type": "recall",
-    "answer": "Yes — server components can render client components. The reverse (client importing server) is what doesn't work directly."
-  },
-  {
-    "id": "q-nextjs-3",
-    "lessonId": "nextjs-server-vs-client",
-    "topicSlug": "nextjs",
-    "codebaseSlug": "learning-lab",
-    "question": "You need `useState` in a deeply nested UI piece. Where should the 'use client' directive go?",
+    "question": "You have a flex column of cards and want equal spacing between them. Cleanest approach?",
     "type": "application",
-    "answer": "On that piece's file — as deep as possible. Keep parent layouts as server components."
+    "options": [
+      { "id": "a", "text": "Add `mb-4` to every card and forget about the last one", "isCorrect": false, "explanation": "It works but the last card has unwanted bottom margin, and it duplicates the value across many children." },
+      { "id": "b", "text": "Wrap each card in a div with `p-4`", "isCorrect": false, "explanation": "Padding adds space inside each wrapper but doubles up between adjacent cards — visually inconsistent." },
+      { "id": "c", "text": "Use `gap-4` on the flex parent", "isCorrect": true, "explanation": "Correct. One value on the parent, no double-up, easy to change everywhere at once." },
+      { "id": "d", "text": "Use absolute positioning with calculated offsets", "isCorrect": false, "explanation": "Massive overkill — absolute positioning loses the flow and breaks responsive behavior." }
+    ]
   },
   {
-    "id": "q-nextjs-4",
-    "lessonId": "nextjs-server-vs-client",
+    "id": "quiz-tailwind-ch3-spacing-3",
+    "lessonId": "tailwind-ch3-spacing",
+    "topicSlug": "tailwind",
+    "codebaseSlug": "learning-lab",
+    "question": "Which is NOT one of the three spacing approaches the chapter covers?",
+    "type": "discrimination",
+    "options": [
+      { "id": "a", "text": "Padding — space inside the element", "isCorrect": false, "explanation": "Padding is one of the three covered approaches." },
+      { "id": "b", "text": "Margin — space outside the element", "isCorrect": false, "explanation": "Margin is one of the three covered approaches." },
+      { "id": "c", "text": "Gap — space between flex/grid children", "isCorrect": false, "explanation": "Gap is one of the three covered approaches." },
+      { "id": "d", "text": "Z-index — layering elements on top of each other", "isCorrect": true, "explanation": "Correct. Z-index controls stacking, not spacing — it's a different concept entirely." }
+    ]
+  },
+  {
+    "id": "quiz-tailwind-ch4-flex-grid-1",
+    "lessonId": "tailwind-ch4-flex-grid",
+    "topicSlug": "tailwind",
+    "codebaseSlug": "learning-lab",
+    "question": "When is CSS grid the better choice over flex?",
+    "type": "recall",
+    "options": [
+      { "id": "a", "text": "When you want a single row of buttons aligned to the right", "isCorrect": false, "explanation": "That's one-dimensional alignment — flex is the simpler tool there." },
+      { "id": "b", "text": "When you need a two-dimensional layout — both rows and columns", "isCorrect": true, "explanation": "Correct. Grid handles both axes at once, which is exactly what flex can't do cleanly." },
+      { "id": "c", "text": "When you want responsive text sizes", "isCorrect": false, "explanation": "Responsive sizing uses breakpoint prefixes, not a layout system. Either flex or grid works." },
+      { "id": "d", "text": "When you need to wrap items onto multiple lines", "isCorrect": false, "explanation": "Flex with `flex-wrap` handles that fine. Wrapping isn't the deciding factor for grid." }
+    ]
+  },
+  {
+    "id": "quiz-tailwind-ch4-flex-grid-2",
+    "lessonId": "tailwind-ch4-flex-grid",
+    "topicSlug": "tailwind",
+    "codebaseSlug": "learning-lab",
+    "question": "You need three buttons in a horizontal row, evenly spaced. Which tool fits?",
+    "type": "application",
+    "options": [
+      { "id": "a", "text": "Grid with `grid-cols-3`", "isCorrect": false, "explanation": "It works but is overkill — you're forcing a 1D layout through a 2D tool." },
+      { "id": "b", "text": "Flex with `flex` and `gap-2`", "isCorrect": true, "explanation": "Correct. A row of items is exactly the 1D case flex handles best." },
+      { "id": "c", "text": "Floats with manual width calculations", "isCorrect": false, "explanation": "Floats are a legacy pattern — flex replaced this exact use case." },
+      { "id": "d", "text": "Inline-block with custom margins", "isCorrect": false, "explanation": "Also legacy — modern Tailwind code uses flex for this without thinking twice." }
+    ]
+  },
+  {
+    "id": "quiz-tailwind-ch4-flex-grid-3",
+    "lessonId": "tailwind-ch4-flex-grid",
+    "topicSlug": "tailwind",
+    "codebaseSlug": "learning-lab",
+    "question": "Which is NOT a typical use case for flex?",
+    "type": "discrimination",
+    "options": [
+      { "id": "a", "text": "A navbar of horizontally aligned links", "isCorrect": false, "explanation": "Classic flex use case — items in a row, aligned along one axis." },
+      { "id": "b", "text": "A label sitting next to a form input", "isCorrect": false, "explanation": "Classic flex use case — two items aligned horizontally." },
+      { "id": "c", "text": "A photo gallery with rows AND columns of images", "isCorrect": true, "explanation": "Correct. That's a 2D layout — grid handles this much more cleanly than flex." },
+      { "id": "d", "text": "A vertical list of menu items", "isCorrect": false, "explanation": "Flex with `flex-col` handles a vertical 1D list well." }
+    ]
+  },
+  {
+    "id": "quiz-tailwind-ch5-responsive-1",
+    "lessonId": "tailwind-ch5-responsive",
+    "topicSlug": "tailwind",
+    "codebaseSlug": "learning-lab",
+    "question": "What does the prefix `md:` mean in Tailwind?",
+    "type": "recall",
+    "options": [
+      { "id": "a", "text": "Apply this only on screens smaller than medium", "isCorrect": false, "explanation": "That's `max-md:` — the inverse direction. Plain `md:` is for medium and up." },
+      { "id": "b", "text": "Apply this at the medium breakpoint and every size above", "isCorrect": true, "explanation": "Correct. Breakpoint prefixes apply at that size and bigger — mobile-first by design." },
+      { "id": "c", "text": "Apply this only at exactly the medium breakpoint", "isCorrect": false, "explanation": "Tailwind prefixes are min-width, not exact-match. They apply at that size and above." },
+      { "id": "d", "text": "Apply this only when the user is on a tablet device", "isCorrect": false, "explanation": "Tailwind breakpoints are based on screen width, not device type. A wide phone screen still matches `md:`." }
+    ]
+  },
+  {
+    "id": "quiz-tailwind-ch5-responsive-2",
+    "lessonId": "tailwind-ch5-responsive",
+    "topicSlug": "tailwind",
+    "codebaseSlug": "learning-lab",
+    "question": "Make text small on phones and larger on tablets and up. What's the mobile-first way?",
+    "type": "application",
+    "options": [
+      { "id": "a", "text": "`md:text-sm text-base`", "isCorrect": false, "explanation": "Order doesn't matter to Tailwind, but the logic is reversed — this makes text base by default and smaller at md+." },
+      { "id": "b", "text": "`text-sm md:text-base`", "isCorrect": true, "explanation": "Correct. Small as the default (mobile), then `md:text-base` upgrades it from the medium breakpoint up." },
+      { "id": "c", "text": "`max-md:text-sm text-base`", "isCorrect": false, "explanation": "Works visually but uses the desktop-first model — less common in modern Tailwind code." },
+      { "id": "d", "text": "`text-base md:text-sm`", "isCorrect": false, "explanation": "This makes text larger on mobile and smaller on tablets — the opposite of what we want." }
+    ]
+  },
+  {
+    "id": "quiz-tailwind-ch5-responsive-3",
+    "lessonId": "tailwind-ch5-responsive",
+    "topicSlug": "tailwind",
+    "codebaseSlug": "learning-lab",
+    "question": "Which is NOT how Tailwind's responsive system works?",
+    "type": "discrimination",
+    "options": [
+      { "id": "a", "text": "No prefix means \"apply at all sizes\"", "isCorrect": false, "explanation": "That's true — a class with no prefix is the default at every screen size." },
+      { "id": "b", "text": "Prefixes are mobile-first (apply at that breakpoint and up)", "isCorrect": false, "explanation": "That's true — Tailwind is mobile-first by default." },
+      { "id": "c", "text": "Each prefix targets one specific screen size only", "isCorrect": true, "explanation": "Correct. Prefixes are min-width, not exact-match. `md:` applies at md, lg, xl, and 2xl, not just md." },
+      { "id": "d", "text": "You can stack prefixes like `md:hover:`", "isCorrect": false, "explanation": "That's true — you can combine a breakpoint with a state prefix." }
+    ]
+  },
+  {
+    "id": "quiz-react-ch1-component-1",
+    "lessonId": "react-ch1-component",
+    "topicSlug": "react",
+    "codebaseSlug": "learning-lab",
+    "question": "What is a React component, mechanically?",
+    "type": "recall",
+    "options": [
+      { "id": "a", "text": "A class that extends `React.Component`", "isCorrect": false, "explanation": "That's the legacy class-based form. Modern React components are plain functions." },
+      { "id": "b", "text": "A function that returns UI (usually JSX)", "isCorrect": true, "explanation": "Correct. Take inputs (props), return JSX. That's the whole shape." },
+      { "id": "c", "text": "A reusable HTML template referenced by ID", "isCorrect": false, "explanation": "That describes HTML `<template>` elements, not React components." },
+      { "id": "d", "text": "A CSS class that styles an HTML element", "isCorrect": false, "explanation": "Components are JavaScript, not CSS. They return markup which can use CSS classes." }
+    ]
+  },
+  {
+    "id": "quiz-react-ch1-component-2",
+    "lessonId": "react-ch1-component",
+    "topicSlug": "react",
+    "codebaseSlug": "learning-lab",
+    "question": "When should you extract markup into a new component?",
+    "type": "application",
+    "options": [
+      { "id": "a", "text": "Whenever you write more than two lines of JSX in a row", "isCorrect": false, "explanation": "That's over-extraction. Small inline JSX is fine; constant tiny components add noise." },
+      { "id": "b", "text": "Only when you've copied the same markup three or more times", "isCorrect": false, "explanation": "Reuse is one reason but not the only one — a component can be worth extracting for readability alone." },
+      { "id": "c", "text": "When the chunk has a name worth saying out loud", "isCorrect": true, "explanation": "Correct. If it has a clear name (Card, Avatar, LessonHeader), it's likely worth extracting." },
+      { "id": "d", "text": "Always — components should be as small as physically possible", "isCorrect": false, "explanation": "Going too small makes the code harder to follow. There's a sweet spot, not a hard minimum." }
+    ]
+  },
+  {
+    "id": "quiz-react-ch1-component-3",
+    "lessonId": "react-ch1-component",
+    "topicSlug": "react",
+    "codebaseSlug": "learning-lab",
+    "question": "Which is NOT true about React components?",
+    "type": "discrimination",
+    "options": [
+      { "id": "a", "text": "Component names must start with a capital letter", "isCorrect": false, "explanation": "True — that's how React distinguishes components from regular HTML tags." },
+      { "id": "b", "text": "Components are functions you can call like any other function", "isCorrect": false, "explanation": "True — mechanically they're just functions. React calls them when rendering." },
+      { "id": "c", "text": "Components must return at least one DOM element", "isCorrect": true, "explanation": "Correct. They can return `null`, strings, numbers, arrays, or fragments — not just DOM elements." },
+      { "id": "d", "text": "You build big screens by composing smaller components", "isCorrect": false, "explanation": "True — that's the fundamental composition model in React." }
+    ]
+  },
+  {
+    "id": "quiz-react-ch2-jsx-1",
+    "lessonId": "react-ch2-jsx",
+    "topicSlug": "react",
+    "codebaseSlug": "learning-lab",
+    "question": "What does JSX compile down to, mechanically?",
+    "type": "recall",
+    "options": [
+      { "id": "a", "text": "Plain HTML strings inserted into the DOM", "isCorrect": false, "explanation": "JSX isn't HTML strings — it becomes JavaScript function calls that React executes." },
+      { "id": "b", "text": "Template literals with embedded markup", "isCorrect": false, "explanation": "Template literals are a different JavaScript feature. JSX has its own compilation step." },
+      { "id": "c", "text": "Calls to `React.createElement(...)`", "isCorrect": true, "explanation": "Correct. A compiler (Babel or SWC) turns each JSX tag into a `createElement` call." },
+      { "id": "d", "text": "Web Components registered with the browser", "isCorrect": false, "explanation": "Web Components are a separate browser feature. JSX produces React elements, not custom elements." }
+    ]
+  },
+  {
+    "id": "quiz-react-ch2-jsx-2",
+    "lessonId": "react-ch2-jsx",
+    "topicSlug": "react",
+    "codebaseSlug": "learning-lab",
+    "question": "How do you give an element an HTML class in JSX?",
+    "type": "application",
+    "options": [
+      { "id": "a", "text": "`<div class=\"box\">`", "isCorrect": false, "explanation": "Tempting because it's the HTML way, but `class` is a JavaScript reserved word — JSX uses `className`." },
+      { "id": "b", "text": "`<div className=\"box\">`", "isCorrect": true, "explanation": "Correct. JSX uses `className` because `class` clashes with the JavaScript reserved keyword." },
+      { "id": "c", "text": "`<div htmlClass=\"box\">`", "isCorrect": false, "explanation": "That isn't a real attribute. The JSX equivalent of HTML's `class` is `className`." },
+      { "id": "d", "text": "`<div style=\"box\">`", "isCorrect": false, "explanation": "`style` is for inline styles (an object in JSX), not class names." }
+    ]
+  },
+  {
+    "id": "quiz-react-ch2-jsx-3",
+    "lessonId": "react-ch2-jsx",
+    "topicSlug": "react",
+    "codebaseSlug": "learning-lab",
+    "question": "Which is NOT a JSX gotcha you need to know?",
+    "type": "discrimination",
+    "options": [
+      { "id": "a", "text": "Use `className` instead of `class`", "isCorrect": false, "explanation": "Real gotcha — `class` is reserved in JavaScript, so JSX renames it." },
+      { "id": "b", "text": "Use `htmlFor` instead of `for` on labels", "isCorrect": false, "explanation": "Real gotcha — same reason as `class`; `for` is also reserved." },
+      { "id": "c", "text": "Variables inside JSX need curly braces (`{value}`)", "isCorrect": false, "explanation": "Real gotcha — without braces, the literal string appears on the page." },
+      { "id": "d", "text": "All JSX tags must be lowercase like HTML", "isCorrect": true, "explanation": "Correct. Components start with a capital letter — that's how JSX knows they're components, not HTML." }
+    ]
+  },
+  {
+    "id": "quiz-react-ch3-props-1",
+    "lessonId": "react-ch3-props",
+    "topicSlug": "react",
+    "codebaseSlug": "learning-lab",
+    "question": "What's a prop, in one sentence?",
+    "type": "recall",
+    "options": [
+      { "id": "a", "text": "A value the component owns and can change over time", "isCorrect": false, "explanation": "That's state, not props. Props come from the parent and are read-only." },
+      { "id": "b", "text": "A read-only value a parent passes into a child component", "isCorrect": true, "explanation": "Correct. Props flow from parent to child and shouldn't be modified by the child." },
+      { "id": "c", "text": "A function the child component exports", "isCorrect": false, "explanation": "That's the component itself, not a prop. Props are arguments passed *in* to the component." },
+      { "id": "d", "text": "A CSS class applied to the component's root element", "isCorrect": false, "explanation": "Props can include className, but a prop isn't a CSS class by definition — it's any value passed in." }
+    ]
+  },
+  {
+    "id": "quiz-react-ch3-props-2",
+    "lessonId": "react-ch3-props",
+    "topicSlug": "react",
+    "codebaseSlug": "learning-lab",
+    "question": "You want a `Card` component that takes arbitrary content. How do you pass it?",
+    "type": "application",
+    "options": [
+      { "id": "a", "text": "Pass it as a named prop called `content`", "isCorrect": false, "explanation": "Works, but JSX has a dedicated mechanism — `children` — that's idiomatic for this." },
+      { "id": "b", "text": "Use the `children` prop — content between the tags", "isCorrect": true, "explanation": "Correct. `<Card>...content...</Card>` makes everything between the tags available as `props.children`." },
+      { "id": "c", "text": "Store the content in a global variable", "isCorrect": false, "explanation": "Globals bypass React's data flow and break composition. Use props." },
+      { "id": "d", "text": "Pass it via React Context", "isCorrect": false, "explanation": "Context is for data that needs to reach far-apart components. Direct content is simpler with `children`." }
+    ]
+  },
+  {
+    "id": "quiz-react-ch3-props-3",
+    "lessonId": "react-ch3-props",
+    "topicSlug": "react",
+    "codebaseSlug": "learning-lab",
+    "question": "Which is NOT true about props?",
+    "type": "discrimination",
+    "options": [
+      { "id": "a", "text": "Props are read-only inside the receiving component", "isCorrect": false, "explanation": "True — modifying props directly doesn't trigger re-renders and leads to bugs." },
+      { "id": "b", "text": "Props can be any JavaScript value — strings, numbers, functions, objects", "isCorrect": false, "explanation": "True — props are arbitrary values, not limited to primitives." },
+      { "id": "c", "text": "Props can flow both directions between parent and child", "isCorrect": true, "explanation": "Correct. Props only flow from parent to child. To send data up, pass a callback as a prop." },
+      { "id": "d", "text": "Children passed between tags are also a prop (`props.children`)", "isCorrect": false, "explanation": "True — `children` is a special prop name React reserves for nested content." }
+    ]
+  },
+  {
+    "id": "quiz-react-ch4-state-1",
+    "lessonId": "react-ch4-state",
+    "topicSlug": "react",
+    "codebaseSlug": "learning-lab",
+    "question": "What is React state?",
+    "type": "recall",
+    "options": [
+      { "id": "a", "text": "Read-only values a component receives from its parent", "isCorrect": false, "explanation": "That's props. State is owned by the component and can change." },
+      { "id": "b", "text": "Data a component owns and remembers between renders", "isCorrect": true, "explanation": "Correct. State is the component's own memory — changes to it trigger re-renders." },
+      { "id": "c", "text": "Data shared globally across the entire app", "isCorrect": false, "explanation": "That describes global state (Redux, Zustand). Local state lives inside one component." },
+      { "id": "d", "text": "Persistent storage that survives page reloads", "isCorrect": false, "explanation": "That's localStorage or a database. React state is in-memory only and resets on reload." }
+    ]
+  },
+  {
+    "id": "quiz-react-ch4-state-2",
+    "lessonId": "react-ch4-state",
+    "topicSlug": "react",
+    "codebaseSlug": "learning-lab",
+    "question": "You're building a counter that increments on click. What should hold the count?",
+    "type": "application",
+    "options": [
+      { "id": "a", "text": "A plain JavaScript variable inside the component", "isCorrect": false, "explanation": "Plain variables don't trigger re-renders — the displayed number wouldn't update." },
+      { "id": "b", "text": "A prop passed from the parent", "isCorrect": false, "explanation": "Props are read-only — the component can't change a prop on its own." },
+      { "id": "c", "text": "`useState` inside the component", "isCorrect": true, "explanation": "Correct. The count changes over time and is owned by this component — exactly what state is for." },
+      { "id": "d", "text": "A value stored on the `window` object", "isCorrect": false, "explanation": "Works but bypasses React's render system — the UI won't update when the value changes." }
+    ]
+  },
+  {
+    "id": "quiz-react-ch4-state-3",
+    "lessonId": "react-ch4-state",
+    "topicSlug": "react",
+    "codebaseSlug": "learning-lab",
+    "question": "Which is NOT a valid reason to use `useState`?",
+    "type": "discrimination",
+    "options": [
+      { "id": "a", "text": "The value changes over time inside one component", "isCorrect": false, "explanation": "That's a perfect fit for `useState` — local, changing data." },
+      { "id": "b", "text": "The value must trigger a re-render when it changes", "isCorrect": false, "explanation": "That's a perfect fit — calling the setter is how you signal a re-render." },
+      { "id": "c", "text": "The value is computed from props and never changes", "isCorrect": true, "explanation": "Correct. Derived, unchanging values don't need state — compute them inline or memoize them." },
+      { "id": "d", "text": "You need to toggle UI based on user input", "isCorrect": false, "explanation": "That's a perfect fit — open/closed, expanded/collapsed, active/inactive all need state." }
+    ]
+  },
+  {
+    "id": "quiz-react-ch5-event-handler-1",
+    "lessonId": "react-ch5-event-handler",
+    "topicSlug": "react",
+    "codebaseSlug": "learning-lab",
+    "question": "What value should you pass to `onClick` on a React button?",
+    "type": "recall",
+    "options": [
+      { "id": "a", "text": "A function reference, like `onClick={handleClick}`", "isCorrect": true, "explanation": "Correct. You hand React the function; React calls it when the click happens." },
+      { "id": "b", "text": "The function's return value, like `onClick={handleClick()}`", "isCorrect": false, "explanation": "That calls the function immediately during render and passes the return value — a common bug." },
+      { "id": "c", "text": "A string naming the function, like `onClick=\"handleClick\"`", "isCorrect": false, "explanation": "That's the HTML inline-handler pattern. JSX expects an actual function reference, not a string." },
+      { "id": "d", "text": "An event object created with `new Event(...)`", "isCorrect": false, "explanation": "React creates the event object and passes it to your handler — you don't create one." }
+    ]
+  },
+  {
+    "id": "quiz-react-ch5-event-handler-2",
+    "lessonId": "react-ch5-event-handler",
+    "topicSlug": "react",
+    "codebaseSlug": "learning-lab",
+    "question": "Your button \"does nothing\" or fires once on load. What's the likely cause?",
+    "type": "application",
+    "options": [
+      { "id": "a", "text": "Forgot the `onClick` prop entirely", "isCorrect": false, "explanation": "If there were no onClick, nothing would happen ever — but the symptom describes it firing once on load." },
+      { "id": "b", "text": "Wrote `onClick={handleClick()}` instead of `onClick={handleClick}`", "isCorrect": true, "explanation": "Correct. The parens call the function on render — it fires once at load and never again on click." },
+      { "id": "c", "text": "Used a `<button>` instead of `<div>`", "isCorrect": false, "explanation": "Buttons are the right element for click handling — this isn't the bug." },
+      { "id": "d", "text": "Forgot to wrap the component in `useState`", "isCorrect": false, "explanation": "Handlers don't require state. This is a misconception about how handlers work." }
+    ]
+  },
+  {
+    "id": "quiz-react-ch5-event-handler-3",
+    "lessonId": "react-ch5-event-handler",
+    "topicSlug": "react",
+    "codebaseSlug": "learning-lab",
+    "question": "Which is NOT a real React event handler prop?",
+    "type": "discrimination",
+    "options": [
+      { "id": "a", "text": "`onClick` — fires when an element is clicked", "isCorrect": false, "explanation": "Real React event prop — one of the most common ones." },
+      { "id": "b", "text": "`onChange` — fires when an input's value changes", "isCorrect": false, "explanation": "Real React event prop — used on form inputs." },
+      { "id": "c", "text": "`onPress` — fires when a button is pressed", "isCorrect": true, "explanation": "Correct. `onPress` is from React Native, not React DOM. On the web, use `onClick`." },
+      { "id": "d", "text": "`onKeyDown` — fires when a key is pressed", "isCorrect": false, "explanation": "Real React event prop — used for keyboard handling." }
+    ]
+  },
+  {
+    "id": "quiz-nextjs-ch1-what-is-1",
+    "lessonId": "nextjs-ch1-what-is",
     "topicSlug": "nextjs",
     "codebaseSlug": "learning-lab",
-    "question": "Why is reflexively adding 'use client' to every component a bad habit?",
-    "type": "critique",
-    "answer": "You lose streaming and server data-fetching ergonomics, and ship more JavaScript than necessary to the browser."
+    "question": "What is Next.js, in relation to React?",
+    "type": "recall",
+    "options": [
+      { "id": "a", "text": "An alternative to React with its own component model", "isCorrect": false, "explanation": "Next.js uses React — it's not a replacement. It builds on top of React's component model." },
+      { "id": "b", "text": "A framework built on top of React with routing and rendering conventions", "isCorrect": true, "explanation": "Correct. Next.js adds the missing pieces around React — routing, server rendering, build system." },
+      { "id": "c", "text": "A CSS framework for styling React apps", "isCorrect": false, "explanation": "That describes Tailwind or similar. Next.js is about app structure and rendering, not styles." },
+      { "id": "d", "text": "A backend framework like Express or FastAPI", "isCorrect": false, "explanation": "Next.js can do server-side work but isn't a backend framework — it's primarily a React framework." }
+    ]
   },
   {
-    "id": "q-shadcn-1",
-    "lessonId": "shadcn-copies-components",
+    "id": "quiz-nextjs-ch1-what-is-2",
+    "lessonId": "nextjs-ch1-what-is",
+    "topicSlug": "nextjs",
+    "codebaseSlug": "learning-lab",
+    "question": "You're starting a content-heavy React app you want to ship soon. Plain React or Next.js?",
+    "type": "application",
+    "options": [
+      { "id": "a", "text": "Plain React — Next.js is overkill for content sites", "isCorrect": false, "explanation": "Wrong direction — content-heavy sites benefit most from Next.js features like server rendering and routing." },
+      { "id": "b", "text": "Next.js — you get routing, rendering, and performance for free", "isCorrect": true, "explanation": "Correct. The framework saves weeks of setup and gives you better defaults for content delivery." },
+      { "id": "c", "text": "Plain React — you'll have more freedom to customize", "isCorrect": false, "explanation": "True but rarely worth it. Most apps don't need the flexibility, and Next.js doesn't actually take much away." },
+      { "id": "d", "text": "Neither — use plain HTML for content sites", "isCorrect": false, "explanation": "Plain HTML lacks the interactivity and dynamic content most modern content apps need." }
+    ]
+  },
+  {
+    "id": "quiz-nextjs-ch1-what-is-3",
+    "lessonId": "nextjs-ch1-what-is",
+    "topicSlug": "nextjs",
+    "codebaseSlug": "learning-lab",
+    "question": "Which is NOT something Next.js provides on top of React?",
+    "type": "discrimination",
+    "options": [
+      { "id": "a", "text": "File-based routing (folders become URLs)", "isCorrect": false, "explanation": "Real Next.js feature — folder structure is the routing system." },
+      { "id": "b", "text": "Server rendering and code-splitting out of the box", "isCorrect": false, "explanation": "Real Next.js feature — these are core to the framework." },
+      { "id": "c", "text": "Image optimization and font loading", "isCorrect": false, "explanation": "Real Next.js feature — `next/image` and `next/font` are built in." },
+      { "id": "d", "text": "A database and authentication system", "isCorrect": true, "explanation": "Correct. Next.js doesn't ship a database or auth system — you bring your own (Postgres, NextAuth, Clerk, etc.)." }
+    ]
+  },
+  {
+    "id": "quiz-nextjs-ch2-page-1",
+    "lessonId": "nextjs-ch2-page",
+    "topicSlug": "nextjs",
+    "codebaseSlug": "learning-lab",
+    "question": "In the App Router, what file name turns a folder into a route?",
+    "type": "recall",
+    "options": [
+      { "id": "a", "text": "`index.tsx`", "isCorrect": false, "explanation": "That's the Pages Router convention. The App Router uses `page.tsx`." },
+      { "id": "b", "text": "`page.tsx`", "isCorrect": true, "explanation": "Correct. The file must be named exactly `page.tsx` — the folder name becomes the URL segment." },
+      { "id": "c", "text": "`route.tsx`", "isCorrect": false, "explanation": "`route.ts` is for API endpoints, not pages. Pages use `page.tsx`." },
+      { "id": "d", "text": "Any file name works — Next.js scans them all", "isCorrect": false, "explanation": "App Router is strict — only files named exactly `page.tsx` become routes." }
+    ]
+  },
+  {
+    "id": "quiz-nextjs-ch2-page-2",
+    "lessonId": "nextjs-ch2-page",
+    "topicSlug": "nextjs",
+    "codebaseSlug": "learning-lab",
+    "question": "How would you create a `/about` page in the App Router?",
+    "type": "application",
+    "options": [
+      { "id": "a", "text": "Create `app/about.tsx`", "isCorrect": false, "explanation": "Files in `app/` aren't routes by name — the route comes from a folder containing a `page.tsx`." },
+      { "id": "b", "text": "Create `app/about/page.tsx`", "isCorrect": true, "explanation": "Correct. The folder `about/` is the URL segment, and `page.tsx` inside it is the rendered page." },
+      { "id": "c", "text": "Register the route in a `routes.ts` config file", "isCorrect": false, "explanation": "No routes config in App Router — folders ARE the routes." },
+      { "id": "d", "text": "Create `pages/about.tsx`", "isCorrect": false, "explanation": "That's the Pages Router. App Router lives in `app/`, not `pages/`." }
+    ]
+  },
+  {
+    "id": "quiz-nextjs-ch2-page-3",
+    "lessonId": "nextjs-ch2-page",
+    "topicSlug": "nextjs",
+    "codebaseSlug": "learning-lab",
+    "question": "Which is NOT a valid way to define a route in the App Router?",
+    "type": "discrimination",
+    "options": [
+      { "id": "a", "text": "A folder with a `page.tsx` inside", "isCorrect": false, "explanation": "Valid — that's the basic way to define a route." },
+      { "id": "b", "text": "Nested folders (`app/dashboard/settings/page.tsx`)", "isCorrect": false, "explanation": "Valid — nested folders create nested routes (`/dashboard/settings`)." },
+      { "id": "c", "text": "A folder with brackets like `[slug]`", "isCorrect": false, "explanation": "Valid — that's a dynamic route, captures any value in the URL." },
+      { "id": "d", "text": "A `routes.json` file listing all paths", "isCorrect": true, "explanation": "Correct. There's no routes config file in App Router — folders alone define routes." }
+    ]
+  },
+  {
+    "id": "quiz-nextjs-ch3-app-folder-1",
+    "lessonId": "nextjs-ch3-app-folder",
+    "topicSlug": "nextjs",
+    "codebaseSlug": "learning-lab",
+    "question": "What does `layout.tsx` do in the App Router?",
+    "type": "recall",
+    "options": [
+      { "id": "a", "text": "Defines the page content for that route", "isCorrect": false, "explanation": "That's `page.tsx`. Layouts wrap pages, they don't replace them." },
+      { "id": "b", "text": "Wraps every page in that folder and its subfolders", "isCorrect": true, "explanation": "Correct. Layouts persist across navigations and are great for shared shells like navbars or sidebars." },
+      { "id": "c", "text": "Shows while the page is loading data", "isCorrect": false, "explanation": "That's `loading.tsx`, a different special file." },
+      { "id": "d", "text": "Catches and displays errors thrown in pages", "isCorrect": false, "explanation": "That's `error.tsx`, a different special file." }
+    ]
+  },
+  {
+    "id": "quiz-nextjs-ch3-app-folder-2",
+    "lessonId": "nextjs-ch3-app-folder",
+    "topicSlug": "nextjs",
+    "codebaseSlug": "learning-lab",
+    "question": "You want a navbar visible on every page in `app/dashboard/*`. Where does it go?",
+    "type": "application",
+    "options": [
+      { "id": "a", "text": "Import it into every `page.tsx` under dashboard", "isCorrect": false, "explanation": "Works but is exactly what `layout.tsx` exists to prevent — repetition across pages." },
+      { "id": "b", "text": "Put it in `app/dashboard/layout.tsx`", "isCorrect": true, "explanation": "Correct. The layout wraps every page in that folder tree — define the navbar once." },
+      { "id": "c", "text": "Put it in `app/dashboard/page.tsx`", "isCorrect": false, "explanation": "That only renders for `/dashboard` itself — subpages wouldn't have the navbar." },
+      { "id": "d", "text": "Add it to `app/dashboard/loading.tsx`", "isCorrect": false, "explanation": "Loading is shown only while pages are loading — not a persistent shell." }
+    ]
+  },
+  {
+    "id": "quiz-nextjs-ch3-app-folder-3",
+    "lessonId": "nextjs-ch3-app-folder",
+    "topicSlug": "nextjs",
+    "codebaseSlug": "learning-lab",
+    "question": "Which file is NOT a special App Router file?",
+    "type": "discrimination",
+    "options": [
+      { "id": "a", "text": "`page.tsx` — the page content", "isCorrect": false, "explanation": "Real special file — defines a route's page." },
+      { "id": "b", "text": "`layout.tsx` — the persistent shell", "isCorrect": false, "explanation": "Real special file — wraps pages in that folder tree." },
+      { "id": "c", "text": "`not-found.tsx` — shown for missing routes", "isCorrect": false, "explanation": "Real special file — paired with the `notFound()` helper." },
+      { "id": "d", "text": "`init.tsx` — runs once when the app starts", "isCorrect": true, "explanation": "Correct. There's no `init.tsx` special file in the App Router. App initialization happens in the root layout." }
+    ]
+  },
+  {
+    "id": "quiz-nextjs-ch4-dynamic-routes-1",
+    "lessonId": "nextjs-ch4-dynamic-routes",
+    "topicSlug": "nextjs",
+    "codebaseSlug": "learning-lab",
+    "question": "What's the syntax for a dynamic route segment in App Router?",
+    "type": "recall",
+    "options": [
+      { "id": "a", "text": "A folder with parentheses: `(slug)`", "isCorrect": false, "explanation": "Parentheses create route groups that don't appear in the URL — different from dynamic segments." },
+      { "id": "b", "text": "A folder with square brackets: `[slug]`", "isCorrect": true, "explanation": "Correct. `[slug]` marks the segment as dynamic, and `slug` is the parameter name." },
+      { "id": "c", "text": "A folder with a colon prefix: `:slug`", "isCorrect": false, "explanation": "That's Express or React Router syntax — not Next.js App Router." },
+      { "id": "d", "text": "A folder with an `@` prefix: `@slug`", "isCorrect": false, "explanation": "`@`-prefixed folders are for parallel routes, a different feature." }
+    ]
+  },
+  {
+    "id": "quiz-nextjs-ch4-dynamic-routes-2",
+    "lessonId": "nextjs-ch4-dynamic-routes",
+    "topicSlug": "nextjs",
+    "codebaseSlug": "learning-lab",
+    "question": "You need a page that renders any `/blog/<post-id>` URL. What's the structure?",
+    "type": "application",
+    "options": [
+      { "id": "a", "text": "`app/blog/[id]/page.tsx`", "isCorrect": true, "explanation": "Correct. The bracketed folder captures any value at that segment, available as `params.id`." },
+      { "id": "b", "text": "`app/blog/[id].tsx`", "isCorrect": false, "explanation": "The brackets must be on a folder, not a file. The file is still `page.tsx`." },
+      { "id": "c", "text": "`app/blog/page.tsx` with a query param", "isCorrect": false, "explanation": "Works but gives `/blog?id=...`, not `/blog/<id>`. Path segments are different from query params." },
+      { "id": "d", "text": "`app/blog/id/page.tsx`", "isCorrect": false, "explanation": "Without brackets, this matches only the literal URL `/blog/id`, not anything dynamic." }
+    ]
+  },
+  {
+    "id": "quiz-nextjs-ch4-dynamic-routes-3",
+    "lessonId": "nextjs-ch4-dynamic-routes",
+    "topicSlug": "nextjs",
+    "codebaseSlug": "learning-lab",
+    "question": "Which is NOT a way to handle variable URL parts in Next.js?",
+    "type": "discrimination",
+    "options": [
+      { "id": "a", "text": "Dynamic segments: `[slug]`", "isCorrect": false, "explanation": "Real feature — captures a single segment as a parameter." },
+      { "id": "b", "text": "Catch-all segments: `[...slug]`", "isCorrect": false, "explanation": "Real feature — captures any remaining path as an array." },
+      { "id": "c", "text": "Query parameters: `/blog?slug=hello`", "isCorrect": false, "explanation": "Real way — though it puts the value in the query string instead of the path." },
+      { "id": "d", "text": "Regex-matched folders: `[/^post-\\d+$/]`", "isCorrect": true, "explanation": "Correct. Next.js doesn't support regex in folder names. Brackets and catch-alls are the supported patterns." }
+    ]
+  },
+  {
+    "id": "quiz-nextjs-ch5-link-1",
+    "lessonId": "nextjs-ch5-link",
+    "topicSlug": "nextjs",
+    "codebaseSlug": "learning-lab",
+    "question": "What's the main advantage of `Link` over a plain `<a href>` for internal navigation?",
+    "type": "recall",
+    "options": [
+      { "id": "a", "text": "Link works on older browsers that don't support `<a>`", "isCorrect": false, "explanation": "All browsers support `<a>`. The difference is behavior, not compatibility." },
+      { "id": "b", "text": "Link avoids a full page reload and pre-fetches the destination", "isCorrect": true, "explanation": "Correct. Link swaps in just the new page and pre-fetches, making transitions feel instant." },
+      { "id": "c", "text": "Link automatically opens external URLs in a new tab", "isCorrect": false, "explanation": "Link doesn't change tab behavior — that's the `target=\"_blank\"` attribute on either Link or `<a>`." },
+      { "id": "d", "text": "Link is encrypted, while `<a>` is not", "isCorrect": false, "explanation": "Encryption is about the URL (HTTPS), not the link element. Both behave the same way at the network layer." }
+    ]
+  },
+  {
+    "id": "quiz-nextjs-ch5-link-2",
+    "lessonId": "nextjs-ch5-link",
+    "topicSlug": "nextjs",
+    "codebaseSlug": "learning-lab",
+    "question": "You're adding a link from your app to an external GitHub repo. Link or `<a>`?",
+    "type": "application",
+    "options": [
+      { "id": "a", "text": "`<Link href=\"https://github.com/...\">`", "isCorrect": false, "explanation": "Works but isn't what Link is for. External navigations don't benefit from Link's pre-fetching." },
+      { "id": "b", "text": "`<a href=\"https://github.com/...\">`", "isCorrect": true, "explanation": "Correct. Plain anchor is right for external URLs — Link is meant for internal navigation only." },
+      { "id": "c", "text": "Use `router.push('https://github.com/...')`", "isCorrect": false, "explanation": "Programmatic navigation isn't suited for external URLs — and a click on a link is the natural pattern." },
+      { "id": "d", "text": "Use a form with method=\"get\" pointing at GitHub", "isCorrect": false, "explanation": "Forms aren't for navigation links. A plain anchor is far simpler." }
+    ]
+  },
+  {
+    "id": "quiz-nextjs-ch5-link-3",
+    "lessonId": "nextjs-ch5-link",
+    "topicSlug": "nextjs",
+    "codebaseSlug": "learning-lab",
+    "question": "Which is NOT a behavior of Next.js's `Link`?",
+    "type": "discrimination",
+    "options": [
+      { "id": "a", "text": "Intercepts clicks and avoids a full page reload", "isCorrect": false, "explanation": "Real behavior — that's the core feature of Link." },
+      { "id": "b", "text": "Pre-fetches the destination when it scrolls into view", "isCorrect": false, "explanation": "Real behavior — makes transitions feel instant." },
+      { "id": "c", "text": "Renders as an `<a>` tag in the final HTML", "isCorrect": false, "explanation": "Real behavior — Link is a wrapper around an anchor for accessibility and SEO." },
+      { "id": "d", "text": "Encrypts the URL before the user clicks", "isCorrect": true, "explanation": "Correct. Link doesn't encrypt anything — it just intercepts the click and handles navigation." }
+    ]
+  },
+  {
+    "id": "quiz-shadcn-ch1-component-library-1",
+    "lessonId": "shadcn-ch1-component-library",
     "topicSlug": "shadcn",
     "codebaseSlug": "learning-lab",
-    "question": "How does shadcn deliver components, mechanically?",
+    "question": "What is a component library, in one sentence?",
     "type": "recall",
-    "answer": "A CLI copies the component source files into your repo. There's no npm package to import from.",
-    "distractors": ["As an npm package", "Through a CDN", "As a Figma plugin"]
+    "options": [
+      { "id": "a", "text": "A CSS framework that styles plain HTML elements", "isCorrect": false, "explanation": "That's a styling framework like Tailwind or Bootstrap CSS. Component libraries also include behavior." },
+      { "id": "b", "text": "A collection of pre-built UI pieces you drop into your app", "isCorrect": true, "explanation": "Correct. Buttons, dialogs, dropdowns — pre-built so you don't recreate them every project." },
+      { "id": "c", "text": "A backend service that renders UI on the server", "isCorrect": false, "explanation": "That describes server-side rendering, not a component library." },
+      { "id": "d", "text": "A design tool for sketching components", "isCorrect": false, "explanation": "That's a design tool like Figma. Component libraries are code, not design files." }
+    ]
   },
   {
-    "id": "q-shadcn-2",
-    "lessonId": "shadcn-copies-components",
+    "id": "quiz-shadcn-ch1-component-library-2",
+    "lessonId": "shadcn-ch1-component-library",
     "topicSlug": "shadcn",
     "codebaseSlug": "learning-lab",
-    "question": "What's the main trade-off of shadcn's copy-into-your-repo approach?",
-    "type": "critique",
-    "answer": "You own and can edit the code (good), but you're also responsible for maintaining it — no `npm update` to fix bugs."
+    "question": "Your design is highly bespoke and matches no existing library. Best approach?",
+    "type": "application",
+    "options": [
+      { "id": "a", "text": "Pick a heavily styled library and fight it to match", "isCorrect": false, "explanation": "Fighting a library's defaults is a common failure mode — you spend more time overriding than building." },
+      { "id": "b", "text": "Use unstyled primitives and own the styling layer", "isCorrect": true, "explanation": "Correct. Unstyled primitives give you behavior and accessibility while leaving styling fully open." },
+      { "id": "c", "text": "Skip components entirely and write everything inline", "isCorrect": false, "explanation": "You lose accessibility and behavior reuse. Primitives still help — only the styling is bespoke." },
+      { "id": "d", "text": "Use a CSS framework like Bootstrap", "isCorrect": false, "explanation": "Bootstrap has strong default styling — that's the opposite of what you want for a bespoke design." }
+    ]
   },
   {
-    "id": "q-shadcn-3",
-    "lessonId": "shadcn-copies-components",
+    "id": "quiz-shadcn-ch1-component-library-3",
+    "lessonId": "shadcn-ch1-component-library",
     "topicSlug": "shadcn",
     "codebaseSlug": "learning-lab",
-    "question": "When might MUI or Chakra be a better choice than shadcn?",
-    "type": "application",
-    "answer": "When you want strong defaults and centralized updates with less customization — typical for large teams with many junior devs."
+    "question": "Which is NOT a typical thing component libraries provide?",
+    "type": "discrimination",
+    "options": [
+      { "id": "a", "text": "Accessible keyboard handling for dropdowns and dialogs", "isCorrect": false, "explanation": "Real provision — solving accessibility once is a key reason teams use libraries." },
+      { "id": "b", "text": "Pre-styled visual defaults for common UI patterns", "isCorrect": false, "explanation": "Real provision (for styled libraries) — strong defaults out of the box." },
+      { "id": "c", "text": "Focus management and ARIA attributes", "isCorrect": false, "explanation": "Real provision — these are the hard parts of accessible UI that libraries solve." },
+      { "id": "d", "text": "Server-side state management for the whole app", "isCorrect": true, "explanation": "Correct. App-wide state is the job of state libraries (Zustand, Redux), not component libraries." }
+    ]
   },
   {
-    "id": "q-git-1",
-    "lessonId": "git-add-commit-push",
-    "topicSlug": "git",
+    "id": "quiz-shadcn-ch2-copy-not-install-1",
+    "lessonId": "shadcn-ch2-copy-not-install",
+    "topicSlug": "shadcn",
     "codebaseSlug": "learning-lab",
-    "question": "In one sentence, what does `git add` do?",
+    "question": "How does shadcn deliver components to your project?",
     "type": "recall",
-    "answer": "It stages changes — telling git which changes to include in the next commit.",
-    "distractors": ["It uploads changes to GitHub", "It creates a new branch", "It saves a snapshot in history"]
+    "options": [
+      { "id": "a", "text": "As an npm package you import from", "isCorrect": false, "explanation": "Common pattern, but not how shadcn works. There's no npm package to import." },
+      { "id": "b", "text": "A CLI copies the source files into your repo", "isCorrect": true, "explanation": "Correct. Each component is added by the CLI as actual code in your own files — you own it." },
+      { "id": "c", "text": "Through a CDN you link in your HTML", "isCorrect": false, "explanation": "CDN delivery is for runtime assets like fonts. shadcn ships source code at install time." },
+      { "id": "d", "text": "As a Figma plugin that exports components", "isCorrect": false, "explanation": "Figma plugins generate code from designs. shadcn is purely a code-delivery tool." }
+    ]
   },
   {
-    "id": "q-git-2",
-    "lessonId": "git-add-commit-push",
-    "topicSlug": "git",
+    "id": "quiz-shadcn-ch2-copy-not-install-2",
+    "lessonId": "shadcn-ch2-copy-not-install",
+    "topicSlug": "shadcn",
     "codebaseSlug": "learning-lab",
-    "question": "You ran add and commit but teammates can't see your changes. What did you forget?",
+    "question": "Your team wants strong defaults and easy library updates with minimal customization. shadcn or a traditional library?",
     "type": "application",
-    "answer": "`git push` — commits stay local until you push them to the remote."
+    "options": [
+      { "id": "a", "text": "shadcn — you'll never want updates anyway", "isCorrect": false, "explanation": "Not quite — shadcn fits teams that want control, not teams that want hands-off updates." },
+      { "id": "b", "text": "A traditional library like MUI or Chakra", "isCorrect": true, "explanation": "Correct. Traditional libraries handle updates centrally and constrain customization, matching the goal." },
+      { "id": "c", "text": "Write everything from scratch in plain CSS", "isCorrect": false, "explanation": "More work, less standardization — doesn't match the goal of strong defaults with easy updates." },
+      { "id": "d", "text": "Use only inline styles", "isCorrect": false, "explanation": "Inline styles bypass libraries entirely — no defaults, no updates, no system." }
+    ]
   },
   {
-    "id": "q-git-3",
-    "lessonId": "git-add-commit-push",
-    "topicSlug": "git",
+    "id": "quiz-shadcn-ch2-copy-not-install-3",
+    "lessonId": "shadcn-ch2-copy-not-install",
+    "topicSlug": "shadcn",
     "codebaseSlug": "learning-lab",
-    "question": "Why prefer many small commits over a few big ones?",
-    "type": "critique",
-    "answer": "Small commits are easier to review, easier to undo, and make the history easier to read."
+    "question": "Which is NOT a consequence of shadcn's copy-into-your-repo approach?",
+    "type": "discrimination",
+    "options": [
+      { "id": "a", "text": "You can edit components freely without forking a library", "isCorrect": false, "explanation": "Real consequence — full ownership is the whole point." },
+      { "id": "b", "text": "There's no `npm update` to bring in upstream fixes", "isCorrect": false, "explanation": "Real consequence — the trade-off for ownership is manual maintenance." },
+      { "id": "c", "text": "Your bundle size goes up because you can't tree-shake", "isCorrect": true, "explanation": "Correct. Tree-shaking works fine — and arguably better — because the code is in your project and your bundler sees what's used." },
+      { "id": "d", "text": "Bug fixes from upstream must be applied manually", "isCorrect": false, "explanation": "Real consequence — you re-copy or diff manually when shadcn ships changes." }
+    ]
   },
   {
-    "id": "q-docker-1",
-    "lessonId": "docker-compose-up",
+    "id": "quiz-shadcn-ch3-reading-file-1",
+    "lessonId": "shadcn-ch3-reading-file",
+    "topicSlug": "shadcn",
+    "codebaseSlug": "learning-lab",
+    "question": "What is `cva` (class-variance-authority) used for in a shadcn component?",
+    "type": "recall",
+    "options": [
+      { "id": "a", "text": "Compiling TypeScript types to JavaScript", "isCorrect": false, "explanation": "TypeScript handles compilation. cva is a runtime helper for class names." },
+      { "id": "b", "text": "Mapping prop values like `variant=\"outline\"` to bundles of CSS classes", "isCorrect": true, "explanation": "Correct. cva declares variants and lets the component pick the right class bundle by prop." },
+      { "id": "c", "text": "Validating that props are the right type", "isCorrect": false, "explanation": "That's TypeScript's job (or libraries like zod). cva is about classes, not type validation." },
+      { "id": "d", "text": "Animating components between states", "isCorrect": false, "explanation": "Animation libraries (Framer Motion) handle that. cva is purely a class-name helper." }
+    ]
+  },
+  {
+    "id": "quiz-shadcn-ch3-reading-file-2",
+    "lessonId": "shadcn-ch3-reading-file",
+    "topicSlug": "shadcn",
+    "codebaseSlug": "learning-lab",
+    "question": "You want to add a new `\"danger\"` variant to a Button. Where does it go?",
+    "type": "application",
+    "options": [
+      { "id": "a", "text": "In the `cva` definition's `variants` object", "isCorrect": true, "explanation": "Correct. Add a new entry under `variant`, with the danger-mode class bundle, and update the prop type." },
+      { "id": "b", "text": "In a new wrapper component called `DangerButton`", "isCorrect": false, "explanation": "Works but creates fragmentation — variants exist exactly so you don't need a new component per look." },
+      { "id": "c", "text": "In a separate CSS file with `!important` rules", "isCorrect": false, "explanation": "Goes against the shadcn pattern. Variants live in the cva definition." },
+      { "id": "d", "text": "In the parent layout's stylesheet", "isCorrect": false, "explanation": "That's brittle and disconnected from the component. cva is exactly where this belongs." }
+    ]
+  },
+  {
+    "id": "quiz-shadcn-ch3-reading-file-3",
+    "lessonId": "shadcn-ch3-reading-file",
+    "topicSlug": "shadcn",
+    "codebaseSlug": "learning-lab",
+    "question": "Which is NOT a typical part of a shadcn component file?",
+    "type": "discrimination",
+    "options": [
+      { "id": "a", "text": "An import of a Radix primitive for behavior", "isCorrect": false, "explanation": "Typical — Radix provides accessibility and keyboard handling under the hood." },
+      { "id": "b", "text": "A `cva` definition for variants", "isCorrect": false, "explanation": "Typical — variants are declared with cva." },
+      { "id": "c", "text": "A React component wrapping the primitive", "isCorrect": false, "explanation": "Typical — a thin component picks classes and renders the primitive." },
+      { "id": "d", "text": "A registered global event listener on `window`", "isCorrect": true, "explanation": "Correct. Components don't typically attach global listeners — Radix handles internal events locally." }
+    ]
+  },
+  {
+    "id": "quiz-shadcn-ch4-cn-helper-1",
+    "lessonId": "shadcn-ch4-cn-helper",
+    "topicSlug": "shadcn",
+    "codebaseSlug": "learning-lab",
+    "question": "What does the `cn()` helper do?",
+    "type": "recall",
+    "options": [
+      { "id": "a", "text": "Joins class strings and resolves Tailwind conflicts", "isCorrect": true, "explanation": "Correct. It combines clsx (joining) with tailwind-merge (last-class-wins for conflicting utilities)." },
+      { "id": "b", "text": "Compiles JSX to JavaScript", "isCorrect": false, "explanation": "That's the job of Babel or SWC at build time, not a runtime helper." },
+      { "id": "c", "text": "Validates that class names exist in Tailwind", "isCorrect": false, "explanation": "Editor tooling (IntelliSense) handles validation. cn doesn't check existence." },
+      { "id": "d", "text": "Renames CSS classes for production builds", "isCorrect": false, "explanation": "Class renaming happens in CSS Modules. cn doesn't rename anything." }
+    ]
+  },
+  {
+    "id": "quiz-shadcn-ch4-cn-helper-2",
+    "lessonId": "shadcn-ch4-cn-helper",
+    "topicSlug": "shadcn",
+    "codebaseSlug": "learning-lab",
+    "question": "A caller passes `className=\"px-8\"` to override your component's `px-4`. Where should you put className in `cn()`?",
+    "type": "application",
+    "options": [
+      { "id": "a", "text": "Last — `cn(base, conditional, className)`", "isCorrect": true, "explanation": "Correct. Tailwind-merge resolves conflicts by keeping the last conflicting class — `px-8` beats `px-4`." },
+      { "id": "b", "text": "First — `cn(className, base, conditional)`", "isCorrect": false, "explanation": "Then the base `px-4` would win, ignoring the caller's override. The opposite of what we want." },
+      { "id": "c", "text": "Skip className and require a `padding` prop instead", "isCorrect": false, "explanation": "Defeats the standard composition pattern. Accept className and merge it last." },
+      { "id": "d", "text": "Inside an if-statement that checks for conflicts", "isCorrect": false, "explanation": "Tailwind-merge already handles conflict resolution — you don't need to manually check." }
+    ]
+  },
+  {
+    "id": "quiz-shadcn-ch4-cn-helper-3",
+    "lessonId": "shadcn-ch4-cn-helper",
+    "topicSlug": "shadcn",
+    "codebaseSlug": "learning-lab",
+    "question": "Which is NOT a job `cn()` does?",
+    "type": "discrimination",
+    "options": [
+      { "id": "a", "text": "Joining multiple class strings into one", "isCorrect": false, "explanation": "Real job — clsx handles joining inside cn." },
+      { "id": "b", "text": "Filtering out falsy values (false, null, undefined)", "isCorrect": false, "explanation": "Real job — `cn(active && 'on')` drops the class when `active` is false." },
+      { "id": "c", "text": "Resolving conflicts so the last conflicting utility wins", "isCorrect": false, "explanation": "Real job — tailwind-merge does the conflict resolution inside cn." },
+      { "id": "d", "text": "Generating new Tailwind utilities on the fly", "isCorrect": true, "explanation": "Correct. cn doesn't generate utilities — Tailwind's compiler does that at build time. cn only assembles existing classes." }
+    ]
+  },
+  {
+    "id": "quiz-typescript-ch1-what-is-1",
+    "lessonId": "typescript-ch1-what-is",
+    "topicSlug": "typescript",
+    "codebaseSlug": "learning-lab",
+    "question": "What is TypeScript, in one sentence?",
+    "type": "recall",
+    "options": [
+      { "id": "a", "text": "A new language that replaces JavaScript at runtime", "isCorrect": false, "explanation": "TypeScript compiles to JavaScript — the runtime sees only JavaScript, not TypeScript." },
+      { "id": "b", "text": "JavaScript plus type annotations checked at compile time", "isCorrect": true, "explanation": "Correct. You annotate code with types, a compiler checks them, then strips them to produce plain JavaScript." },
+      { "id": "c", "text": "A faster runtime for JavaScript apps", "isCorrect": false, "explanation": "TypeScript doesn't change runtime speed — its job is compile-time type-checking, not execution." },
+      { "id": "d", "text": "A linter that reformats JavaScript code", "isCorrect": false, "explanation": "Linters check style. TypeScript is a type system, which is a different category of tool." }
+    ]
+  },
+  {
+    "id": "quiz-typescript-ch1-what-is-2",
+    "lessonId": "typescript-ch1-what-is",
+    "topicSlug": "typescript",
+    "codebaseSlug": "learning-lab",
+    "question": "You typo a property name in an object — `user.namme`. What catches it before runtime?",
+    "type": "application",
+    "options": [
+      { "id": "a", "text": "The TypeScript compiler flags `namme` as not on the type", "isCorrect": true, "explanation": "Correct. The compiler checks property access against the type and surfaces the typo immediately." },
+      { "id": "b", "text": "The browser console shows the typo when the page loads", "isCorrect": false, "explanation": "That's runtime — and `user.namme` would silently return `undefined`, not throw." },
+      { "id": "c", "text": "ESLint flags it as a style violation", "isCorrect": false, "explanation": "ESLint checks style and patterns, not type correctness. TypeScript handles this." },
+      { "id": "d", "text": "Webpack rejects the build with a syntax error", "isCorrect": false, "explanation": "Webpack bundles code; it doesn't check property names against types. That's TypeScript's job." }
+    ]
+  },
+  {
+    "id": "quiz-typescript-ch1-what-is-3",
+    "lessonId": "typescript-ch1-what-is",
+    "topicSlug": "typescript",
+    "codebaseSlug": "learning-lab",
+    "question": "Which is NOT true about TypeScript?",
+    "type": "discrimination",
+    "options": [
+      { "id": "a", "text": "TypeScript compiles to plain JavaScript", "isCorrect": false, "explanation": "True — types are erased at build time; only JavaScript runs." },
+      { "id": "b", "text": "Type errors prevent runtime crashes for a class of bugs", "isCorrect": false, "explanation": "True — type-checking catches issues like null access and wrong argument types before deploy." },
+      { "id": "c", "text": "TypeScript types exist at runtime and can be checked", "isCorrect": true, "explanation": "Correct. Types are erased — they don't exist at runtime. Use libraries like zod for runtime validation." },
+      { "id": "d", "text": "Most modern frontend projects use TypeScript by default", "isCorrect": false, "explanation": "True — TypeScript is the dominant default for new web projects." }
+    ]
+  },
+  {
+    "id": "quiz-typescript-ch2-common-types-1",
+    "lessonId": "typescript-ch2-common-types",
+    "topicSlug": "typescript",
+    "codebaseSlug": "learning-lab",
+    "question": "How do you type a variable holding an array of strings?",
+    "type": "recall",
+    "options": [
+      { "id": "a", "text": "`Array<string>` or `string[]`", "isCorrect": true, "explanation": "Correct. Both are valid TypeScript syntax for the same thing — pick the one your codebase uses." },
+      { "id": "b", "text": "`Array(string)`", "isCorrect": false, "explanation": "That's runtime JavaScript (a constructor call), not TypeScript syntax for a type." },
+      { "id": "c", "text": "`string<Array>`", "isCorrect": false, "explanation": "Generic syntax has the angle brackets after the type name, not the other way around." },
+      { "id": "d", "text": "`[string]`", "isCorrect": false, "explanation": "That's a tuple type with exactly one string — different from an array of strings." }
+    ]
+  },
+  {
+    "id": "quiz-typescript-ch2-common-types-2",
+    "lessonId": "typescript-ch2-common-types",
+    "topicSlug": "typescript",
+    "codebaseSlug": "learning-lab",
+    "question": "A status field can only be one of `'active'`, `'inactive'`, or `'pending'`. Best type?",
+    "type": "application",
+    "options": [
+      { "id": "a", "text": "`string`", "isCorrect": false, "explanation": "Allows any string — `'lol'` would pass type-checking even though it isn't a valid status." },
+      { "id": "b", "text": "`'active' | 'inactive' | 'pending'`", "isCorrect": true, "explanation": "Correct. A string-literal union restricts the value to exactly those three." },
+      { "id": "c", "text": "`any`", "isCorrect": false, "explanation": "`any` opts out of type-checking entirely. Specific literal unions are far stronger." },
+      { "id": "d", "text": "`string[]`", "isCorrect": false, "explanation": "That's an array of strings, not a single value constrained to three options." }
+    ]
+  },
+  {
+    "id": "quiz-typescript-ch2-common-types-3",
+    "lessonId": "typescript-ch2-common-types",
+    "topicSlug": "typescript",
+    "codebaseSlug": "learning-lab",
+    "question": "Which is NOT a TypeScript primitive type?",
+    "type": "discrimination",
+    "options": [
+      { "id": "a", "text": "`string`", "isCorrect": false, "explanation": "Real primitive — for text values." },
+      { "id": "b", "text": "`number`", "isCorrect": false, "explanation": "Real primitive — for numeric values, including integers and floats." },
+      { "id": "c", "text": "`boolean`", "isCorrect": false, "explanation": "Real primitive — for true/false." },
+      { "id": "d", "text": "`integer`", "isCorrect": true, "explanation": "Correct. TypeScript doesn't have an `integer` type — it has `number` which covers all numeric values." }
+    ]
+  },
+  {
+    "id": "quiz-typescript-ch3-type-vs-interface-1",
+    "lessonId": "typescript-ch3-type-vs-interface",
+    "topicSlug": "typescript",
+    "codebaseSlug": "learning-lab",
+    "question": "What's the main practical difference between `type` and `interface`?",
+    "type": "recall",
+    "options": [
+      { "id": "a", "text": "Interfaces are slower at runtime than types", "isCorrect": false, "explanation": "Neither exists at runtime — they're both erased at compile time." },
+      { "id": "b", "text": "Type aliases can express unions; interfaces cannot", "isCorrect": true, "explanation": "Correct. `type X = A | B` works; you can't write that with an interface." },
+      { "id": "c", "text": "Interfaces are only for classes, not plain objects", "isCorrect": false, "explanation": "Interfaces describe any object shape, not just class shapes." },
+      { "id": "d", "text": "Type aliases can't describe object shapes", "isCorrect": false, "explanation": "Type aliases can absolutely describe object shapes — they're nearly interchangeable with interfaces for that." }
+    ]
+  },
+  {
+    "id": "quiz-typescript-ch3-type-vs-interface-2",
+    "lessonId": "typescript-ch3-type-vs-interface",
+    "topicSlug": "typescript",
+    "codebaseSlug": "learning-lab",
+    "question": "You need to define `Status` as either `'active'`, `'inactive'`, or `'pending'`. Type or interface?",
+    "type": "application",
+    "options": [
+      { "id": "a", "text": "Interface — `interface Status { ... }`", "isCorrect": false, "explanation": "Interfaces describe object shapes, not unions. You can't express this directly with an interface." },
+      { "id": "b", "text": "Type alias — `type Status = 'active' | 'inactive' | 'pending'`", "isCorrect": true, "explanation": "Correct. Unions are exactly what type aliases handle that interfaces don't." },
+      { "id": "c", "text": "Enum — `enum Status { Active, Inactive, Pending }`", "isCorrect": false, "explanation": "Works but enums emit runtime code and aren't string literals. A type alias is usually preferred." },
+      { "id": "d", "text": "Class — `class Status { ... }`", "isCorrect": false, "explanation": "Classes are runtime constructs and overkill for a simple union of values." }
+    ]
+  },
+  {
+    "id": "quiz-typescript-ch3-type-vs-interface-3",
+    "lessonId": "typescript-ch3-type-vs-interface",
+    "topicSlug": "typescript",
+    "codebaseSlug": "learning-lab",
+    "question": "Which is NOT a real difference between `type` and `interface`?",
+    "type": "discrimination",
+    "options": [
+      { "id": "a", "text": "Interfaces support declaration merging", "isCorrect": false, "explanation": "Real difference — declaring the same interface twice merges them; types don't merge." },
+      { "id": "b", "text": "Type aliases can express unions and tuples", "isCorrect": false, "explanation": "Real difference — types handle unions, intersections, tuples; interfaces don't directly." },
+      { "id": "c", "text": "Interfaces produce smaller compiled output than types", "isCorrect": true, "explanation": "Correct. Both are erased at compile time — there's no difference in output size." },
+      { "id": "d", "text": "Both can describe plain object shapes", "isCorrect": false, "explanation": "That's a similarity, not a difference — for plain objects they're essentially interchangeable." }
+    ]
+  },
+  {
+    "id": "quiz-typescript-ch4-function-signatures-1",
+    "lessonId": "typescript-ch4-function-signatures",
+    "topicSlug": "typescript",
+    "codebaseSlug": "learning-lab",
+    "question": "What does `: void` after a function's parameters mean?",
+    "type": "recall",
+    "options": [
+      { "id": "a", "text": "The function takes no arguments", "isCorrect": false, "explanation": "Arguments are inside the parens. `void` describes what comes out, not what goes in." },
+      { "id": "b", "text": "The function returns no useful value", "isCorrect": true, "explanation": "Correct. `void` is the return type for functions that don't return anything (or whose return shouldn't be used)." },
+      { "id": "c", "text": "The function can throw an error", "isCorrect": false, "explanation": "TypeScript doesn't have typed exceptions. `void` is just about the return value." },
+      { "id": "d", "text": "The function is asynchronous", "isCorrect": false, "explanation": "Async functions return `Promise<T>`, not `void`. The `async` keyword marks them." }
+    ]
+  },
+  {
+    "id": "quiz-typescript-ch4-function-signatures-2",
+    "lessonId": "typescript-ch4-function-signatures",
+    "topicSlug": "typescript",
+    "codebaseSlug": "learning-lab",
+    "question": "A `greet` function takes an optional name. How do you type the parameter?",
+    "type": "application",
+    "options": [
+      { "id": "a", "text": "`function greet(name: string?)`", "isCorrect": false, "explanation": "The `?` goes before the colon, not after. Correct shape is `name?: string`." },
+      { "id": "b", "text": "`function greet(name?: string)`", "isCorrect": true, "explanation": "Correct. The `?` after the parameter name makes it optional — callers can omit it." },
+      { "id": "c", "text": "`function greet(name: string | undefined)`", "isCorrect": false, "explanation": "That works, but callers must explicitly pass `undefined`. `name?` lets them omit the argument entirely." },
+      { "id": "d", "text": "`function greet(name = string)`", "isCorrect": false, "explanation": "That's a default value syntax but the right side should be a value, not a type." }
+    ]
+  },
+  {
+    "id": "quiz-typescript-ch4-function-signatures-3",
+    "lessonId": "typescript-ch4-function-signatures",
+    "topicSlug": "typescript",
+    "codebaseSlug": "learning-lab",
+    "question": "Which is NOT part of a typical function signature?",
+    "type": "discrimination",
+    "options": [
+      { "id": "a", "text": "Parameter types — `(name: string, age: number)`", "isCorrect": false, "explanation": "Real part — parameter typing is the most common annotation." },
+      { "id": "b", "text": "A return type after the parens — `: string`", "isCorrect": false, "explanation": "Real part — return types are commonly annotated, especially for exports." },
+      { "id": "c", "text": "Generic type parameters — `<T>` before the parens", "isCorrect": false, "explanation": "Real part — generics introduce type variables used inside the function." },
+      { "id": "d", "text": "Memory allocation hints — `@stack` or `@heap`", "isCorrect": true, "explanation": "Correct. TypeScript doesn't have memory hints — that's from low-level languages, not TS." }
+    ]
+  },
+  {
+    "id": "quiz-backend-basics-ch1-what-is-backend-1",
+    "lessonId": "backend-basics-ch1-what-is-backend",
+    "topicSlug": "backend-basics",
+    "codebaseSlug": "learning-lab",
+    "question": "What does the backend primarily do in a typical web app?",
+    "type": "recall",
+    "options": [
+      { "id": "a", "text": "Render the UI in the user's browser", "isCorrect": false, "explanation": "Rendering UI is the frontend's job. The backend supplies data the frontend renders." },
+      { "id": "b", "text": "Handle requests, talk to the database, send data back", "isCorrect": true, "explanation": "Correct. Receive requests, do business logic and persistence, return responses — that's the backend's role." },
+      { "id": "c", "text": "Style elements with CSS and Tailwind", "isCorrect": false, "explanation": "Styling lives in the frontend, alongside the markup it applies to." },
+      { "id": "d", "text": "Generate sitemaps for search engines", "isCorrect": false, "explanation": "Backends can do this but it's a narrow task, not their primary job." }
+    ]
+  },
+  {
+    "id": "quiz-backend-basics-ch1-what-is-backend-2",
+    "lessonId": "backend-basics-ch1-what-is-backend",
+    "topicSlug": "backend-basics",
+    "codebaseSlug": "learning-lab",
+    "question": "Where should auth checks (\"is this user allowed to delete this resource?\") live?",
+    "type": "application",
+    "options": [
+      { "id": "a", "text": "On the frontend, before the request is sent", "isCorrect": false, "explanation": "Frontend checks can be bypassed — the user can call your API directly. They're UX, not security." },
+      { "id": "b", "text": "On the backend, before performing the action", "isCorrect": true, "explanation": "Correct. The backend must be the source of truth for permissions — it's the only side users can't tamper with." },
+      { "id": "c", "text": "In the user's browser local storage", "isCorrect": false, "explanation": "Anything in local storage is tamperable by the user. Worthless for security checks." },
+      { "id": "d", "text": "On both equally — they should match exactly", "isCorrect": false, "explanation": "Frontend can mirror checks for UX, but the backend's check is the only one that actually enforces anything." }
+    ]
+  },
+  {
+    "id": "quiz-backend-basics-ch1-what-is-backend-3",
+    "lessonId": "backend-basics-ch1-what-is-backend",
+    "topicSlug": "backend-basics",
+    "codebaseSlug": "learning-lab",
+    "question": "Which is NOT typically a backend job?",
+    "type": "discrimination",
+    "options": [
+      { "id": "a", "text": "Storing data permanently in a database", "isCorrect": false, "explanation": "Typical backend job — data persistence is its core responsibility." },
+      { "id": "b", "text": "Verifying who the logged-in user is", "isCorrect": false, "explanation": "Typical backend job — auth verification must happen server-side." },
+      { "id": "c", "text": "Animating elements on the page as the user scrolls", "isCorrect": true, "explanation": "Correct. Scroll animations are visual and live in the browser — pure frontend work." },
+      { "id": "d", "text": "Running heavy computation the browser can't handle", "isCorrect": false, "explanation": "Typical backend job — offload heavy work where you have predictable CPU and memory." }
+    ]
+  },
+  {
+    "id": "quiz-backend-basics-ch2-api-endpoint-1",
+    "lessonId": "backend-basics-ch2-api-endpoint",
+    "topicSlug": "backend-basics",
+    "codebaseSlug": "learning-lab",
+    "question": "What three parts make up an API endpoint?",
+    "type": "recall",
+    "options": [
+      { "id": "a", "text": "Method, path, and (optionally) body", "isCorrect": true, "explanation": "Correct. The verb (GET/POST), the URL path, and the request body for create/update operations." },
+      { "id": "b", "text": "Hostname, port, and protocol", "isCorrect": false, "explanation": "Those are parts of any URL, not what defines an endpoint. The endpoint is method + path + body." },
+      { "id": "c", "text": "Headers, cookies, and authentication", "isCorrect": false, "explanation": "These accompany requests but aren't what defines the endpoint itself." },
+      { "id": "d", "text": "Status code, body, and content type", "isCorrect": false, "explanation": "Those describe the response, not the endpoint definition on the server." }
+    ]
+  },
+  {
+    "id": "quiz-backend-basics-ch2-api-endpoint-2",
+    "lessonId": "backend-basics-ch2-api-endpoint",
+    "topicSlug": "backend-basics",
+    "codebaseSlug": "learning-lab",
+    "question": "You're creating a new user. Which HTTP method?",
+    "type": "application",
+    "options": [
+      { "id": "a", "text": "`GET /users` with user data in URL query", "isCorrect": false, "explanation": "GET is for reading. URL queries are visible in browser history — a bad place for new records." },
+      { "id": "b", "text": "`POST /users` with user data in the body", "isCorrect": true, "explanation": "Correct. POST means \"create something new\" and the body carries the data." },
+      { "id": "c", "text": "`DELETE /users` with user data in the body", "isCorrect": false, "explanation": "DELETE means \"remove,\" not \"create.\" Methods carry semantic meaning." },
+      { "id": "d", "text": "`PUT /users/42` with user data in the body", "isCorrect": false, "explanation": "PUT is for replacing an existing resource — you'd need to know the ID up front, which you don't yet." }
+    ]
+  },
+  {
+    "id": "quiz-backend-basics-ch2-api-endpoint-3",
+    "lessonId": "backend-basics-ch2-api-endpoint",
+    "topicSlug": "backend-basics",
+    "codebaseSlug": "learning-lab",
+    "question": "Which is NOT part of an API endpoint's definition?",
+    "type": "discrimination",
+    "options": [
+      { "id": "a", "text": "The HTTP method (GET, POST, PUT, DELETE)", "isCorrect": false, "explanation": "Real part — method describes the action." },
+      { "id": "b", "text": "The URL path (e.g. `/users/42`)", "isCorrect": false, "explanation": "Real part — path identifies the resource." },
+      { "id": "c", "text": "The request body (for create/update)", "isCorrect": false, "explanation": "Real part — body carries data for endpoints that need it." },
+      { "id": "d", "text": "The user's IP address", "isCorrect": true, "explanation": "Correct. IP is environmental, not part of the endpoint definition. The same endpoint serves any IP." }
+    ]
+  },
+  {
+    "id": "quiz-backend-basics-ch3-database-table-1",
+    "lessonId": "backend-basics-ch3-database-table",
+    "topicSlug": "backend-basics",
+    "codebaseSlug": "learning-lab",
+    "question": "What's a database table, in one sentence?",
+    "type": "recall",
+    "options": [
+      { "id": "a", "text": "A list of files stored in a folder", "isCorrect": false, "explanation": "That's filesystem storage, not a database table. Tables have structured columns and rows." },
+      { "id": "b", "text": "Rows and columns of records, like a stricter spreadsheet", "isCorrect": true, "explanation": "Correct. Each column has a defined type; each row is one record; the database enforces the structure." },
+      { "id": "c", "text": "A single JSON document with nested fields", "isCorrect": false, "explanation": "That's closer to a document database (MongoDB), not a relational table." },
+      { "id": "d", "text": "A page of HTML with `<table>` elements", "isCorrect": false, "explanation": "HTML tables are display elements. Database tables are storage structures — different worlds." }
+    ]
+  },
+  {
+    "id": "quiz-backend-basics-ch3-database-table-2",
+    "lessonId": "backend-basics-ch3-database-table",
+    "topicSlug": "backend-basics",
+    "codebaseSlug": "learning-lab",
+    "question": "Your app has many concurrent writes from multiple users. JSON file or database?",
+    "type": "application",
+    "options": [
+      { "id": "a", "text": "JSON file — simpler and good enough at any scale", "isCorrect": false, "explanation": "Two writes at once corrupt JSON files easily. Files don't handle concurrency safely." },
+      { "id": "b", "text": "Database — it handles concurrent access safely", "isCorrect": true, "explanation": "Correct. Databases manage concurrent reads/writes without data corruption, which files cannot." },
+      { "id": "c", "text": "Spreadsheet shared via Google Drive", "isCorrect": false, "explanation": "Spreadsheets aren't built for programmatic concurrent writes at scale. Not the right tool here." },
+      { "id": "d", "text": "Plain text file with one record per line", "isCorrect": false, "explanation": "Same problem as JSON — files corrupt under concurrent writes." }
+    ]
+  },
+  {
+    "id": "quiz-backend-basics-ch3-database-table-3",
+    "lessonId": "backend-basics-ch3-database-table",
+    "topicSlug": "backend-basics",
+    "codebaseSlug": "learning-lab",
+    "question": "Which is NOT a benefit of a relational database?",
+    "type": "discrimination",
+    "options": [
+      { "id": "a", "text": "Enforced column types and constraints", "isCorrect": false, "explanation": "Real benefit — type enforcement catches bad data at insert time." },
+      { "id": "b", "text": "Safe concurrent reads and writes", "isCorrect": false, "explanation": "Real benefit — databases handle many simultaneous requests without corruption." },
+      { "id": "c", "text": "Fast lookups even with millions of rows", "isCorrect": false, "explanation": "Real benefit — indexes make queries fast at scale." },
+      { "id": "d", "text": "Automatic deployment to production", "isCorrect": true, "explanation": "Correct. Databases don't deploy themselves — deployment is a separate concern (CI/CD, infra)." }
+    ]
+  },
+  {
+    "id": "quiz-backend-basics-ch4-queue-1",
+    "lessonId": "backend-basics-ch4-queue",
+    "topicSlug": "backend-basics",
+    "codebaseSlug": "learning-lab",
+    "question": "Why does a backend use a queue?",
+    "type": "recall",
+    "options": [
+      { "id": "a", "text": "To order requests alphabetically before answering them", "isCorrect": false, "explanation": "Queues are FIFO lists of jobs, not alphabetical sorters. The ordering is chronological, not by name." },
+      { "id": "b", "text": "To process slow work outside the request-response cycle", "isCorrect": true, "explanation": "Correct. The API hands off to the queue and returns fast; a worker does the slow work in the background." },
+      { "id": "c", "text": "To cache database query results", "isCorrect": false, "explanation": "That's what a cache (Redis as a cache) does, not what a queue does." },
+      { "id": "d", "text": "To serve static assets like images", "isCorrect": false, "explanation": "That's what a CDN does, not a queue. Queues handle work, not files." }
+    ]
+  },
+  {
+    "id": "quiz-backend-basics-ch4-queue-2",
+    "lessonId": "backend-basics-ch4-queue",
+    "topicSlug": "backend-basics",
+    "codebaseSlug": "learning-lab",
+    "question": "After signup, you need to send a confirmation email. Sync in the request or via a queue?",
+    "type": "application",
+    "options": [
+      { "id": "a", "text": "Sync — block the response until the email is sent", "isCorrect": false, "explanation": "Email providers can be slow or down. Blocking the response makes signup feel sluggish or fail." },
+      { "id": "b", "text": "Queue the email and return success immediately", "isCorrect": true, "explanation": "Correct. The signup response returns fast; a worker sends the email reliably (with retries) in the background." },
+      { "id": "c", "text": "Send the email from the user's browser via JavaScript", "isCorrect": false, "explanation": "Browsers can't directly send email — and exposing email credentials to users is unsafe." },
+      { "id": "d", "text": "Wait an hour and send via a daily cron job", "isCorrect": false, "explanation": "Too slow — users expect confirmation right away. Queues handle near-real-time async work." }
+    ]
+  },
+  {
+    "id": "quiz-backend-basics-ch4-queue-3",
+    "lessonId": "backend-basics-ch4-queue",
+    "topicSlug": "backend-basics",
+    "codebaseSlug": "learning-lab",
+    "question": "Which is NOT a typical queue use case?",
+    "type": "discrimination",
+    "options": [
+      { "id": "a", "text": "Encoding uploaded videos in the background", "isCorrect": false, "explanation": "Typical use case — long-running CPU work doesn't fit in a request." },
+      { "id": "b", "text": "Sending transactional emails after signup", "isCorrect": false, "explanation": "Typical use case — flaky external services should be queued with retries." },
+      { "id": "c", "text": "Generating PDFs from user data", "isCorrect": false, "explanation": "Typical use case — PDF generation is slow and unpredictable." },
+      { "id": "d", "text": "Returning the result of a simple lookup query", "isCorrect": true, "explanation": "Correct. Simple, fast operations belong in the synchronous request. Queues are for slow or flaky work." }
+    ]
+  },
+  {
+    "id": "quiz-docker-ch1-container-1",
+    "lessonId": "docker-ch1-container",
+    "topicSlug": "docker",
+    "codebaseSlug": "learning-lab",
+    "question": "What is a Docker container, mechanically?",
+    "type": "recall",
+    "options": [
+      { "id": "a", "text": "A full virtual machine running its own operating system", "isCorrect": false, "explanation": "VMs boot a full OS. Containers share the host kernel — they're lighter and start much faster." },
+      { "id": "b", "text": "A bundled, isolated environment with code and its dependencies", "isCorrect": true, "explanation": "Correct. Containers package an app with everything it needs and run isolated from the rest of the host." },
+      { "id": "c", "text": "A code editor with extensions pre-installed", "isCorrect": false, "explanation": "That's a development environment like VS Code dev containers, not the container concept itself." },
+      { "id": "d", "text": "A cloud server you rent from AWS", "isCorrect": false, "explanation": "Cloud servers can run containers, but a container itself isn't a rented server." }
+    ]
+  },
+  {
+    "id": "quiz-docker-ch1-container-2",
+    "lessonId": "docker-ch1-container",
+    "topicSlug": "docker",
+    "codebaseSlug": "learning-lab",
+    "question": "You want Postgres for local development without installing it system-wide. What's the move?",
+    "type": "application",
+    "options": [
+      { "id": "a", "text": "Compile Postgres from source into a custom folder", "isCorrect": false, "explanation": "Heavy, error-prone, and exactly what containers were designed to avoid." },
+      { "id": "b", "text": "Run a Postgres container with Docker", "isCorrect": true, "explanation": "Correct. One command and Postgres is running, isolated, easy to remove when done." },
+      { "id": "c", "text": "Use a shared Postgres on your teammate's laptop", "isCorrect": false, "explanation": "Network-fragile and slow; you'd lose access when the teammate is offline. Local container is much better." },
+      { "id": "d", "text": "Install it via your system package manager", "isCorrect": false, "explanation": "Works but locks the version to your machine and pollutes the system. Containers are cleaner." }
+    ]
+  },
+  {
+    "id": "quiz-docker-ch1-container-3",
+    "lessonId": "docker-ch1-container",
+    "topicSlug": "docker",
+    "codebaseSlug": "learning-lab",
+    "question": "Which is NOT true about Docker containers compared to virtual machines?",
+    "type": "discrimination",
+    "options": [
+      { "id": "a", "text": "Containers start in seconds; VMs take minutes", "isCorrect": false, "explanation": "True — containers are dramatically faster to start than VMs." },
+      { "id": "b", "text": "Containers share the host kernel; VMs boot their own", "isCorrect": false, "explanation": "True — that's why containers are lightweight." },
+      { "id": "c", "text": "Containers can be created from declarative files (Dockerfile)", "isCorrect": false, "explanation": "True — that's how container images are defined." },
+      { "id": "d", "text": "Containers provide stronger isolation than VMs", "isCorrect": true, "explanation": "Correct. VMs provide stronger isolation than containers — they're full guest OSes." }
+    ]
+  },
+  {
+    "id": "quiz-docker-ch2-compose-up-1",
+    "lessonId": "docker-ch2-compose-up",
     "topicSlug": "docker",
     "codebaseSlug": "learning-lab",
     "question": "What file does `docker compose up` read?",
     "type": "recall",
-    "answer": "`docker-compose.yml` in the current directory.",
-    "distractors": ["package.json", "Dockerfile", ".env"]
+    "options": [
+      { "id": "a", "text": "`Dockerfile` — describes how to build an image", "isCorrect": false, "explanation": "Tempting because it's docker-related, but Dockerfiles build single images. Compose reads a different file." },
+      { "id": "b", "text": "`docker-compose.yml` — describes services to start together", "isCorrect": true, "explanation": "Correct. The YAML file lists services and their settings — compose starts them all." },
+      { "id": "c", "text": "`package.json` — Node.js project manifest", "isCorrect": false, "explanation": "package.json is for npm projects — unrelated to docker compose." },
+      { "id": "d", "text": "`.env` — environment variable definitions", "isCorrect": false, "explanation": "Compose reads .env for variables but the service definitions live in docker-compose.yml." }
+    ]
   },
   {
-    "id": "q-docker-2",
-    "lessonId": "docker-compose-up",
+    "id": "quiz-docker-ch2-compose-up-2",
+    "lessonId": "docker-ch2-compose-up",
     "topicSlug": "docker",
     "codebaseSlug": "learning-lab",
-    "question": "Why use docker for local Postgres instead of installing it on your machine?",
+    "question": "You need to start Postgres, Redis, and an API service together for local dev. Best command?",
     "type": "application",
-    "answer": "Everyone on the team runs the same version with no per-machine setup, avoiding 'works on my machine' bugs."
+    "options": [
+      { "id": "a", "text": "Three separate `docker run` commands in order", "isCorrect": false, "explanation": "Works but tedious — and you lose the declarative single-source-of-truth that compose provides." },
+      { "id": "b", "text": "`docker compose up` with all three defined in compose.yml", "isCorrect": true, "explanation": "Correct. One command, declarative config, easy to share with teammates." },
+      { "id": "c", "text": "`kubectl apply` to deploy them as a cluster", "isCorrect": false, "explanation": "Kubernetes is for production clusters, not local dev. Compose is the right tool here." },
+      { "id": "d", "text": "Install each service natively, then run them by hand", "isCorrect": false, "explanation": "Defeats the point of using containers — back to per-machine setup hell." }
+    ]
   },
   {
-    "id": "q-docker-3",
-    "lessonId": "docker-compose-up",
+    "id": "quiz-docker-ch2-compose-up-3",
+    "lessonId": "docker-ch2-compose-up",
     "topicSlug": "docker",
     "codebaseSlug": "learning-lab",
-    "question": "`docker compose up` fails with 'port already in use.' What's the usual fix?",
-    "type": "application",
-    "answer": "Stop whatever else is using that port (another Postgres, another compose stack) or change the host-side port mapping."
+    "question": "Which is NOT something `docker compose` handles?",
+    "type": "discrimination",
+    "options": [
+      { "id": "a", "text": "Starting multiple services with one command", "isCorrect": false, "explanation": "Real feature — that's the headline use case." },
+      { "id": "b", "text": "Setting environment variables per service", "isCorrect": false, "explanation": "Real feature — the YAML defines env vars per service." },
+      { "id": "c", "text": "Mapping container ports to host ports", "isCorrect": false, "explanation": "Real feature — `ports: ['5432:5432']` makes the container reachable from your machine." },
+      { "id": "d", "text": "Load-balancing across multiple machines", "isCorrect": true, "explanation": "Correct. Compose runs on one machine. Multi-machine load balancing is what Kubernetes is for." }
+    ]
   },
   {
-    "id": "q-docker-4",
-    "lessonId": "docker-compose-up",
+    "id": "quiz-docker-ch3-common-commands-1",
+    "lessonId": "docker-ch3-common-commands",
     "topicSlug": "docker",
     "codebaseSlug": "learning-lab",
-    "question": "When is hosted cloud Postgres (e.g. Neon) preferable to local docker?",
-    "type": "critique",
-    "answer": "When teammates need to share state, or you're close enough to deploy that you want production-like behavior."
-  },
-  {
-    "id": "q-apis-1",
-    "lessonId": "apis-rest-endpoint",
-    "topicSlug": "apis",
-    "codebaseSlug": "learning-lab",
-    "question": "What are the two parts that define a REST endpoint?",
+    "question": "What does `docker ps` show?",
     "type": "recall",
-    "answer": "A URL (the resource) and an HTTP method (the action) — e.g. `GET /api/lessons`.",
-    "distractors": ["The hostname and port", "The status code and body", "The cookies and headers"]
+    "options": [
+      { "id": "a", "text": "All Docker images downloaded on the machine", "isCorrect": false, "explanation": "That's `docker images`. `ps` is about running containers, not stored images." },
+      { "id": "b", "text": "The containers currently running", "isCorrect": true, "explanation": "Correct. `docker ps` is your quick \"what's up right now?\" — running containers, ports, names." },
+      { "id": "c", "text": "The Docker daemon's process list on the host", "isCorrect": false, "explanation": "Despite the name, `docker ps` doesn't show host processes. It shows containers." },
+      { "id": "d", "text": "Network traffic between containers", "isCorrect": false, "explanation": "That's network inspection. `ps` is about which containers are alive." }
+    ]
   },
   {
-    "id": "q-apis-2",
-    "lessonId": "apis-rest-endpoint",
-    "topicSlug": "apis",
+    "id": "quiz-docker-ch3-common-commands-2",
+    "lessonId": "docker-ch3-common-commands",
+    "topicSlug": "docker",
     "codebaseSlug": "learning-lab",
-    "question": "What method would you use to *create* a new lesson via REST?",
+    "question": "A service isn't responding. You want to see what it's printing in real time. Which command?",
     "type": "application",
-    "answer": "POST — e.g. `POST /api/lessons` with the new lesson in the request body.",
-    "distractors": ["GET", "DELETE", "PATCH"]
+    "options": [
+      { "id": "a", "text": "`docker ps`", "isCorrect": false, "explanation": "Tells you the service is running but not what it's printing. Use logs for output." },
+      { "id": "b", "text": "`docker logs -f <name>`", "isCorrect": true, "explanation": "Correct. The `-f` (follow) flag streams logs live as they're produced." },
+      { "id": "c", "text": "`docker compose down`", "isCorrect": false, "explanation": "That stops and removes the service. Not what you want for diagnosis." },
+      { "id": "d", "text": "`docker images`", "isCorrect": false, "explanation": "That lists images, unrelated to the service's runtime output." }
+    ]
   },
   {
-    "id": "q-apis-3",
-    "lessonId": "apis-rest-endpoint",
-    "topicSlug": "apis",
+    "id": "quiz-docker-ch3-common-commands-3",
+    "lessonId": "docker-ch3-common-commands",
+    "topicSlug": "docker",
     "codebaseSlug": "learning-lab",
-    "question": "Your fetch call doesn't throw but the data looks empty. What should you check first?",
+    "question": "Which command is NOT part of the everyday Docker five?",
+    "type": "discrimination",
+    "options": [
+      { "id": "a", "text": "`docker ps` — see what's running", "isCorrect": false, "explanation": "One of the daily five — quick status check." },
+      { "id": "b", "text": "`docker logs` — read container output", "isCorrect": false, "explanation": "One of the daily five — first stop for diagnosis." },
+      { "id": "c", "text": "`docker build` — build a custom image from a Dockerfile", "isCorrect": true, "explanation": "Correct. Useful but not in the daily-five everyday rotation. Most local work uses pre-built images." },
+      { "id": "d", "text": "`docker exec` — run a command inside a container", "isCorrect": false, "explanation": "One of the daily five — for poking around inside a running container." }
+    ]
+  },
+  {
+    "id": "quiz-git-ch1-repo-commit-remote-1",
+    "lessonId": "git-ch1-repo-commit-remote",
+    "topicSlug": "git",
+    "codebaseSlug": "learning-lab",
+    "question": "What's a commit, in one sentence?",
+    "type": "recall",
+    "options": [
+      { "id": "a", "text": "A copy of your project uploaded to GitHub", "isCorrect": false, "explanation": "That's a push to the remote. Commits live in the local repo until you push them." },
+      { "id": "b", "text": "A snapshot of the project at a moment, with a message", "isCorrect": true, "explanation": "Correct. Each commit captures the state of the tracked files plus a description." },
+      { "id": "c", "text": "A backup of your files made automatically", "isCorrect": false, "explanation": "Git doesn't backup automatically — you make commits deliberately when you want a snapshot." },
+      { "id": "d", "text": "A pull request opened on GitHub", "isCorrect": false, "explanation": "Pull requests are a GitHub workflow feature, built from commits but not the same thing." }
+    ]
+  },
+  {
+    "id": "quiz-git-ch1-repo-commit-remote-2",
+    "lessonId": "git-ch1-repo-commit-remote",
+    "topicSlug": "git",
+    "codebaseSlug": "learning-lab",
+    "question": "You want to put a local project on GitHub. What is GitHub, in Git terms?",
     "type": "application",
-    "answer": "`res.ok` and `res.status` — fetch only rejects on network errors, not 4xx/5xx responses."
+    "options": [
+      { "id": "a", "text": "Your local repository, just on the cloud", "isCorrect": false, "explanation": "GitHub hosts a *copy* of your repo — a remote — not your local one." },
+      { "id": "b", "text": "A remote — a copy of the repo that lives elsewhere", "isCorrect": true, "explanation": "Correct. GitHub is the remote (typically called `origin`); you sync to it via push and pull." },
+      { "id": "c", "text": "A backup service Git uses automatically", "isCorrect": false, "explanation": "Git doesn't push automatically — you have to run `git push`." },
+      { "id": "d", "text": "A replacement for branches", "isCorrect": false, "explanation": "GitHub is a hosting service, not a Git concept. Branches still exist with or without GitHub." }
+    ]
   },
   {
-    "id": "q-apis-4",
-    "lessonId": "apis-rest-endpoint",
+    "id": "quiz-git-ch1-repo-commit-remote-3",
+    "lessonId": "git-ch1-repo-commit-remote",
+    "topicSlug": "git",
+    "codebaseSlug": "learning-lab",
+    "question": "Which is NOT one of the three core Git concepts in this chapter?",
+    "type": "discrimination",
+    "options": [
+      { "id": "a", "text": "Repo — a project Git is tracking", "isCorrect": false, "explanation": "Real core concept — the container for everything Git knows about your project." },
+      { "id": "b", "text": "Commit — a snapshot with a message", "isCorrect": false, "explanation": "Real core concept — the unit of history." },
+      { "id": "c", "text": "Remote — a copy of the repo elsewhere", "isCorrect": false, "explanation": "Real core concept — the other side of push and pull." },
+      { "id": "d", "text": "Snapshot — an automatically saved version", "isCorrect": true, "explanation": "Correct. Git doesn't auto-snapshot — you decide when to commit. \"Snapshot\" is just a synonym for commit, not a separate concept." }
+    ]
+  },
+  {
+    "id": "quiz-git-ch2-daily-workflow-1",
+    "lessonId": "git-ch2-daily-workflow",
+    "topicSlug": "git",
+    "codebaseSlug": "learning-lab",
+    "question": "What's the correct order of the daily Git workflow?",
+    "type": "recall",
+    "options": [
+      { "id": "a", "text": "add → commit → push → pull → status", "isCorrect": false, "explanation": "Pulling at the end risks conflicts you could have avoided by pulling first." },
+      { "id": "b", "text": "status → pull --rebase → add → commit → push", "isCorrect": true, "explanation": "Correct. Check, sync, stage, snapshot, share. Each step in this order avoids common friction." },
+      { "id": "c", "text": "commit → status → push → add → pull", "isCorrect": false, "explanation": "You can't commit before staging — add must come before commit, and pull should come early." },
+      { "id": "d", "text": "push → pull → status → add → commit", "isCorrect": false, "explanation": "Pushing first doesn't make sense — you have nothing new to push yet." }
+    ]
+  },
+  {
+    "id": "quiz-git-ch2-daily-workflow-2",
+    "lessonId": "git-ch2-daily-workflow",
+    "topicSlug": "git",
+    "codebaseSlug": "learning-lab",
+    "question": "You ran add and commit but teammates can't see your changes on GitHub. What did you forget?",
+    "type": "application",
+    "options": [
+      { "id": "a", "text": "`git status` — to confirm everything was committed", "isCorrect": false, "explanation": "Status just shows local state. The remote doesn't know about your commits until you push." },
+      { "id": "b", "text": "`git push` — commits stay local until pushed", "isCorrect": true, "explanation": "Correct. Push is the only command that uploads commits to the remote." },
+      { "id": "c", "text": "`git pull` — to sync with the remote first", "isCorrect": false, "explanation": "Pull brings teammates' changes down. It doesn't share yours up. You need push." },
+      { "id": "d", "text": "`git init` — to make it a Git repository", "isCorrect": false, "explanation": "If it weren't a repo, you couldn't have committed at all. Init isn't the issue." }
+    ]
+  },
+  {
+    "id": "quiz-git-ch2-daily-workflow-3",
+    "lessonId": "git-ch2-daily-workflow",
+    "topicSlug": "git",
+    "codebaseSlug": "learning-lab",
+    "question": "Which is NOT part of the daily five-step rhythm?",
+    "type": "discrimination",
+    "options": [
+      { "id": "a", "text": "`git status` — see what changed", "isCorrect": false, "explanation": "Part of the daily five — your first command of any session." },
+      { "id": "b", "text": "`git pull --rebase` — get teammates' commits", "isCorrect": false, "explanation": "Part of the daily five — do this before working to avoid conflicts later." },
+      { "id": "c", "text": "`git merge feature-branch` — combine branches", "isCorrect": true, "explanation": "Correct. Merging is a branch workflow step, not part of the daily commit-and-push rhythm." },
+      { "id": "d", "text": "`git commit -m \"...\"` — snapshot with message", "isCorrect": false, "explanation": "Part of the daily five — captures staged changes into history." }
+    ]
+  },
+  {
+    "id": "quiz-git-ch3-branch-1",
+    "lessonId": "git-ch3-branch",
+    "topicSlug": "git",
+    "codebaseSlug": "learning-lab",
+    "question": "What is a Git branch?",
+    "type": "recall",
+    "options": [
+      { "id": "a", "text": "A parallel version of the project's history", "isCorrect": true, "explanation": "Correct. A branch lets you make commits in isolation without affecting other branches." },
+      { "id": "b", "text": "A different folder containing the same project", "isCorrect": false, "explanation": "That sounds like git worktrees. A branch is conceptual — commit history, not a folder." },
+      { "id": "c", "text": "A snapshot taken every day automatically", "isCorrect": false, "explanation": "Git doesn't auto-snapshot. Commits are deliberate; branches are parallel commit chains." },
+      { "id": "d", "text": "A specific GitHub feature for code review", "isCorrect": false, "explanation": "Pull requests are for code review. Branches exist in Git itself, with or without GitHub." }
+    ]
+  },
+  {
+    "id": "quiz-git-ch3-branch-2",
+    "lessonId": "git-ch3-branch",
+    "topicSlug": "git",
+    "codebaseSlug": "learning-lab",
+    "question": "You're starting a half-finished feature you might not ship for a week. Where should the commits go?",
+    "type": "application",
+    "options": [
+      { "id": "a", "text": "Directly on `main` — you'll fix it later if needed", "isCorrect": false, "explanation": "Half-finished commits on main break main and risk shipping unfinished work." },
+      { "id": "b", "text": "On a feature branch, merged into main when ready", "isCorrect": true, "explanation": "Correct. Branches let you commit progress safely without affecting the canonical version." },
+      { "id": "c", "text": "In a separate folder, not in Git", "isCorrect": false, "explanation": "Outside Git means no history and no safety. Branches give you both." },
+      { "id": "d", "text": "Commit nothing until the whole feature is done", "isCorrect": false, "explanation": "Means no incremental safety — a laptop crash loses everything. Commit often on a branch." }
+    ]
+  },
+  {
+    "id": "quiz-git-ch3-branch-3",
+    "lessonId": "git-ch3-branch",
+    "topicSlug": "git",
+    "codebaseSlug": "learning-lab",
+    "question": "Which is NOT a typical reason to use a branch?",
+    "type": "discrimination",
+    "options": [
+      { "id": "a", "text": "Build a new feature in isolation from main", "isCorrect": false, "explanation": "Typical reason — keeps main shippable while you work." },
+      { "id": "b", "text": "Fix a bug without entangling with unfinished work", "isCorrect": false, "explanation": "Typical reason — hotfix branches isolate the fix from in-progress work." },
+      { "id": "c", "text": "Let two people work on related code without stepping on each other", "isCorrect": false, "explanation": "Typical reason — parallel work is the original motivation for branches." },
+      { "id": "d", "text": "Make Git commits faster by skipping the working tree", "isCorrect": true, "explanation": "Correct. Branches don't affect commit speed — they're about isolation, not performance." }
+    ]
+  },
+  {
+    "id": "quiz-git-ch4-merge-conflict-1",
+    "lessonId": "git-ch4-merge-conflict",
+    "topicSlug": "git",
+    "codebaseSlug": "learning-lab",
+    "question": "When does a merge conflict happen?",
+    "type": "recall",
+    "options": [
+      { "id": "a", "text": "Any time two branches are merged together", "isCorrect": false, "explanation": "Most merges aren't conflicts — Git figures out non-overlapping changes automatically." },
+      { "id": "b", "text": "When two people change the same lines of the same file", "isCorrect": true, "explanation": "Correct. Git can merge non-overlapping edits silently; overlapping edits need a human decision." },
+      { "id": "c", "text": "When you forget to push a commit", "isCorrect": false, "explanation": "Forgetting to push isn't a conflict. It's just unsent work." },
+      { "id": "d", "text": "When your branch has too many commits", "isCorrect": false, "explanation": "Commit count doesn't cause conflicts. Overlapping line changes do." }
+    ]
+  },
+  {
+    "id": "quiz-git-ch4-merge-conflict-2",
+    "lessonId": "git-ch4-merge-conflict",
+    "topicSlug": "git",
+    "codebaseSlug": "learning-lab",
+    "question": "You open a file and see `<<<<<<< HEAD` and `>>>>>>> branch-name` markers. What now?",
+    "type": "application",
+    "options": [
+      { "id": "a", "text": "Delete the whole file and start over", "isCorrect": false, "explanation": "Massive overreaction — the file is fine, you just need to resolve the conflict." },
+      { "id": "b", "text": "Edit the file to keep what you want, remove markers, stage, commit", "isCorrect": true, "explanation": "Correct. Pick the right content (yours, theirs, or both), strip the markers, then `git add` and continue." },
+      { "id": "c", "text": "Run `git push --force` to override the conflict", "isCorrect": false, "explanation": "Force-push doesn't resolve conflicts — it overwrites history, which can lose work." },
+      { "id": "d", "text": "Ignore the markers and commit as is", "isCorrect": false, "explanation": "The file contains literal `<<<<<<<` markers — it's broken until you remove them." }
+    ]
+  },
+  {
+    "id": "quiz-git-ch4-merge-conflict-3",
+    "lessonId": "git-ch4-merge-conflict",
+    "topicSlug": "git",
+    "codebaseSlug": "learning-lab",
+    "question": "Which is NOT a thing that makes merge conflicts worse?",
+    "type": "discrimination",
+    "options": [
+      { "id": "a", "text": "Long-lived branches that drift far from main", "isCorrect": false, "explanation": "Real cause — the more your branch diverges, the more conflict surface there is." },
+      { "id": "b", "text": "Multiple people editing the same files at once", "isCorrect": false, "explanation": "Real cause — overlap is the entire mechanism behind conflicts." },
+      { "id": "c", "text": "Big sweeping reformat commits across many files", "isCorrect": false, "explanation": "Real cause — they conflict with almost everyone's in-progress work." },
+      { "id": "d", "text": "Using `git status` before starting work", "isCorrect": true, "explanation": "Correct. Running status actually helps avoid conflicts by surfacing local state — it doesn't cause them." }
+    ]
+  },
+  {
+    "id": "quiz-apis-ch1-rest-1",
+    "lessonId": "apis-ch1-rest",
     "topicSlug": "apis",
     "codebaseSlug": "learning-lab",
-    "question": "What's a common pain point of REST in complex apps?",
-    "type": "critique",
-    "answer": "Many round-trips for a single screen — fetching nested data often requires multiple sequential requests."
+    "question": "What's the core idea behind REST?",
+    "type": "recall",
+    "options": [
+      { "id": "a", "text": "URLs identify resources; HTTP methods describe actions", "isCorrect": true, "explanation": "Correct. The path names the resource, the verb names the action — predictable and conventional." },
+      { "id": "b", "text": "Every API call must be encrypted with a token", "isCorrect": false, "explanation": "Tokens and encryption are about authentication, not the REST style itself." },
+      { "id": "c", "text": "All responses must be in JSON format", "isCorrect": false, "explanation": "JSON is common but not required by REST. The defining idea is resources + methods, not the format." },
+      { "id": "d", "text": "Each endpoint must be defined in a schema file", "isCorrect": false, "explanation": "Schemas (like OpenAPI) describe REST APIs but aren't required by REST itself." }
+    ]
+  },
+  {
+    "id": "quiz-apis-ch1-rest-2",
+    "lessonId": "apis-ch1-rest",
+    "topicSlug": "apis",
+    "codebaseSlug": "learning-lab",
+    "question": "You want to delete user 42 via a REST API. What's the call?",
+    "type": "application",
+    "options": [
+      { "id": "a", "text": "`POST /users/delete/42`", "isCorrect": false, "explanation": "Non-RESTful — uses an action verb in the path. REST puts the action in the HTTP method." },
+      { "id": "b", "text": "`DELETE /users/42`", "isCorrect": true, "explanation": "Correct. The path identifies the resource (user 42), the method specifies the action (delete)." },
+      { "id": "c", "text": "`GET /users/42?action=delete`", "isCorrect": false, "explanation": "GET should never modify data — it's for reads only. Using query params to mutate is a common anti-pattern." },
+      { "id": "d", "text": "`POST /delete?user=42`", "isCorrect": false, "explanation": "Action-style paths aren't REST. REST uses the method for the verb and the path for the resource." }
+    ]
+  },
+  {
+    "id": "quiz-apis-ch1-rest-3",
+    "lessonId": "apis-ch1-rest",
+    "topicSlug": "apis",
+    "codebaseSlug": "learning-lab",
+    "question": "Which is NOT a typical REST convention?",
+    "type": "discrimination",
+    "options": [
+      { "id": "a", "text": "URLs name resources (`/users`, `/orders`)", "isCorrect": false, "explanation": "Real convention — resources are nouns, not actions." },
+      { "id": "b", "text": "HTTP methods describe the action (GET, POST, DELETE)", "isCorrect": false, "explanation": "Real convention — method = verb in REST." },
+      { "id": "c", "text": "Responses include a status code", "isCorrect": false, "explanation": "Real convention — status codes signal success or failure." },
+      { "id": "d", "text": "Action verbs appear in URLs (`/createUser`, `/deleteOrder`)", "isCorrect": true, "explanation": "Correct. Action verbs in URLs are RPC-style, not REST. REST keeps verbs in the HTTP method." }
+    ]
+  },
+  {
+    "id": "quiz-apis-ch2-get-vs-post-1",
+    "lessonId": "apis-ch2-get-vs-post",
+    "topicSlug": "apis",
+    "codebaseSlug": "learning-lab",
+    "question": "Which HTTP method is best for asking the server for data?",
+    "type": "recall",
+    "options": [
+      { "id": "a", "text": "POST", "isCorrect": false, "explanation": "POST is for sending data to create or change something — not for reads." },
+      { "id": "b", "text": "GET", "isCorrect": true, "explanation": "Correct. GET means \"give me\" — read-only, cacheable, bookmarkable." },
+      { "id": "c", "text": "DELETE", "isCorrect": false, "explanation": "DELETE removes resources. Not for reading." },
+      { "id": "d", "text": "PUT", "isCorrect": false, "explanation": "PUT replaces a resource. Not for reading." }
+    ]
+  },
+  {
+    "id": "quiz-apis-ch2-get-vs-post-2",
+    "lessonId": "apis-ch2-get-vs-post",
+    "topicSlug": "apis",
+    "codebaseSlug": "learning-lab",
+    "question": "A user submits a comment form. GET or POST?",
+    "type": "application",
+    "options": [
+      { "id": "a", "text": "GET, with comment text in the URL query string", "isCorrect": false, "explanation": "Comments are new data; GET shouldn't create things. URLs also have length limits and end up in browser history." },
+      { "id": "b", "text": "POST, with comment text in the request body", "isCorrect": true, "explanation": "Correct. Creating new data calls for POST, and the body is the right place for the payload." },
+      { "id": "c", "text": "DELETE, since the form clears after submission", "isCorrect": false, "explanation": "DELETE removes things. Submitting a new comment is creating, not deleting." },
+      { "id": "d", "text": "Either works — methods don't matter for forms", "isCorrect": false, "explanation": "They do — the method conveys intent and affects caching, history, and security." }
+    ]
+  },
+  {
+    "id": "quiz-apis-ch2-get-vs-post-3",
+    "lessonId": "apis-ch2-get-vs-post",
+    "topicSlug": "apis",
+    "codebaseSlug": "learning-lab",
+    "question": "Which is NOT a property of GET requests?",
+    "type": "discrimination",
+    "options": [
+      { "id": "a", "text": "Parameters go in the URL, not the body", "isCorrect": false, "explanation": "True — GET puts data in the query string." },
+      { "id": "b", "text": "Responses can be cached by browsers", "isCorrect": false, "explanation": "True — caching is one of GET's biggest advantages over POST." },
+      { "id": "c", "text": "Safe to repeat without side effects", "isCorrect": false, "explanation": "True — GET should be idempotent. Repeating it should yield the same result." },
+      { "id": "d", "text": "Data goes in the request body for larger payloads", "isCorrect": true, "explanation": "Correct. GET puts data in the query string, not the body. The body convention belongs to POST/PUT." }
+    ]
+  },
+  {
+    "id": "quiz-apis-ch3-json-1",
+    "lessonId": "apis-ch3-json",
+    "topicSlug": "apis",
+    "codebaseSlug": "learning-lab",
+    "question": "What is JSON?",
+    "type": "recall",
+    "options": [
+      { "id": "a", "text": "A programming language used on the backend", "isCorrect": false, "explanation": "JSON isn't a programming language — it's a data format for representing structured data as text." },
+      { "id": "b", "text": "A text-based format for structured data, used by most APIs", "isCorrect": true, "explanation": "Correct. Objects, arrays, primitives — written as plain text, parsed by every modern language." },
+      { "id": "c", "text": "A binary protocol for fast network transmission", "isCorrect": false, "explanation": "JSON is text, not binary. Binary alternatives (Protocol Buffers, MessagePack) exist but aren't JSON." },
+      { "id": "d", "text": "A database query language for relational tables", "isCorrect": false, "explanation": "That's SQL. JSON is a data format, not a query language." }
+    ]
+  },
+  {
+    "id": "quiz-apis-ch3-json-2",
+    "lessonId": "apis-ch3-json",
+    "topicSlug": "apis",
+    "codebaseSlug": "learning-lab",
+    "question": "Your API expects a JSON body. Which header should the request set?",
+    "type": "application",
+    "options": [
+      { "id": "a", "text": "`Content-Type: application/json`", "isCorrect": true, "explanation": "Correct. This tells the server how to parse the body — as JSON, not form data or plain text." },
+      { "id": "b", "text": "`Accept: text/html`", "isCorrect": false, "explanation": "Accept declares what response format you want, not what you're sending. And HTML isn't JSON." },
+      { "id": "c", "text": "`Authorization: Bearer ...`", "isCorrect": false, "explanation": "Authorization is for credentials, not for declaring body format. You may also need it, but it doesn't replace Content-Type." },
+      { "id": "d", "text": "No header is needed", "isCorrect": false, "explanation": "Without Content-Type the server may not parse the body correctly and might reject the request." }
+    ]
+  },
+  {
+    "id": "quiz-apis-ch3-json-3",
+    "lessonId": "apis-ch3-json",
+    "topicSlug": "apis",
+    "codebaseSlug": "learning-lab",
+    "question": "Which is NOT valid JSON?",
+    "type": "discrimination",
+    "options": [
+      { "id": "a", "text": "`{ \"name\": \"Anirudh\", \"age\": 30 }`", "isCorrect": false, "explanation": "Valid JSON — object with string and number values, double-quoted keys." },
+      { "id": "b", "text": "`[1, 2, 3]`", "isCorrect": false, "explanation": "Valid JSON — an array of numbers is fine." },
+      { "id": "c", "text": "`{ name: 'Anirudh', age: 30, }`", "isCorrect": true, "explanation": "Correct. Three problems: unquoted key, single quotes (not double), and trailing comma. None of these are allowed in JSON." },
+      { "id": "d", "text": "`{ \"tags\": [\"a\", \"b\"] }`", "isCorrect": false, "explanation": "Valid JSON — nested array of strings is fine." }
+    ]
+  },
+  {
+    "id": "quiz-apis-ch4-status-code-1",
+    "lessonId": "apis-ch4-status-code",
+    "topicSlug": "apis",
+    "codebaseSlug": "learning-lab",
+    "question": "What does the HTTP status code 404 mean?",
+    "type": "recall",
+    "options": [
+      { "id": "a", "text": "The server crashed while processing the request", "isCorrect": false, "explanation": "That's 500 — Internal Server Error. 404 is about the resource not existing." },
+      { "id": "b", "text": "The requested resource was not found", "isCorrect": true, "explanation": "Correct. The URL doesn't match anything the server has — Not Found." },
+      { "id": "c", "text": "The client isn't allowed to do this", "isCorrect": false, "explanation": "That's 403 — Forbidden. 404 means the resource doesn't exist (or is intentionally hidden)." },
+      { "id": "d", "text": "The request succeeded", "isCorrect": false, "explanation": "Success codes are in the 2xx range. 4xx means something's wrong on the client side." }
+    ]
+  },
+  {
+    "id": "quiz-apis-ch4-status-code-2",
+    "lessonId": "apis-ch4-status-code",
+    "topicSlug": "apis",
+    "codebaseSlug": "learning-lab",
+    "question": "A logged-in user tries to delete someone else's post. Which status code fits?",
+    "type": "application",
+    "options": [
+      { "id": "a", "text": "401 Unauthorized", "isCorrect": false, "explanation": "401 is \"not logged in.\" This user IS logged in — they just aren't permitted. Use 403." },
+      { "id": "b", "text": "403 Forbidden", "isCorrect": true, "explanation": "Correct. 403 says \"I know who you are, you just can't do this.\" Exactly the case here." },
+      { "id": "c", "text": "404 Not Found", "isCorrect": false, "explanation": "404 means the resource doesn't exist. The post does exist — they just can't delete it." },
+      { "id": "d", "text": "500 Internal Server Error", "isCorrect": false, "explanation": "500 means the server broke. Refusing for permissions reasons isn't a server error." }
+    ]
+  },
+  {
+    "id": "quiz-apis-ch4-status-code-3",
+    "lessonId": "apis-ch4-status-code",
+    "topicSlug": "apis",
+    "codebaseSlug": "learning-lab",
+    "question": "Which is NOT a real HTTP status code category?",
+    "type": "discrimination",
+    "options": [
+      { "id": "a", "text": "2xx — success", "isCorrect": false, "explanation": "Real category — 200, 201, 204 are common examples." },
+      { "id": "b", "text": "4xx — client errors", "isCorrect": false, "explanation": "Real category — 400, 401, 403, 404 all sit here." },
+      { "id": "c", "text": "5xx — server errors", "isCorrect": false, "explanation": "Real category — 500, 502, 503 sit here." },
+      { "id": "d", "text": "6xx — application warnings", "isCorrect": true, "explanation": "Correct. HTTP status codes stop at 5xx. There's no 6xx category in the spec." }
+    ]
   }
 ]

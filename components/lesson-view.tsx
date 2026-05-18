@@ -4,7 +4,7 @@ import * as React from "react";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { CodeBlock } from "@/components/code-block";
-import { QuizCard } from "@/components/quiz-card";
+import { QuizRunner } from "@/components/quiz-runner";
 import { cn } from "@/lib/utils";
 import { getCodebase, getQuizzesByLesson, getTopic } from "@/lib/data";
 import type { Lesson } from "@/types";
@@ -87,11 +87,13 @@ export function LessonView({ lesson }: Props) {
           </section>
         </div>
       ) : (
-        <div className="space-y-4 max-w-prose">
-          {quizzes.length === 0 && <p className="text-sm text-muted">No quizzes yet for this lesson.</p>}
-          {quizzes.map((q) => (
-            <QuizCard key={q.id} quiz={q} showLessonLink={false} />
-          ))}
+        <div className="max-w-prose">
+          <QuizRunner
+            quizzes={quizzes}
+            shuffleQuizzes={false}
+            showLessonLink={false}
+            emptyMessage="No quizzes yet for this lesson."
+          />
         </div>
       )}
     </article>

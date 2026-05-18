@@ -30,10 +30,14 @@ export type LessonUsage = {
   commit?: string;
 };
 
+export type LessonType = "chapter" | "implementation";
+
 export type Lesson = {
   id: string;
   topicSlug: string;
   codebaseSlug: string;
+  type: LessonType;
+  chapterNumber?: number;
   subtopic?: string;
   title: string;
   concept: string;
@@ -45,7 +49,14 @@ export type Lesson = {
   tags: string[];
 };
 
-export type QuizType = "recall" | "application" | "critique";
+export type QuizType = "recall" | "application" | "discrimination";
+
+export type QuizOption = {
+  id: string;
+  text: string;
+  isCorrect: boolean;
+  explanation: string;
+};
 
 export type Quiz = {
   id: string;
@@ -54,8 +65,7 @@ export type Quiz = {
   codebaseSlug: string;
   question: string;
   type: QuizType;
-  answer: string;
-  distractors?: string[];
+  options: QuizOption[];
 };
 
 export type ViewMode = "topic" | "codebase";
