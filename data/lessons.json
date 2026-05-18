@@ -1,0 +1,204 @@
+[
+  {
+    "id": "tailwind-padding-vs-margin",
+    "topicSlug": "tailwind",
+    "codebaseSlug": "learning-lab",
+    "subtopic": "Spacing",
+    "title": "Padding vs margin in Tailwind",
+    "concept": "Padding pushes content inward from an element's border — it's space *inside* the box. Margin pushes other elements away — it's space *outside* the box. In Tailwind, `p-4` adds 1rem of padding on all sides; `m-4` adds 1rem of margin. The asymmetric sides exist too: `px-4` is horizontal padding only, `mt-2` is margin-top, etc. The rule of thumb: if a designer asks for 'breathing room around the text inside a card,' that's padding. If they ask for 'gap between cards,' that's margin (or better — `gap-*` on a flex/grid parent).",
+    "example": {
+      "code": "<div className=\"p-6 bg-white rounded-lg\">\n  <h2 className=\"mb-2 text-lg font-semibold\">Card title</h2>\n  <p className=\"text-sm text-gray-600\">\n    The p-6 gives breathing room inside.\n    The mb-2 separates this paragraph from the heading above.\n  </p>\n</div>",
+      "language": "tsx",
+      "annotation": "p-6 = padding inside the card; mb-2 = margin below the heading"
+    },
+    "alternatives": [
+      {
+        "approach": "Use `gap` on a flex/grid parent instead of margin on children",
+        "code": "<div className=\"flex flex-col gap-4\">\n  <Card />\n  <Card />\n</div>",
+        "whenToUse": "When you control the layout container. `gap` doesn't double up like adjacent margins can, and it's easier to change in one place."
+      },
+      {
+        "approach": "Use `space-y-*` / `space-x-*` utilities",
+        "code": "<div className=\"space-y-4\">\n  <Card />\n  <Card />\n</div>",
+        "whenToUse": "When you want consistent vertical rhythm between siblings but the parent isn't flex/grid. Slightly older pattern — modern Tailwind tends toward `gap`."
+      }
+    ],
+    "critique": "Designers tend to think in 'gaps between things,' which maps to margin or gap. Developers often default to padding because it stays attached to the component. Neither is wrong — but using `gap` on a parent flex container is usually the cleanest answer when you have control over the parent.",
+    "usedIn": [
+      { "file": "components/lesson-view.tsx", "line": 12 }
+    ],
+    "createdAt": "2026-05-18T00:00:00Z",
+    "tags": ["spacing", "fundamentals"]
+  },
+  {
+    "id": "react-props-vs-state",
+    "topicSlug": "react",
+    "codebaseSlug": "learning-lab",
+    "subtopic": "Fundamentals",
+    "title": "Props vs state",
+    "concept": "Props are what a component receives from its parent — they're read-only inputs, like function arguments. State is data the component itself owns and can change over time, declared with `useState`. The mental model: props flow down the tree; state lives inside one component. If two siblings need the same data, lift the state up to a common ancestor and pass it down as props.",
+    "example": {
+      "code": "'use client';\nimport { useState } from 'react';\n\nfunction Counter({ label }: { label: string }) {\n  const [count, setCount] = useState(0); // state: local to this component\n  return (\n    <button onClick={() => setCount(count + 1)}>\n      {label}: {count}\n    </button>\n  );\n}\n\n// Parent passes label as a prop\n<Counter label=\"Clicks\" />",
+      "language": "tsx",
+      "annotation": "label is a prop (passed in). count is state (owned here)."
+    },
+    "alternatives": [
+      {
+        "approach": "Lift state up to parent when siblings need to share it",
+        "code": "function Parent() {\n  const [count, setCount] = useState(0);\n  return (\n    <>\n      <Display count={count} />\n      <Increment onClick={() => setCount(count + 1)} />\n    </>\n  );\n}",
+        "whenToUse": "When two or more children need to read or modify the same value. The lowest common ancestor owns it."
+      },
+      {
+        "approach": "Use `useReducer` instead of `useState`",
+        "whenToUse": "When state transitions are complex (multiple fields, many event types). Reducers make changes more predictable."
+      },
+      {
+        "approach": "Use a global store (Zustand, Context)",
+        "whenToUse": "When state is needed far apart in the tree and prop-drilling becomes painful. Don't reach for this early."
+      }
+    ],
+    "critique": "The hardest part isn't knowing the rule — it's knowing where state *should* live. Beginners over-localize state and then prop-drill setters everywhere. The fix is usually to lift state up sooner than feels comfortable.",
+    "createdAt": "2026-05-18T00:00:00Z",
+    "tags": ["react", "fundamentals", "data-flow"]
+  },
+  {
+    "id": "nextjs-server-vs-client",
+    "topicSlug": "nextjs",
+    "codebaseSlug": "learning-lab",
+    "subtopic": "App Router",
+    "title": "Server components vs client components",
+    "concept": "In the Next.js App Router, every component is a Server Component by default — it runs on the server, never ships JavaScript to the browser, and can directly read files or hit databases. To use hooks like `useState`, browser APIs like `localStorage`, or any interactivity, you add `'use client'` at the top of the file. That component (and its imports) then ship to the browser. The key insight: keep `'use client'` as deep in the tree as you can. A client component can render server components passed as children, but it can't import them.",
+    "example": {
+      "code": "// app/topics/[slug]/page.tsx — Server Component (no directive)\nimport { getLessons } from '@/lib/data';\nimport { LessonView } from '@/components/lesson-view';\n\nexport default async function TopicPage({ params }) {\n  const lessons = await getLessons(); // OK on server\n  return <LessonView lessons={lessons} />;\n}\n\n// components/lesson-view.tsx — Client Component\n'use client';\nimport { useState } from 'react';\n\nexport function LessonView({ lessons }) {\n  const [active, setActive] = useState(lessons[0]); // needs client\n  // ...\n}",
+      "language": "tsx",
+      "annotation": "Server component loads data; client component handles interactivity."
+    },
+    "alternatives": [
+      {
+        "approach": "Make the whole page a client component",
+        "whenToUse": "Almost never the right call in App Router. You lose streaming, lose data-fetching ergonomics, and ship more JS to the browser."
+      },
+      {
+        "approach": "Pass server components as children of a client component",
+        "code": "<ClientShell>\n  <ServerContent />  {/* still renders on server */}\n</ClientShell>",
+        "whenToUse": "When you want a client-side wrapper (e.g. layout with interactive sidebar) but the inner content is static. Children are rendered server-side and slotted in."
+      }
+    ],
+    "critique": "The mental model is hardest when you're used to plain React, where everything ran in the browser. The default flipped: server is the new default. Once you stop sprinkling `'use client'` reflexively, bundles get smaller and pages get faster.",
+    "usedIn": [
+      { "file": "app/layout.tsx" },
+      { "file": "components/top-bar.tsx", "line": 1 }
+    ],
+    "createdAt": "2026-05-18T00:00:00Z",
+    "tags": ["nextjs", "rendering"]
+  },
+  {
+    "id": "shadcn-copies-components",
+    "topicSlug": "shadcn",
+    "codebaseSlug": "learning-lab",
+    "subtopic": "Philosophy",
+    "title": "Why shadcn copies components into your repo",
+    "concept": "shadcn/ui is not an npm package you install — it's a CLI that copies component source code directly into your `components/ui` folder. You own the code. This is the opposite of most UI libraries (Material UI, Chakra, etc.) where components are imported from a black-box dependency. The benefit: you can edit them, restyle them, and they don't go stale with the library. The cost: you're responsible for maintenance — there's no `npm update` to fix bugs.",
+    "example": {
+      "code": "# Install a single component — it gets copied to components/ui/button.tsx\nnpx shadcn@latest add button\n\n# Now button.tsx is YOUR file. Edit it however you want.",
+      "language": "bash",
+      "annotation": "The CLI copies source, including dependencies on Radix UI primitives."
+    },
+    "alternatives": [
+      {
+        "approach": "Use a traditional component library (MUI, Chakra)",
+        "whenToUse": "When you have a large team that wants strong defaults, less customization, and centralized updates. Easier to onboard juniors."
+      },
+      {
+        "approach": "Build everything from scratch with Tailwind",
+        "whenToUse": "When you have a strong opinionated design system and don't want any opinions from a library. More work upfront."
+      }
+    ],
+    "critique": "shadcn occupies a sweet spot for product designers who code: you get well-built, accessible components but full control to restyle. The 'no maintenance updates' downside matters less than it sounds — most components don't need updates often.",
+    "createdAt": "2026-05-18T00:00:00Z",
+    "tags": ["shadcn", "philosophy"]
+  },
+  {
+    "id": "git-add-commit-push",
+    "topicSlug": "git",
+    "codebaseSlug": "learning-lab",
+    "subtopic": "Daily workflow",
+    "title": "git add, commit, push — the daily three",
+    "concept": "These three commands are 80% of daily git. `git add <files>` stages changes — telling git 'I want these in my next commit.' `git commit -m \"message\"` snapshots staged changes into the local history. `git push` uploads commits to the remote (GitHub). Think of it as: stage → snapshot → upload. The staging step exists so you can selectively include changes, but for solo work you can often `git add .` then commit.",
+    "example": {
+      "code": "# See what changed\ngit status\n\n# Stage all changes in the current directory\ngit add .\n\n# Commit with a descriptive message\ngit commit -m \"Add padding/margin lesson\"\n\n# Send commits to GitHub\ngit push",
+      "language": "bash",
+      "annotation": "Run git status before and after to see what moved."
+    },
+    "alternatives": [
+      {
+        "approach": "Stage specific files instead of everything",
+        "code": "git add components/lesson-view.tsx data/lessons.json",
+        "whenToUse": "When you have unrelated changes in the working tree and want to commit them separately. Cleaner history."
+      },
+      {
+        "approach": "Use `git commit -am \"...\"` to stage and commit tracked files in one step",
+        "whenToUse": "When you've only modified files git is already tracking (no new files). Saves a step."
+      }
+    ],
+    "critique": "The trap is forgetting `git push`. Your local commits don't go anywhere until you push. The other trap is committing too rarely — small, frequent commits make it much easier to undo a mistake.",
+    "createdAt": "2026-05-18T00:00:00Z",
+    "tags": ["git", "workflow"]
+  },
+  {
+    "id": "docker-compose-up",
+    "topicSlug": "docker",
+    "codebaseSlug": "learning-lab",
+    "subtopic": "Local dev",
+    "title": "What docker compose up actually does",
+    "concept": "`docker compose up` reads a `docker-compose.yml` file in the current directory and starts all the services defined in it — a database, a cache, an API server, whatever. Each service runs in its own container (a lightweight isolated process with its own filesystem). The point: you get the same backend stack everyone on the team has, with one command, without installing Postgres or Redis on your machine directly.",
+    "example": {
+      "code": "# docker-compose.yml\nservices:\n  db:\n    image: postgres:16\n    environment:\n      POSTGRES_PASSWORD: dev\n    ports: [\"5432:5432\"]\n  redis:\n    image: redis:7\n    ports: [\"6379:6379\"]\n\n# Then in your terminal:\ndocker compose up      # foreground, logs visible\ndocker compose up -d   # detached (background)\ndocker compose down    # stop and remove containers",
+      "language": "yaml",
+      "annotation": "ports: \"5432:5432\" means container port 5432 is reachable from your laptop on 5432."
+    },
+    "alternatives": [
+      {
+        "approach": "Install Postgres/Redis directly on your machine",
+        "whenToUse": "Almost never on a team. You lose version parity and 'works on my machine' bugs creep back in."
+      },
+      {
+        "approach": "Use a hosted cloud database (Neon, Supabase, Upstash)",
+        "whenToUse": "When you need to share state with teammates or you're deploying soon anyway. Closer to production behavior."
+      }
+    ],
+    "critique": "Docker has a steep first encounter, but `compose up` is the rare command that just works. If it doesn't, it's usually a port conflict (something else is on 5432) or Docker Desktop not running.",
+    "createdAt": "2026-05-18T00:00:00Z",
+    "tags": ["docker", "local-dev"]
+  },
+  {
+    "id": "apis-rest-endpoint",
+    "topicSlug": "apis",
+    "codebaseSlug": "learning-lab",
+    "subtopic": "REST",
+    "title": "What a REST endpoint actually is",
+    "concept": "A REST endpoint is a URL plus an HTTP method that does one specific thing on a server. `GET /api/lessons` means 'fetch the list of lessons.' `POST /api/lessons` means 'create a new lesson.' The URL identifies the resource; the method describes the action. Servers respond with a status code (200 OK, 404 Not Found, 500 server error) and usually a JSON body. The frontend's job is to call these, handle responses, and update the UI.",
+    "example": {
+      "code": "// Frontend — fetch a list\nconst res = await fetch('/api/lessons');\nif (!res.ok) throw new Error(`Failed: ${res.status}`);\nconst lessons = await res.json();\n\n// Frontend — create one\nconst res = await fetch('/api/lessons', {\n  method: 'POST',\n  headers: { 'Content-Type': 'application/json' },\n  body: JSON.stringify({ title: 'New lesson', topicSlug: 'react' }),\n});\nconst newLesson = await res.json();",
+      "language": "ts",
+      "annotation": "Always check res.ok — fetch only rejects on network errors, not 4xx/5xx."
+    },
+    "alternatives": [
+      {
+        "approach": "GraphQL",
+        "whenToUse": "When the frontend needs lots of nested data in one request and REST would require many round-trips. More setup, more power."
+      },
+      {
+        "approach": "tRPC (TypeScript-only)",
+        "whenToUse": "When frontend and backend are both TypeScript and share types. You get auto-completion and type safety across the wire."
+      },
+      {
+        "approach": "Server actions (Next.js)",
+        "whenToUse": "When using Next.js App Router and the action is tightly coupled to a form or button. No need to define a REST endpoint at all."
+      }
+    ],
+    "critique": "REST is the lingua franca — every backend can speak it, every frontend can call it. The downside is that complex UIs end up making 10+ requests per page load. Most apps live with this; some reach for GraphQL or server actions when it stings.",
+    "createdAt": "2026-05-18T00:00:00Z",
+    "tags": ["apis", "rest", "http"]
+  }
+]

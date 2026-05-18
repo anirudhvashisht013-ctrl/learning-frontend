@@ -1,0 +1,14 @@
+[
+  {
+    "slug": "learning-lab",
+    "name": "Learning Lab",
+    "description": "This notebook app",
+    "color": "#534AB7"
+  },
+  {
+    "slug": "slotfusion",
+    "name": "SlotFusion",
+    "description": "Warehouse slotting product",
+    "color": "#B7724A"
+  }
+]

@@ -1,0 +1,247 @@
+[
+  {
+    "id": "q-tailwind-1",
+    "lessonId": "tailwind-padding-vs-margin",
+    "topicSlug": "tailwind",
+    "codebaseSlug": "learning-lab",
+    "question": "What does `p-4` add to an element in Tailwind?",
+    "type": "recall",
+    "answer": "1rem of padding on all four sides (inside the element's border).",
+    "distractors": ["1rem of margin on all sides", "4px of padding on all sides", "Padding only on top"]
+  },
+  {
+    "id": "q-tailwind-2",
+    "lessonId": "tailwind-padding-vs-margin",
+    "topicSlug": "tailwind",
+    "codebaseSlug": "learning-lab",
+    "question": "A designer says 'add breathing room inside this card.' Padding or margin?",
+    "type": "application",
+    "answer": "Padding — it's space inside the element.",
+    "distractors": ["Margin", "Either works the same way", "Border"]
+  },
+  {
+    "id": "q-tailwind-3",
+    "lessonId": "tailwind-padding-vs-margin",
+    "topicSlug": "tailwind",
+    "codebaseSlug": "learning-lab",
+    "question": "You want consistent vertical spacing between cards in a flex column. What's the cleanest Tailwind approach?",
+    "type": "application",
+    "answer": "Use `gap-4` (or similar) on the flex parent.",
+    "distractors": ["Add `mb-4` to every card", "Use `p-4` on each card", "Use `space-y-*` always"]
+  },
+  {
+    "id": "q-tailwind-4",
+    "lessonId": "tailwind-padding-vs-margin",
+    "topicSlug": "tailwind",
+    "codebaseSlug": "learning-lab",
+    "question": "Why might `gap` on a parent be preferable to `margin` on children?",
+    "type": "critique",
+    "answer": "Gap doesn't double up between adjacent elements and lives in one place on the parent — easier to change."
+  },
+  {
+    "id": "q-react-1",
+    "lessonId": "react-props-vs-state",
+    "topicSlug": "react",
+    "codebaseSlug": "learning-lab",
+    "question": "What's the key difference between props and state?",
+    "type": "recall",
+    "answer": "Props are passed in from a parent and are read-only. State is owned by the component and can change.",
+    "distractors": ["Props are mutable; state is not", "They're interchangeable", "State is global; props are local"]
+  },
+  {
+    "id": "q-react-2",
+    "lessonId": "react-props-vs-state",
+    "topicSlug": "react",
+    "codebaseSlug": "learning-lab",
+    "question": "Two sibling components need to read the same value. Where should it live?",
+    "type": "application",
+    "answer": "In their lowest common ancestor — lift state up and pass it down via props.",
+    "distractors": ["In a global variable", "Duplicate it in both", "In localStorage"]
+  },
+  {
+    "id": "q-react-3",
+    "lessonId": "react-props-vs-state",
+    "topicSlug": "react",
+    "codebaseSlug": "learning-lab",
+    "question": "When would `useReducer` be more appropriate than `useState`?",
+    "type": "application",
+    "answer": "When state has multiple fields and many transitions — a reducer makes changes more predictable."
+  },
+  {
+    "id": "q-react-4",
+    "lessonId": "react-props-vs-state",
+    "topicSlug": "react",
+    "codebaseSlug": "learning-lab",
+    "question": "What's the typical mistake beginners make about where state should live?",
+    "type": "critique",
+    "answer": "Over-localizing state and then prop-drilling setters to siblings. Lift state up sooner."
+  },
+  {
+    "id": "q-nextjs-1",
+    "lessonId": "nextjs-server-vs-client",
+    "topicSlug": "nextjs",
+    "codebaseSlug": "learning-lab",
+    "question": "In the App Router, what's the default — server or client component?",
+    "type": "recall",
+    "answer": "Server component. You opt into client with 'use client' at the top of the file.",
+    "distractors": ["Client component", "Neither — you choose per render", "Both at the same time"]
+  },
+  {
+    "id": "q-nextjs-2",
+    "lessonId": "nextjs-server-vs-client",
+    "topicSlug": "nextjs",
+    "codebaseSlug": "learning-lab",
+    "question": "Can a server component import a client component?",
+    "type": "recall",
+    "answer": "Yes — server components can render client components. The reverse (client importing server) is what doesn't work directly."
+  },
+  {
+    "id": "q-nextjs-3",
+    "lessonId": "nextjs-server-vs-client",
+    "topicSlug": "nextjs",
+    "codebaseSlug": "learning-lab",
+    "question": "You need `useState` in a deeply nested UI piece. Where should the 'use client' directive go?",
+    "type": "application",
+    "answer": "On that piece's file — as deep as possible. Keep parent layouts as server components."
+  },
+  {
+    "id": "q-nextjs-4",
+    "lessonId": "nextjs-server-vs-client",
+    "topicSlug": "nextjs",
+    "codebaseSlug": "learning-lab",
+    "question": "Why is reflexively adding 'use client' to every component a bad habit?",
+    "type": "critique",
+    "answer": "You lose streaming and server data-fetching ergonomics, and ship more JavaScript than necessary to the browser."
+  },
+  {
+    "id": "q-shadcn-1",
+    "lessonId": "shadcn-copies-components",
+    "topicSlug": "shadcn",
+    "codebaseSlug": "learning-lab",
+    "question": "How does shadcn deliver components, mechanically?",
+    "type": "recall",
+    "answer": "A CLI copies the component source files into your repo. There's no npm package to import from.",
+    "distractors": ["As an npm package", "Through a CDN", "As a Figma plugin"]
+  },
+  {
+    "id": "q-shadcn-2",
+    "lessonId": "shadcn-copies-components",
+    "topicSlug": "shadcn",
+    "codebaseSlug": "learning-lab",
+    "question": "What's the main trade-off of shadcn's copy-into-your-repo approach?",
+    "type": "critique",
+    "answer": "You own and can edit the code (good), but you're also responsible for maintaining it — no `npm update` to fix bugs."
+  },
+  {
+    "id": "q-shadcn-3",
+    "lessonId": "shadcn-copies-components",
+    "topicSlug": "shadcn",
+    "codebaseSlug": "learning-lab",
+    "question": "When might MUI or Chakra be a better choice than shadcn?",
+    "type": "application",
+    "answer": "When you want strong defaults and centralized updates with less customization — typical for large teams with many junior devs."
+  },
+  {
+    "id": "q-git-1",
+    "lessonId": "git-add-commit-push",
+    "topicSlug": "git",
+    "codebaseSlug": "learning-lab",
+    "question": "In one sentence, what does `git add` do?",
+    "type": "recall",
+    "answer": "It stages changes — telling git which changes to include in the next commit.",
+    "distractors": ["It uploads changes to GitHub", "It creates a new branch", "It saves a snapshot in history"]
+  },
+  {
+    "id": "q-git-2",
+    "lessonId": "git-add-commit-push",
+    "topicSlug": "git",
+    "codebaseSlug": "learning-lab",
+    "question": "You ran add and commit but teammates can't see your changes. What did you forget?",
+    "type": "application",
+    "answer": "`git push` — commits stay local until you push them to the remote."
+  },
+  {
+    "id": "q-git-3",
+    "lessonId": "git-add-commit-push",
+    "topicSlug": "git",
+    "codebaseSlug": "learning-lab",
+    "question": "Why prefer many small commits over a few big ones?",
+    "type": "critique",
+    "answer": "Small commits are easier to review, easier to undo, and make the history easier to read."
+  },
+  {
+    "id": "q-docker-1",
+    "lessonId": "docker-compose-up",
+    "topicSlug": "docker",
+    "codebaseSlug": "learning-lab",
+    "question": "What file does `docker compose up` read?",
+    "type": "recall",
+    "answer": "`docker-compose.yml` in the current directory.",
+    "distractors": ["package.json", "Dockerfile", ".env"]
+  },
+  {
+    "id": "q-docker-2",
+    "lessonId": "docker-compose-up",
+    "topicSlug": "docker",
+    "codebaseSlug": "learning-lab",
+    "question": "Why use docker for local Postgres instead of installing it on your machine?",
+    "type": "application",
+    "answer": "Everyone on the team runs the same version with no per-machine setup, avoiding 'works on my machine' bugs."
+  },
+  {
+    "id": "q-docker-3",
+    "lessonId": "docker-compose-up",
+    "topicSlug": "docker",
+    "codebaseSlug": "learning-lab",
+    "question": "`docker compose up` fails with 'port already in use.' What's the usual fix?",
+    "type": "application",
+    "answer": "Stop whatever else is using that port (another Postgres, another compose stack) or change the host-side port mapping."
+  },
+  {
+    "id": "q-docker-4",
+    "lessonId": "docker-compose-up",
+    "topicSlug": "docker",
+    "codebaseSlug": "learning-lab",
+    "question": "When is hosted cloud Postgres (e.g. Neon) preferable to local docker?",
+    "type": "critique",
+    "answer": "When teammates need to share state, or you're close enough to deploy that you want production-like behavior."
+  },
+  {
+    "id": "q-apis-1",
+    "lessonId": "apis-rest-endpoint",
+    "topicSlug": "apis",
+    "codebaseSlug": "learning-lab",
+    "question": "What are the two parts that define a REST endpoint?",
+    "type": "recall",
+    "answer": "A URL (the resource) and an HTTP method (the action) — e.g. `GET /api/lessons`.",
+    "distractors": ["The hostname and port", "The status code and body", "The cookies and headers"]
+  },
+  {
+    "id": "q-apis-2",
+    "lessonId": "apis-rest-endpoint",
+    "topicSlug": "apis",
+    "codebaseSlug": "learning-lab",
+    "question": "What method would you use to *create* a new lesson via REST?",
+    "type": "application",
+    "answer": "POST — e.g. `POST /api/lessons` with the new lesson in the request body.",
+    "distractors": ["GET", "DELETE", "PATCH"]
+  },
+  {
+    "id": "q-apis-3",
+    "lessonId": "apis-rest-endpoint",
+    "topicSlug": "apis",
+    "codebaseSlug": "learning-lab",
+    "question": "Your fetch call doesn't throw but the data looks empty. What should you check first?",
+    "type": "application",
+    "answer": "`res.ok` and `res.status` — fetch only rejects on network errors, not 4xx/5xx responses."
+  },
+  {
+    "id": "q-apis-4",
+    "lessonId": "apis-rest-endpoint",
+    "topicSlug": "apis",
+    "codebaseSlug": "learning-lab",
+    "question": "What's a common pain point of REST in complex apps?",
+    "type": "critique",
+    "answer": "Many round-trips for a single screen — fetching nested data often requires multiple sequential requests."
+  }
+]

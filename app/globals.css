@@ -1,0 +1,83 @@
+@import "tailwindcss";
+
+:root {
+  --paper: #fbf9f3;
+  --paper-dark: #1a1a18;
+  --ink: #2c2c2a;
+  --ink-dark: #e8e6de;
+  --muted: #73726c;
+  --muted-dark: #a8a69c;
+  --rule: rgba(0, 0, 0, 0.04);
+  --rule-dark: rgba(255, 255, 255, 0.04);
+  --accent: #534ab7;
+  --accent-soft: rgba(83, 74, 183, 0.08);
+
+  --background: var(--paper);
+  --foreground: var(--ink);
+  --foreground-muted: var(--muted);
+  --rule-color: var(--rule);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: var(--paper-dark);
+    --foreground: var(--ink-dark);
+    --foreground-muted: var(--muted-dark);
+    --rule-color: var(--rule-dark);
+    --accent-soft: rgba(83, 74, 183, 0.18);
+  }
+}
+
+@theme inline {
+  --color-paper: var(--background);
+  --color-ink: var(--foreground);
+  --color-muted: var(--foreground-muted);
+  --color-accent: var(--accent);
+  --color-accent-soft: var(--accent-soft);
+  --color-rule: var(--rule-color);
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-serif: var(--font-source-serif), Charter, Georgia, "Times New Roman", serif;
+  --font-mono: var(--font-jetbrains-mono), "JetBrains Mono", "Fira Code", Menlo, monospace;
+}
+
+html,
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+}
+
+.paper-lines {
+  background-image: repeating-linear-gradient(
+    to bottom,
+    transparent 0,
+    transparent 27px,
+    var(--rule-color) 27px,
+    var(--rule-color) 28px
+  );
+}
+
+.prose-notebook {
+  font-family: var(--font-serif);
+  font-size: 16px;
+  line-height: 1.75;
+  color: var(--foreground);
+}
+
+.prose-notebook p {
+  margin-bottom: 1rem;
+}
+
+.prose-notebook code {
+  font-family: var(--font-mono);
+  font-size: 0.9em;
+  padding: 0.1em 0.35em;
+  background: var(--accent-soft);
+  border-radius: 4px;
+  color: var(--accent);
+}
+
+::selection {
+  background: var(--accent-soft);
+  color: var(--accent);
+}

@@ -1,0 +1,62 @@
+[
+  {
+    "slug": "tailwind",
+    "name": "Tailwind CSS",
+    "description": "Utility-first CSS, applied directly in markup",
+    "order": 1
+  },
+  {
+    "slug": "react",
+    "name": "React",
+    "description": "Components, props, state, hooks",
+    "order": 2
+  },
+  {
+    "slug": "nextjs",
+    "name": "Next.js",
+    "description": "App Router, server/client components, routing",
+    "order": 3
+  },
+  {
+    "slug": "shadcn",
+    "name": "shadcn/ui",
+    "description": "Composable component primitives",
+    "order": 4
+  },
+  {
+    "slug": "typescript",
+    "name": "TypeScript",
+    "description": "Types I actually use, not the whole language",
+    "order": 5
+  },
+  {
+    "slug": "backend-basics",
+    "name": "Backend basics",
+    "description": "FastAPI, Postgres, Redis, queues — what I need to read engineer-written code",
+    "order": 6
+  },
+  {
+    "slug": "docker",
+    "name": "Docker",
+    "description": "Commands and container concepts",
+    "order": 7
+  },
+  {
+    "slug": "git",
+    "name": "Git",
+    "description": "Commands and workflows",
+    "order": 8
+  },
+  {
+    "slug": "apis",
+    "name": "APIs",
+    "description": "How frontend and backend talk",
+    "order": 9
+  },
+  {
+    "slug": "design-patterns",
+    "name": "Design Patterns",
+    "description": "Cross-cutting design and code patterns",
+    "order": 10
+  }
+]
