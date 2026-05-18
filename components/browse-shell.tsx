@@ -60,7 +60,7 @@ export function BrowseShell({ viewMode, scopeSlug }: Props) {
       ) : (
         <CodebaseTabs activeSlug={scopeSlug} />
       )}
-      <main className="flex-1 paper-lines">
+      <main className="flex-1">
         <div className="mx-auto max-w-[1200px] flex">
           <LessonList
             lessons={lessons}

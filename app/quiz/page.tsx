@@ -16,7 +16,7 @@ export default function QuizPage() {
   return (
     <>
       <TopBar viewMode={viewMode} />
-      <main className="flex-1 paper-lines">
+      <main className="flex-1">
         <div className="mx-auto max-w-3xl px-6 py-10">
           <header className="mb-6">
             <h1 className="font-sans text-2xl font-semibold text-ink">Mixed quiz</h1>

@@ -1,16 +1,22 @@
 "use client";
 
 import * as React from "react";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { QuizCard } from "@/components/quiz-card";
 import {
   quizzes as allQuizzes,
+  topics,
   getTopic,
   getCodebase,
 } from "@/lib/data";
-import { readQuizProgress, writeQuizProgress } from "@/lib/storage";
+import {
+  KEYS,
+  readQuizProgress,
+  readString,
+  writeQuizProgress,
+} from "@/lib/storage";
 import type { Quiz } from "@/types";
 
 type Props = {
@@ -18,6 +24,7 @@ type Props = {
   shuffleQuizzes?: boolean;
   showLessonLink?: boolean;
   emptyMessage?: string;
+  onBackToNotes?: () => void;
 };
 
 function shuffle<T>(arr: T[]): T[] {
@@ -58,12 +65,23 @@ export function QuizRunner({
   shuffleQuizzes = true,
   showLessonLink = true,
   emptyMessage = "No quizzes here yet.",
+  onBackToNotes,
 }: Props) {
+  const router = useRouter();
   const source = quizzes ?? allQuizzes;
   const buildDeck = React.useCallback(
     () => (shuffleQuizzes ? shuffle(source) : source.slice()),
     [source, shuffleQuizzes],
   );
+
+  const handleBackToNotes = () => {
+    if (onBackToNotes) {
+      onBackToNotes();
+      return;
+    }
+    const slug = readString(KEYS.lastTopic) ?? topics[0]?.slug ?? "tailwind";
+    router.push(`/topics/${slug}`);
+  };
 
   const [deck, setDeck] = React.useState<Quiz[]>(() => buildDeck());
   const [index, setIndex] = React.useState(0);
@@ -136,11 +154,9 @@ export function QuizRunner({
           <Button onClick={restart}>
             <RotateCcw size={14} /> New session
           </Button>
-          <Link href="/topics/tailwind">
-            <Button variant="ghost" size="md">
-              Back to notes
-            </Button>
-          </Link>
+          <Button onClick={handleBackToNotes} variant="ghost" size="md">
+            Back to notes
+          </Button>
         </div>
       </div>
     );

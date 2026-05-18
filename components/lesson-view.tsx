@@ -17,7 +17,10 @@ export function LessonView({ lesson }: Props) {
   const [tab, setTab] = React.useState<Tab>("notes");
   const topic = getTopic(lesson.topicSlug);
   const codebase = getCodebase(lesson.codebaseSlug);
-  const quizzes = getQuizzesByLesson(lesson.id);
+  const quizzes = React.useMemo(
+    () => getQuizzesByLesson(lesson.id),
+    [lesson.id],
+  );
 
   React.useEffect(() => setTab("notes"), [lesson.id]);
 
@@ -93,6 +96,7 @@ export function LessonView({ lesson }: Props) {
             shuffleQuizzes={false}
             showLessonLink={false}
             emptyMessage="No quizzes yet for this lesson."
+            onBackToNotes={() => setTab("notes")}
           />
         </div>
       )}

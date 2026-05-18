@@ -41,16 +41,6 @@ body {
   color-scheme: light;
 }
 
-.paper-lines {
-  background-image: repeating-linear-gradient(
-    to bottom,
-    transparent 0,
-    transparent 27px,
-    var(--rule) 27px,
-    var(--rule) 28px
-  );
-}
-
 .prose-notebook {
   font-family: var(--font-serif);
   font-size: 16px;
