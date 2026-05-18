@@ -64,7 +64,7 @@ export function LessonView({ lesson }: Props) {
       </div>
 
       {tab === "notes" ? (
-        <div className="prose-notebook max-w-prose">
+        <div className="prose-notebook font-serif max-w-prose">
           <p>{lesson.concept}</p>
           <CodeBlock {...lesson.example} />
           {lesson.alternatives.length > 0 && (
@@ -75,7 +75,7 @@ export function LessonView({ lesson }: Props) {
                   <li key={i} className="border-l-2 border-accent/30 pl-4">
                     <p className="font-sans font-medium text-ink">{a.approach}</p>
                     {a.code && <CodeBlock code={a.code} language={lesson.example.language} />}
-                    <p className="text-[15px] text-muted">{a.whenToUse}</p>
+                    <p className="font-serif text-[15px] text-muted">{a.whenToUse}</p>
                   </li>
                 ))}
               </ul>

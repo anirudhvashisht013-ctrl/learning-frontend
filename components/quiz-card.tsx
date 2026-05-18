@@ -53,7 +53,7 @@ export function QuizCard({ quiz, showLessonLink = true, onAnswered, className }:
           </Button>
         ) : (
           <div className="space-y-3">
-            <div className="rounded-md border border-rule bg-accent-soft/40 p-3 font-serif text-[15px] leading-relaxed text-ink">
+            <div className="rounded-md border border-rule bg-code p-3 font-serif text-[15px] leading-relaxed text-ink">
               {quiz.answer}
             </div>
             <div className="flex items-center gap-2">

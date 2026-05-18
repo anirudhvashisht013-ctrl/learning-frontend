@@ -26,7 +26,7 @@ export function CodeBlock({ code, language, annotation, className }: CodeBlockPr
 
   return (
     <figure className={cn("group relative my-4", className)}>
-      <pre className="overflow-x-auto rounded-lg border border-rule bg-accent-soft/40 p-4 font-mono text-[13px] leading-6 text-ink">
+      <pre className="overflow-x-auto rounded-lg border border-rule bg-code p-4 font-mono text-[13px] leading-6 text-ink">
         <code>{code}</code>
       </pre>
       <button
