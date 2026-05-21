@@ -4,6 +4,7 @@ import * as React from "react";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { CodeBlock } from "@/components/code-block";
+import Markdown from "@/components/markdown";
 import { QuizRunner } from "@/components/quiz-runner";
 import { cn } from "@/lib/utils";
 import { getCodebase, getQuizzesByLesson, getTopic } from "@/lib/data";
@@ -68,8 +69,8 @@ export function LessonView({ lesson }: Props) {
 
       {tab === "notes" ? (
         <div className="prose-notebook font-serif max-w-prose">
-          <p>{lesson.concept}</p>
-          <CodeBlock {...lesson.example} />
+          <Markdown>{lesson.concept}</Markdown>
+          {lesson.example.code && <CodeBlock {...lesson.example} />}
           {lesson.alternatives.length > 0 && (
             <section className="mt-6">
               <h2 className="font-sans text-sm uppercase tracking-[0.12em] text-muted mb-2">Alternatives</h2>
@@ -84,10 +85,12 @@ export function LessonView({ lesson }: Props) {
               </ul>
             </section>
           )}
-          <section className="mt-6">
-            <h2 className="font-sans text-sm uppercase tracking-[0.12em] text-muted mb-2">Critique</h2>
-            <p>{lesson.critique}</p>
-          </section>
+          {lesson.critique && (
+            <section className="mt-6">
+              <h2 className="font-sans text-sm uppercase tracking-[0.12em] text-muted mb-2">Critique</h2>
+              <Markdown>{lesson.critique}</Markdown>
+            </section>
+          )}
         </div>
       ) : (
         <div className="max-w-prose">

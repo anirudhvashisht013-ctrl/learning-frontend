@@ -1,62 +1,26 @@
 [
   {
-    "slug": "tailwind",
-    "name": "Tailwind CSS",
-    "description": "Utility-first CSS, applied directly in markup",
+    "slug": "architecture",
+    "name": "Architecture",
+    "description": "Product, systems, decisions — context I revisit occasionally",
     "order": 1
   },
   {
-    "slug": "react",
-    "name": "React",
-    "description": "Components, props, state, hooks",
+    "slug": "frontend",
+    "name": "Frontend",
+    "description": "Next.js, React, TypeScript, Tailwind, shadcn — daily craft",
     "order": 2
   },
   {
-    "slug": "nextjs",
-    "name": "Next.js",
-    "description": "App Router, server/client components, routing",
+    "slug": "tools",
+    "name": "Tools",
+    "description": "Git, Bitbucket, Docker, terminal — workflow commands",
     "order": 3
   },
   {
-    "slug": "shadcn",
-    "name": "shadcn/ui",
-    "description": "Composable component primitives",
+    "slug": "ai-craft",
+    "name": "AI Craft",
+    "description": "Working with Claude, Claude Code, prompting patterns",
     "order": 4
-  },
-  {
-    "slug": "typescript",
-    "name": "TypeScript",
-    "description": "Types I actually use, not the whole language",
-    "order": 5
-  },
-  {
-    "slug": "backend-basics",
-    "name": "Backend basics",
-    "description": "FastAPI, Postgres, Redis, queues — what I need to read engineer-written code",
-    "order": 6
-  },
-  {
-    "slug": "docker",
-    "name": "Docker",
-    "description": "Commands and container concepts",
-    "order": 7
-  },
-  {
-    "slug": "git",
-    "name": "Git",
-    "description": "Commands and workflows",
-    "order": 8
-  },
-  {
-    "slug": "apis",
-    "name": "APIs",
-    "description": "How frontend and backend talk",
-    "order": 9
-  },
-  {
-    "slug": "design-patterns",
-    "name": "Design Patterns",
-    "description": "Cross-cutting design and code patterns",
-    "order": 10
   }
 ]

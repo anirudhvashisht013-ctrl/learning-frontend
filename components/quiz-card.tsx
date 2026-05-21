@@ -5,6 +5,7 @@ import Link from "next/link";
 import { ArrowRight, Check, X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import Markdown from "@/components/markdown";
 import { cn } from "@/lib/utils";
 import { getCodebase, getLesson, getTopic } from "@/lib/data";
 import type { Quiz, QuizOption } from "@/types";
@@ -73,9 +74,9 @@ export function QuizCard({
         {codebase && <Badge variant="muted">{codebase.name}</Badge>}
       </div>
 
-      <h3 className="font-sans text-lg font-semibold text-ink leading-snug">
-        {quiz.question}
-      </h3>
+      <div className="font-sans text-lg font-semibold text-ink leading-snug">
+        <Markdown>{quiz.question}</Markdown>
+      </div>
 
       <ul role="radiogroup" className="mt-5 flex flex-col gap-2">
         {quiz.options.map((option) => {
@@ -179,12 +180,12 @@ function OptionRow({ option, state, disabled, onSelect }: OptionRowProps) {
         </span>
       </button>
       {showExplanation && (
-        <p
+        <div
           className="mt-1.5 ml-3 pl-3 border-l-2 text-xs text-muted leading-relaxed font-serif"
           style={{ borderColor: explanationBorderColor }}
         >
-          {option.explanation}
-        </p>
+          <Markdown>{option.explanation}</Markdown>
+        </div>
       )}
     </div>
   );

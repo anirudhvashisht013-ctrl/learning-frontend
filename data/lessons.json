@@ -1,1028 +1,221 @@
 [
   {
-    "id": "tailwind-ch1-utility-first",
-    "topicSlug": "tailwind",
-    "codebaseSlug": "learning-lab",
+    "id": "slotfusion-system-in-one-breath",
+    "topicSlug": "architecture",
+    "codebaseSlug": "slotfusion",
     "type": "chapter",
     "chapterNumber": 1,
-    "title": "What is utility-first CSS?",
-    "concept": "Utility-first is a way of writing CSS where you don't write CSS at all — at least not the long way. Instead of defining a class like `.card { padding: 16px; background: white; border-radius: 8px; }` and then putting `class=\"card\"` on your element, you put the styling directly in the markup as tiny class names: `class=\"p-4 bg-white rounded-lg\"`. Each class does exactly one thing. You compose styles by stacking them. The mental shift is that styling is no longer a separate world from the markup — it lives right where the element does, so you can see what something looks like by reading the HTML. Tailwind is the most popular framework that ships these utilities. It gives you thousands of pre-made classes, and you build your UI by combining them. The trade-off: your markup gets longer and noisier. The benefit: you stop renaming things, stop hunting through CSS files, and stop fighting cascade conflicts.",
+    "title": "The whole system in one breath",
+    "concept": "SlotFusion has **three pieces of software** and **four services they share**.\n\nThe three pieces are:\n\n- **Next.js app** — runs at one URL, serves both the UI and the API. This is our home base as designers.\n- **Python workers** — run in the background. They pick up \"do this slotting job\" messages and execute the heavy algorithm.\n- **The browser** — where the user actually is.\n\nThe four shared services are:\n\n- **PostgreSQL** — the database. Stores users, runs, jobs, audit logs.\n- **Redis** — the queue. A short-term message board where the app drops jobs for workers to pick up.\n- **S3 / MinIO** — file storage. Excel uploads in, result Excels out. Big files don't live in the database.\n- **Logs** — structured JSON records of everything happening, for debugging.\n\n### The user flow when they submit a run\n\n1. User uploads three Excel files and clicks \"Run slotting\"\n2. Browser sends data to Next.js\n3. Next.js stores files in S3\n4. Next.js creates a `run` row in PostgreSQL\n5. Next.js creates a `job` row in PostgreSQL\n6. Next.js drops a message in Redis\n7. Next.js responds instantly: \"accepted, here's your run ID\"\n8. Browser navigates to the run detail page, starts polling\n9. Python worker pulls the message from Redis\n10. Worker downloads files from S3\n11. Worker runs the slotting algorithm\n12. Worker uploads results back to S3\n13. Worker updates PostgreSQL to mark the run as succeeded\n14. Browser's next poll sees the new status\n\nThat's the entire core flow. Everything else is detail.",
     "example": {
-      "code": "<button class=\"px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700\">\n  Save\n</button>",
-      "language": "html",
-      "annotation": "Five utilities — padding, color, text color, radius, hover state — all in one place."
+      "code": "",
+      "language": "",
+      "annotation": ""
     },
-    "alternatives": [
-      {
-        "approach": "Write traditional CSS classes (`.btn { ... }`)",
-        "whenToUse": "When the same exact styling repeats many times across the app and you'd benefit from naming the pattern once. Good for design-system primitives."
-      },
-      {
-        "approach": "Use CSS Modules (component-scoped CSS files)",
-        "whenToUse": "When you want strong style isolation per component and your team prefers separating structure from styling. Common in some React/Next.js projects."
-      }
-    ],
-    "critique": "The common complaint is 'this markup is ugly.' That's true at first glance. The real value is what it removes: dead CSS files, naming debates, specificity wars, and the back-and-forth between HTML and a stylesheet. Most teams find the noise becomes invisible after a week.",
-    "createdAt": "2026-05-19T00:00:00Z",
-    "tags": ["tailwind", "fundamentals", "css", "utility-first"]
+    "alternatives": [],
+    "critique": "",
+    "createdAt": "2026-05-21T00:00:00Z",
+    "tags": [
+      "slotfusion",
+      "overview",
+      "system-design"
+    ]
   },
   {
-    "id": "tailwind-ch2-reading-class",
-    "topicSlug": "tailwind",
-    "codebaseSlug": "learning-lab",
+    "id": "slotfusion-tenants",
+    "topicSlug": "architecture",
+    "codebaseSlug": "slotfusion",
     "type": "chapter",
     "chapterNumber": 2,
-    "title": "How to read a Tailwind class",
-    "concept": "Every Tailwind class follows the same skeleton: an optional state prefix, then a property, then a value. Take `hover:bg-blue-500`. The `hover:` part is a state prefix — it says 'apply this only when the element is hovered.' The `bg` part is the property (background color). The `-blue-500` part is the value (the color and its shade). Strip the prefix and you get the default, no-state version: `bg-blue-500`. Other prefixes work the same way: `md:` (apply at medium screens and up), `focus:` (when focused), `dark:` (in dark mode), `disabled:` (when disabled). You can stack them: `md:hover:bg-blue-500` means 'on medium screens and up, when hovered.' The values inside a class also follow patterns — color names use a 50–950 scale (50 lightest, 950 darkest), spacing uses a 0–96 scale (each step is 0.25rem), and text sizes use t-shirt sizes (`text-xs`, `text-sm`, `text-base`, `text-lg`). Once these patterns click, you can predict class names instead of looking them up.",
+    "title": "Tenants and multi-tenancy",
+    "concept": "A **tenant** is a customer company in a multi-customer SaaS.\n\nIn SlotFusion, a tenant is a warehouse company. Examples: Acme Logistics, Globex Distribution, Initech Storage. Each tenant has their own users, runs, and data. They share the same servers and the same app — but their data is **completely isolated**.\n\nWhen Sarah signs up for Acme, she gets a user with `tenant_id = acme-uuid`. Every run she submits has that same `tenant_id`. When Bob from Globex logs in, the system filters everything to `tenant_id = globex-uuid`. Sarah and Bob never see each other's data.\n\n### Why anyone does this\n\nThe alternative is **single-tenant** — one app deployment per customer. Three customers means three databases, three servers, three deployments to update. **Multi-tenancy** means one app, infinite customers, instant onboarding. Big operational win, but you have to be obsessive about isolation.\n\n### What this means for design\n\n- Every screen should make the user's tenant visible. Most multi-tenant apps put the tenant name in the top-left header (Slack, Linear, Notion, Figma all do this).\n- The dashboard implicitly shows \"your tenant's data.\" No \"search all tenants\" feature for regular users.\n- Tenants can be `ACTIVE`, `SUSPENDED`, or `ARCHIVED`. We need to design what users see when their tenant gets suspended.\n\n### Reference apps\n\nLinear, Notion, Figma, Vercel — all great examples of workspace identity treatment.",
     "example": {
-      "code": "<a class=\"text-sm text-gray-600 hover:text-blue-600 md:text-base\">\n  Read more\n</a>",
-      "language": "html",
-      "annotation": "Three classes: size + color (default), color on hover, larger size at md+."
+      "code": "",
+      "language": "",
+      "annotation": ""
     },
-    "alternatives": [
-      {
-        "approach": "Look up every class in the Tailwind docs as you write",
-        "whenToUse": "When you're brand new. Acceptable for the first week, but slows you down. The patterns are predictable — learn the shape, not the catalog."
-      },
-      {
-        "approach": "Use editor autocomplete (Tailwind CSS IntelliSense)",
-        "whenToUse": "Always, regardless of experience. It surfaces valid class names as you type and saves the brain cycles."
-      }
-    ],
-    "critique": "Beginners try to memorize every class. That's the wrong shape of effort. Memorize the pattern (`prefix:property-value`) and the scales (color shades, spacing, breakpoints). The rest comes from autocomplete.",
-    "createdAt": "2026-05-19T00:00:00Z",
-    "tags": ["tailwind", "fundamentals", "class-names"]
+    "alternatives": [],
+    "critique": "",
+    "createdAt": "2026-05-21T00:00:00Z",
+    "tags": [
+      "slotfusion",
+      "multi-tenancy",
+      "saas"
+    ]
   },
   {
-    "id": "tailwind-ch3-spacing",
-    "topicSlug": "tailwind",
-    "codebaseSlug": "learning-lab",
+    "id": "slotfusion-rls",
+    "topicSlug": "architecture",
+    "codebaseSlug": "slotfusion",
     "type": "chapter",
     "chapterNumber": 3,
-    "title": "Spacing: padding, margin, and gap",
-    "concept": "There are three ways to push things apart in a layout, and they apply to different situations. Padding (`p-4`, `px-4`, `pt-2`) adds space inside an element, between its border and its content. Use it when you want breathing room around the text or children of a box. Margin (`m-4`, `mb-2`, `mx-auto`) adds space outside an element, pushing neighbors away. Use it when one specific element needs distance from what's around it. Gap (`gap-4`, `gap-x-2`) is set on a flex or grid parent, and it spaces the children evenly. Use it when you have a list of siblings and you want consistent spacing between all of them. The rule of thumb: prefer `gap` over margins on children whenever the parent is flex or grid. It's cleaner — one value on the parent controls everything, and you don't get awkward double-spacing where adjacent margins add up.",
+    "title": "RLS — Row-Level Security",
+    "concept": "RLS is a PostgreSQL feature that makes data isolation **bulletproof**.\n\nWithout RLS, every database query has to manually filter by tenant. If a developer forgets the `WHERE` clause even once, Acme sees everyone's data. Bad.\n\nWith RLS, the database itself enforces the filter. The current tenant is set as a session variable at the start of the connection. The database refuses to return rows that don't match — *even if the developer forgets the WHERE clause*.\n\nIt's **belt and suspenders**. Even if the application has a bug, the database won't leak.\n\n### What this means for design\n\nWe can trust the data we get. Whatever the API returns to our UI, it's already correctly filtered. We design as if every list is automatically \"your tenant only\" — because it is.\n\nA small bonus: error messages can be cleaner. We don't need to design for \"404 — does this run not exist, or does it exist but you don't have permission?\" The DB just says \"not found\" — neat from a UX standpoint.",
     "example": {
-      "code": "<div class=\"flex flex-col gap-4 p-6\">\n  <h2 class=\"text-lg font-semibold\">Title</h2>\n  <p>First paragraph.</p>\n  <p>Second paragraph.</p>\n</div>",
-      "language": "html",
-      "annotation": "p-6 = breathing room inside the box. gap-4 = even spacing between the three children."
-    },
-    "alternatives": [
-      {
-        "approach": "Use `space-y-*` / `space-x-*` for sibling spacing",
-        "whenToUse": "When the parent isn't flex or grid but you still want consistent spacing between children. Older pattern; modern code reaches for `gap` instead."
-      },
-      {
-        "approach": "Use margins on each child (`mb-4` on all but last)",
-        "whenToUse": "When you don't control the parent and can't add flex/grid to it. Avoid otherwise — it's tedious and easy to get wrong."
-      }
-    ],
-    "critique": "The classic beginner mistake is reaching for margin first. Margins collapse, double up, and live on the wrong element. When you have a parent you control, `gap` is almost always the cleaner answer.",
-    "createdAt": "2026-05-19T00:00:00Z",
-    "tags": ["tailwind", "spacing", "fundamentals", "layout"]
-  },
-  {
-    "id": "tailwind-ch4-flex-grid",
-    "topicSlug": "tailwind",
-    "codebaseSlug": "learning-lab",
-    "type": "chapter",
-    "chapterNumber": 4,
-    "title": "Layout basics: flex and grid",
-    "concept": "Flex and grid are the two layout systems you'll use ninety percent of the time. Flex (`flex`, `flex-col`, `items-center`) lays children out in one direction — either a row or a column. It's the right tool when you have a list of things and you care about how they line up along one axis: a navbar of items, a list of buttons, a label next to an input. Grid (`grid`, `grid-cols-3`, `gap-4`) lays children out in two directions — rows and columns at the same time. It's the right tool when you have a real grid: a gallery, a dashboard, a card layout that wraps. The mental shortcut: if you can describe what you want with one word like 'row' or 'column,' use flex. If you need two words like '3 columns and as many rows as needed,' use grid. Both support alignment, gaps, and wrapping, but the way you think about them is different.",
-    "example": {
-      "code": "<!-- Flex: a horizontal row of buttons -->\n<div class=\"flex items-center gap-2\">\n  <button>Save</button>\n  <button>Cancel</button>\n</div>\n\n<!-- Grid: a 3-column gallery -->\n<div class=\"grid grid-cols-3 gap-4\">\n  <Card /> <Card /> <Card />\n  <Card /> <Card /> <Card />\n</div>",
-      "language": "html",
-      "annotation": "Flex for one direction; grid for two."
-    },
-    "alternatives": [
-      {
-        "approach": "Use floats or `display: inline-block`",
-        "whenToUse": "Almost never in modern UI. These are legacy patterns. Flex and grid replaced them for nearly every use case."
-      },
-      {
-        "approach": "Use a CSS framework's grid system (e.g. Bootstrap rows/cols)",
-        "whenToUse": "When working inside a project that already uses that framework. Otherwise Tailwind's grid utilities are simpler and more direct."
-      }
-    ],
-    "critique": "Beginners reach for flex even when grid would be simpler, because flex feels more familiar. If you find yourself fighting flex with `flex-wrap` and manual widths to get a 3-column layout, switch to grid — that's what it's for.",
-    "createdAt": "2026-05-19T00:00:00Z",
-    "tags": ["tailwind", "layout", "flex", "grid"]
-  },
-  {
-    "id": "tailwind-ch5-responsive",
-    "topicSlug": "tailwind",
-    "codebaseSlug": "learning-lab",
-    "type": "chapter",
-    "chapterNumber": 5,
-    "title": "Responsive design: breakpoint prefixes",
-    "concept": "Tailwind's responsive design works by prefixing classes with a breakpoint name. The defaults are `sm:` (640px and up), `md:` (768px and up), `lg:` (1024px and up), `xl:` (1280px and up), and `2xl:` (1536px and up). A class without a prefix applies at every screen size. A class with a prefix applies at that breakpoint and every size above. This is the mobile-first idea: you write the small-screen version first (no prefix), then layer on bigger-screen overrides with prefixes. So `text-sm md:text-base lg:text-lg` means 'small text on phones, base size from tablet up, large size from desktop up.' You don't write separate styles for mobile-only; mobile is the default and bigger screens get extra rules. The mental flip: rather than designing for desktop and shrinking down, you design for the smallest screen and grow upward. It's faster, more predictable, and matches how most people actually use the web.",
-    "example": {
-      "code": "<div class=\"flex flex-col md:flex-row gap-2 md:gap-4\">\n  <Sidebar />\n  <Content />\n</div>",
-      "language": "html",
-      "annotation": "Stacked column on mobile, side-by-side row on md+."
-    },
-    "alternatives": [
-      {
-        "approach": "Write desktop-first with `max-` prefixes (`max-md:...`)",
-        "whenToUse": "When you're porting an existing desktop layout down to mobile. Rarely the right starting point for new work."
-      },
-      {
-        "approach": "Use a single fixed layout, no responsive logic",
-        "whenToUse": "When the app is an internal tool used only on desktops. Saves time, but most projects can't get away with this."
-      }
-    ],
-    "critique": "Newcomers reach for `max-sm:` and similar 'down from here' prefixes too often. The mobile-first model is faster once it clicks — you write less code because the default already works on the smallest screen, and you only add to it as you go up.",
-    "createdAt": "2026-05-19T00:00:00Z",
-    "tags": ["tailwind", "responsive", "breakpoints", "mobile-first"]
-  },
-  {
-    "id": "react-ch1-component",
-    "topicSlug": "react",
-    "codebaseSlug": "learning-lab",
-    "type": "chapter",
-    "chapterNumber": 1,
-    "title": "What is a component?",
-    "concept": "A component is a function that returns UI. That's the whole idea. You give it some inputs (called props), and it returns some markup describing what should appear on the screen. The function is named with a capital letter — `Button`, `Card`, `LessonView` — so React knows it's a component and not a regular HTML element. Components are the smallest reusable unit of a React app. You build big screens by combining small components. A page might be a `LessonView` made of a `Header` and a `Body` and a `Footer`, and each of those is made of even smaller pieces. The key insight: a component is just a function. Once you stop thinking of it as 'a React thing' and start thinking of it as 'a function that returns UI,' the rest of React makes more sense — calling a component is calling a function, passing props is passing arguments, and rendering means executing the function tree.",
-    "example": {
-      "code": "function Greeting({ name }: { name: string }) {\n  return <h1>Hello, {name}!</h1>;\n}\n\n// Used like an HTML tag:\n<Greeting name=\"Anirudh\" />",
-      "language": "tsx",
-      "annotation": "A function that takes props and returns JSX. Capital letter matters."
-    },
-    "alternatives": [
-      {
-        "approach": "Class components (`class Foo extends React.Component`)",
-        "whenToUse": "Almost never in new code. Legacy pattern from React's earlier days. You'll see them in older codebases."
-      },
-      {
-        "approach": "Inline JSX without extracting a component",
-        "whenToUse": "When the markup is used in exactly one place and is short. Don't extract a component just because you can — extract when reuse or readability demands it."
-      }
-    ],
-    "critique": "Beginners over-extract — they make a component for every two lines of JSX. The other extreme is under-extracting — one 500-line component that does everything. The right cut is usually 'extract when this chunk has a name worth saying out loud.'",
-    "createdAt": "2026-05-19T00:00:00Z",
-    "tags": ["react", "fundamentals", "components"]
-  },
-  {
-    "id": "react-ch2-jsx",
-    "topicSlug": "react",
-    "codebaseSlug": "learning-lab",
-    "type": "chapter",
-    "chapterNumber": 2,
-    "title": "What is JSX?",
-    "concept": "JSX is the HTML-looking syntax you write inside React components. It looks like HTML, but it's actually JavaScript in disguise. Under the hood, `<div className=\"box\">Hi</div>` becomes a function call: `React.createElement('div', { className: 'box' }, 'Hi')`. The compiler (usually Babel or SWC) does that transformation for you, so you can write what feels natural — markup — and get JavaScript out the other end. Because JSX is JavaScript, you can drop expressions into it with curly braces: `<p>{user.name}</p>` plugs in a variable, `<p>{count + 1}</p>` does math, `<ul>{items.map(i => <li>{i}</li>)}</ul>` loops. There are two attribute-name gotchas: HTML's `class` becomes `className` (because `class` is a JavaScript reserved word), and `for` becomes `htmlFor` (same reason). Beyond those, you mostly write HTML and it works.",
-    "example": {
-      "code": "function Profile({ user }: { user: { name: string; age: number } }) {\n  return (\n    <div className=\"profile\">\n      <h2>{user.name}</h2>\n      <p>Age: {user.age}</p>\n    </div>\n  );\n}",
-      "language": "tsx",
-      "annotation": "Curly braces escape from markup into JavaScript expressions."
-    },
-    "alternatives": [
-      {
-        "approach": "Write `React.createElement(...)` calls by hand",
-        "whenToUse": "Never, in practice. It's technically possible and it's what JSX compiles into, but nobody writes UI that way — JSX exists exactly to spare you."
-      },
-      {
-        "approach": "Use a templating language (Handlebars, EJS)",
-        "whenToUse": "In non-React stacks. Inside React, JSX is the idiomatic and supported choice."
-      }
-    ],
-    "critique": "The most common JSX bug is `class` instead of `className` — the page renders but the styles don't apply. The second most common is forgetting that JSX expressions need curly braces, leading to the literal string `{variable}` showing up on the page.",
-    "createdAt": "2026-05-19T00:00:00Z",
-    "tags": ["react", "jsx", "fundamentals", "syntax"]
-  },
-  {
-    "id": "react-ch3-props",
-    "topicSlug": "react",
-    "codebaseSlug": "learning-lab",
-    "type": "chapter",
-    "chapterNumber": 3,
-    "title": "What is a prop?",
-    "concept": "A prop is a value a parent component passes down to a child. They show up in the child's function signature like named arguments. If you write `<Avatar src=\"/me.png\" size={48} />`, the `Avatar` component receives `{ src: '/me.png', size: 48 }` as its props object. Props are read-only — the child should never reassign them. They flow one way, from parent to child, never the other direction. There's one special prop name: `children`. When you write `<Card>Hello</Card>`, the string `'Hello'` is passed in as `props.children`. The child can render `{children}` wherever it wants to slot that content in. Named props are best for specific known values (like `title`, `size`, `onClick`). The `children` prop is best for free-form content (like the body of a card, a dialog, or a list).",
-    "example": {
-      "code": "function Card({ title, children }: { title: string; children: React.ReactNode }) {\n  return (\n    <div className=\"card\">\n      <h3>{title}</h3>\n      <div className=\"body\">{children}</div>\n    </div>\n  );\n}\n\n<Card title=\"Welcome\">\n  <p>This goes into children.</p>\n</Card>",
-      "language": "tsx",
-      "annotation": "title is a named prop; the JSX between tags becomes children."
-    },
-    "alternatives": [
-      {
-        "approach": "Pass everything as children, no named props",
-        "whenToUse": "Almost never. Named props document intent and enable type-checking. Children alone is rarely enough."
-      },
-      {
-        "approach": "Use a context provider to share data instead of prop-drilling",
-        "whenToUse": "When the same value needs to reach deeply nested components. Don't reach for context for one or two levels — props are simpler."
-      }
-    ],
-    "critique": "Beginners mutate props (`props.size = 64`) and React doesn't stop them outright, but the change won't trigger re-renders and behavior gets weird. Treat props as read-only function arguments and you'll avoid most of these bugs.",
-    "createdAt": "2026-05-19T00:00:00Z",
-    "tags": ["react", "props", "fundamentals", "data-flow"]
-  },
-  {
-    "id": "react-ch4-state",
-    "topicSlug": "react",
-    "codebaseSlug": "learning-lab",
-    "type": "chapter",
-    "chapterNumber": 4,
-    "title": "What is state?",
-    "concept": "State is data a component owns and remembers between renders. Unlike props (which come from the parent and are read-only), state lives inside the component and can change. The standard way to declare state is the `useState` hook: `const [count, setCount] = useState(0)`. That gives you a value (`count`) and a setter (`setCount`). When you call the setter with a new value, React re-runs the component function with the new state, producing fresh UI. The mental model: props are inputs that come in from outside, state is memory that stays inside. If a piece of data changes over time inside one component, it's state. If a piece of data is passed in from a parent, it's a prop. If two siblings need the same data, lift the state up to a common parent and pass it down as props to both — that's the most common React pattern you'll see.",
-    "example": {
-      "code": "import { useState } from 'react';\n\nfunction Counter() {\n  const [count, setCount] = useState(0);\n  return (\n    <button onClick={() => setCount(count + 1)}>\n      Clicked {count} times\n    </button>\n  );\n}",
-      "language": "tsx",
-      "annotation": "useState(0) starts at 0; clicking calls setCount, which triggers a re-render."
-    },
-    "alternatives": [
-      {
-        "approach": "Use a regular variable (`let count = 0`)",
-        "whenToUse": "Never for UI that should update. Regular variables don't trigger re-renders, so the screen won't change when the value does."
-      },
-      {
-        "approach": "Use `useReducer` instead of `useState`",
-        "whenToUse": "When state has many fields with many possible transitions. Reducers consolidate the change logic in one place."
-      }
-    ],
-    "critique": "The hardest part isn't using `useState` — it's deciding where state should live. Over-localized state forces prop-drilling for setters; over-global state turns every change into a giant re-render. Lift state to the lowest component that needs it.",
-    "createdAt": "2026-05-19T00:00:00Z",
-    "tags": ["react", "state", "fundamentals", "useState"]
-  },
-  {
-    "id": "react-ch5-event-handler",
-    "topicSlug": "react",
-    "codebaseSlug": "learning-lab",
-    "type": "chapter",
-    "chapterNumber": 5,
-    "title": "What is an event handler?",
-    "concept": "An event handler is the function React calls when a user interacts with an element — a click, a keypress, a form change. You attach them as props on the element, named with a leading `on`: `onClick`, `onChange`, `onSubmit`, `onKeyDown`. The value you pass is a function. When the event fires, React calls your function and passes it an event object with details about what happened. The shape is always the same: the JSX attribute is the event name (camelCased), and the value is a function reference, not a function call. So `onClick={handleClick}` (passes the function) and `onClick={() => handleClick(id)}` (passes a wrapper that calls it) both work. But `onClick={handleClick()}` is wrong — that immediately calls `handleClick` and passes its return value as the handler, which usually means the handler fires on render instead of on click.",
-    "example": {
-      "code": "function SubmitButton() {\n  const handleClick = (e: React.MouseEvent) => {\n    console.log('clicked at', e.clientX, e.clientY);\n  };\n  return <button onClick={handleClick}>Save</button>;\n}",
-      "language": "tsx",
-      "annotation": "Pass the function reference, not its return value."
-    },
-    "alternatives": [
-      {
-        "approach": "Use `addEventListener` directly on a DOM element",
-        "whenToUse": "When you need to attach a listener that React can't model — like a global window resize. Inside React, prefer `onClick`-style props."
-      },
-      {
-        "approach": "Inline the handler (`onClick={() => setX(1)}`)",
-        "whenToUse": "When the handler is one short line. For multi-line logic, define a named function above the JSX — it reads better."
-      }
-    ],
-    "critique": "The most common bug is `onClick={handleClick()}` — calling the function instead of passing it. The handler runs immediately and never again. If a button 'does nothing' or 'does the thing on load,' check for that.",
-    "createdAt": "2026-05-19T00:00:00Z",
-    "tags": ["react", "events", "fundamentals", "onClick"]
-  },
-  {
-    "id": "nextjs-ch1-what-is",
-    "topicSlug": "nextjs",
-    "codebaseSlug": "learning-lab",
-    "type": "chapter",
-    "chapterNumber": 1,
-    "title": "What is Next.js (and why use it over plain React)?",
-    "concept": "Next.js is a framework built on top of React. Plain React gives you components and a way to render them, but it doesn't tell you how your app should be structured — how routing works, how data is fetched, how the app is built and served. Next.js fills in those gaps with strong defaults. You get file-based routing (the folder structure is the URL structure), built-in server rendering, automatic code-splitting, image optimization, and a deployment story that just works. The trade-off compared to plain React: Next.js has opinions. You give up some flexibility — files have to live in certain places, certain conventions apply — in exchange for a path that's faster and more performant by default. Most production React apps use a framework like Next.js because the alternative (wiring up routing, rendering, and bundling yourself) is months of work that doesn't ship features.",
-    "example": {
-      "code": "// File structure becomes routing:\n// app/page.tsx          -> /\n// app/about/page.tsx    -> /about\n// app/blog/[slug]/page.tsx -> /blog/<anything>\n\nexport default function HomePage() {\n  return <h1>Welcome</h1>;\n}",
-      "language": "tsx",
-      "annotation": "No router setup needed — the folder name is the URL."
-    },
-    "alternatives": [
-      {
-        "approach": "Plain React with Vite + React Router",
-        "whenToUse": "When you want a fast SPA, no server rendering, and full control over routing setup. Lighter than Next.js but you wire more up by hand."
-      },
-      {
-        "approach": "Remix (another React framework)",
-        "whenToUse": "When you prefer Remix's nested-routing and form-based data model. Smaller community than Next.js but a similar feature set."
-      }
-    ],
-    "critique": "Beginners sometimes pick plain React thinking 'I'll add what I need later.' That works for a weekend project. For anything you plan to deploy and grow, a framework saves more time than it costs.",
-    "createdAt": "2026-05-19T00:00:00Z",
-    "tags": ["nextjs", "framework", "fundamentals"]
-  },
-  {
-    "id": "nextjs-ch2-page",
-    "topicSlug": "nextjs",
-    "codebaseSlug": "learning-lab",
-    "type": "chapter",
-    "chapterNumber": 2,
-    "title": "What is a page?",
-    "concept": "In the Next.js App Router, a page is a `page.tsx` file inside the `app/` folder. The folder path becomes the URL. So `app/about/page.tsx` is `/about`, `app/dashboard/settings/page.tsx` is `/dashboard/settings`. The file must export a default React component — that component is what renders when someone visits the URL. The folder names matter; the file name `page.tsx` is fixed. You don't import or register the page anywhere — Next.js walks the `app/` directory at build time and treats each `page.tsx` it finds as a route. This is the whole routing system: no router config, no list of routes in code, just folders. Special characters in folder names mean special things — square brackets `[slug]` mark dynamic segments, parentheses `(group)` mark route groups that don't show up in the URL — but the basic case is just: folder = path.",
-    "example": {
-      "code": "// app/about/page.tsx — reachable at /about\nexport default function AboutPage() {\n  return (\n    <main>\n      <h1>About</h1>\n      <p>This is the about page.</p>\n    </main>\n  );\n}",
-      "language": "tsx",
-      "annotation": "Folder name (about) is the route. The file must be named page.tsx."
-    },
-    "alternatives": [
-      {
-        "approach": "Next.js Pages Router (`pages/` folder, older system)",
-        "whenToUse": "When working in an existing Pages Router project. New projects should default to App Router."
-      },
-      {
-        "approach": "React Router config (`<Route path=... element=... />`)",
-        "whenToUse": "When using plain React without Next.js. You list routes in code instead of using folders."
-      }
-    ],
-    "critique": "A common confusion: people name the file `index.tsx` (which works in the Pages Router) or `about.tsx` instead of putting `page.tsx` inside an `about/` folder. App Router is strict about this — the file has to be named exactly `page.tsx`.",
-    "createdAt": "2026-05-19T00:00:00Z",
-    "tags": ["nextjs", "routing", "app-router", "pages"]
-  },
-  {
-    "id": "nextjs-ch3-app-folder",
-    "topicSlug": "nextjs",
-    "codebaseSlug": "learning-lab",
-    "type": "chapter",
-    "chapterNumber": 3,
-    "title": "The `app/` folder explained",
-    "concept": "The `app/` folder is where your routes live, and it has a few special filenames that do specific things. `page.tsx` is the page itself — the thing that renders for that route. `layout.tsx` wraps every page in that folder and its subfolders — use it for shared shells like a navbar or sidebar. `loading.tsx` shows automatically while a server component is loading data. `error.tsx` shows when something throws an error in this route. `not-found.tsx` shows when a route or resource is missing (used with the `notFound()` helper). The root `app/layout.tsx` is the only required layout — it wraps every page in the app and defines the outer `<html>` and `<body>`. The mental model: page.tsx is the unique content for a URL; layout.tsx is the persistent shell around it; the others are special states (loading, error, missing). Each one is just a React component that exports default.",
-    "example": {
-      "code": "// app/layout.tsx — wraps every page in the app\nexport default function RootLayout({ children }) {\n  return (\n    <html>\n      <body>\n        <header>My App</header>\n        <main>{children}</main>\n      </body>\n    </html>\n  );\n}",
-      "language": "tsx",
-      "annotation": "children is the current page. Layouts persist across navigations."
-    },
-    "alternatives": [
-      {
-        "approach": "Put navigation in every page.tsx manually",
-        "whenToUse": "Never — that's exactly what layout.tsx exists to prevent. Repeating yourself across pages is brittle."
-      },
-      {
-        "approach": "Use the older Pages Router (`_app.tsx`, `_document.tsx`)",
-        "whenToUse": "When maintaining an existing Pages Router project. App Router's special files are the modern equivalent."
-      }
-    ],
-    "critique": "The mistake people make is putting too much in the root layout (auth checks, heavy data fetching) when a nested layout closer to the affected pages would be enough. Each subfolder can have its own layout.tsx — use them.",
-    "createdAt": "2026-05-19T00:00:00Z",
-    "tags": ["nextjs", "app-router", "layout", "fundamentals"]
-  },
-  {
-    "id": "nextjs-ch4-dynamic-routes",
-    "topicSlug": "nextjs",
-    "codebaseSlug": "learning-lab",
-    "type": "chapter",
-    "chapterNumber": 4,
-    "title": "Dynamic routes",
-    "concept": "A dynamic route is a URL where part of the path is a variable. In Next.js, you mark a dynamic segment by wrapping the folder name in square brackets: `app/blog/[slug]/page.tsx`. Now `/blog/anything` matches that page, and the value `anything` is available as a parameter. Inside the page component, you receive a `params` prop that contains the segment value: `params.slug` is whatever was in the URL. You can have multiple dynamic segments (`[category]/[slug]`), and you can mark catch-all segments with `[...slug]` to capture any remaining path. The mental model: a static folder name matches that exact word; a `[name]` folder matches anything and gives you the value. This is how blogs, product pages, user profiles, and any 'thing with an id' end up structured — one folder, one page.tsx, infinite URLs.",
-    "example": {
-      "code": "// app/blog/[slug]/page.tsx — matches /blog/hello, /blog/world, /blog/anything\ntype Props = { params: Promise<{ slug: string }> };\n\nexport default async function BlogPost({ params }: Props) {\n  const { slug } = await params;\n  return <article>Post about: {slug}</article>;\n}",
-      "language": "tsx",
-      "annotation": "params is a Promise in App Router. The slug value comes from the URL."
-    },
-    "alternatives": [
-      {
-        "approach": "One file per URL (no dynamic segments)",
-        "whenToUse": "When the URLs are a small fixed set (about, pricing, contact). Doesn't scale to hundreds of similar pages."
-      },
-      {
-        "approach": "Query parameters (`/blog?slug=hello`)",
-        "whenToUse": "When the value is optional or one of many filters. Path segments are better for primary identifiers; queries are better for refinements."
-      }
-    ],
-    "critique": "Two pitfalls trip up beginners. First: forgetting that `params` is a Promise in the App Router — you have to `await` it. Second: putting brackets in the file name instead of the folder name. The bracketed part is always a folder.",
-    "createdAt": "2026-05-19T00:00:00Z",
-    "tags": ["nextjs", "routing", "dynamic-routes", "fundamentals"]
-  },
-  {
-    "id": "nextjs-ch5-link",
-    "topicSlug": "nextjs",
-    "codebaseSlug": "learning-lab",
-    "type": "chapter",
-    "chapterNumber": 5,
-    "title": "The `Link` component",
-    "concept": "For navigating between pages of your Next.js app, use the `Link` component instead of a plain `<a href=\"...\">`. They look similar — both produce a clickable link — but `Link` is much faster. When you use `<a>`, clicking causes a full page reload: the browser tears down the current page, fetches a new HTML document, and re-runs everything from scratch. When you use `Link`, Next.js intercepts the click and swaps in just the new page's components, keeping the rest of the app (header, sidebar, current state) in place. It also pre-fetches the linked page in the background when it scrolls into view, so the transition feels instant. The rule of thumb: use `Link` for internal navigation (anywhere in your app) and `<a>` only for external URLs (other sites, mailto links, download links). The API is the same as `<a>` — `href` is required, you can put any markup inside — so the switch is mostly mechanical.",
-    "example": {
-      "code": "import Link from 'next/link';\n\nexport function Nav() {\n  return (\n    <nav>\n      <Link href=\"/\">Home</Link>\n      <Link href=\"/about\">About</Link>\n      <a href=\"https://github.com\" target=\"_blank\">GitHub</a>\n    </nav>\n  );\n}",
-      "language": "tsx",
-      "annotation": "Link for internal, anchor for external."
-    },
-    "alternatives": [
-      {
-        "approach": "Use plain `<a href=\"/about\">` for internal links",
-        "whenToUse": "Never recommended. It works, but you lose pre-fetching, client-side transitions, and you re-load the whole page on every click."
-      },
-      {
-        "approach": "Use `router.push('/about')` programmatically",
-        "whenToUse": "When the navigation isn't a click on a link — after a form submission, after a successful API call, after a delay. For visible clickable links, prefer Link."
-      }
-    ],
-    "critique": "Some people import `Link` and then write `<Link href=\"https://twitter.com\">` for external sites. That works but it's not what `Link` is for — external navigations don't benefit from pre-fetching or client transitions. Stick with `<a>` for off-site URLs.",
-    "createdAt": "2026-05-19T00:00:00Z",
-    "tags": ["nextjs", "navigation", "link", "routing"]
-  },
-  {
-    "id": "shadcn-ch1-component-library",
-    "topicSlug": "shadcn",
-    "codebaseSlug": "learning-lab",
-    "type": "chapter",
-    "chapterNumber": 1,
-    "title": "What is a component library?",
-    "concept": "A component library is a collection of pre-built UI pieces — buttons, dropdowns, dialogs, inputs, toasts — that you drop into your app instead of designing and coding each one from scratch. Building these from zero is a huge time sink. An accessible dropdown menu alone involves keyboard navigation, focus management, ARIA attributes, click-outside-to-close, and dozens of edge cases. Teams use component libraries because no one wants to solve those problems twice. Most libraries ship as an npm package: you `npm install` it, then import components into your code. The library owns the source; you consume it. Some are heavily styled out of the box (Material UI, Chakra, Ant Design); others are unstyled primitives you wrap in your own design (Radix UI, Headless UI). The trade-off: pre-styled libraries get you running fast but constrain how things look. Unstyled primitives are more work but let you match any design.",
-    "example": {
-      "code": "// With a typical component library:\nimport { Button } from '@some-library/react';\n\nexport function App() {\n  return <Button onClick={save}>Save</Button>;\n}",
-      "language": "tsx",
-      "annotation": "Install the package, import the component, use it."
-    },
-    "alternatives": [
-      {
-        "approach": "Build every component from scratch",
-        "whenToUse": "When the design is highly bespoke and existing libraries won't bend to match. Slow, expensive, error-prone — but sometimes necessary for distinctive products."
-      },
-      {
-        "approach": "Use a CSS framework's components (Bootstrap, Bulma)",
-        "whenToUse": "When working in a non-React stack, or when you want components to be plain HTML/CSS without a JavaScript layer. Older approach but still valid."
-      }
-    ],
-    "critique": "The biggest mistake is choosing a heavily styled library and then fighting it to match your design. Pick a library whose default look is close to where you want to land, or pick an unstyled primitive library and own the styling.",
-    "createdAt": "2026-05-19T00:00:00Z",
-    "tags": ["shadcn", "component-library", "fundamentals"]
-  },
-  {
-    "id": "shadcn-ch2-copy-not-install",
-    "topicSlug": "shadcn",
-    "codebaseSlug": "learning-lab",
-    "type": "chapter",
-    "chapterNumber": 2,
-    "title": "Why shadcn is \"copy, not install\"",
-    "concept": "Most component libraries ship as a black-box npm package. You install it, you import from it, and you can't easily change what's inside. shadcn/ui takes a different approach: there's no npm package to import. Instead, there's a CLI that copies the source code of each component directly into your repo, into a folder like `components/ui/`. From that moment on, the code is yours. You own it. You can read it, edit it, restyle it, or delete things you don't need — there's no library version to worry about, no breaking-change migration to dread, no waiting on maintainers to fix a bug or add a feature. The upside: maximum control. The downside: there's no `npm update` to bring in upstream improvements. If shadcn ships a new version of a component, you have to re-copy it manually (or use the CLI to update). For most product teams that's an acceptable trade — you change the code more often than upstream does, and you wanted control anyway.",
-    "example": {
-      "code": "# Initialize shadcn in your project (one-time)\nnpx shadcn@latest init\n\n# Add a single component — it's copied into components/ui/button.tsx\nnpx shadcn@latest add button\n\n# Now button.tsx is your file. Edit it however you want.",
-      "language": "bash",
-      "annotation": "The CLI writes the component source into your repo. No import from a library."
-    },
-    "alternatives": [
-      {
-        "approach": "Use a traditional npm-installed library (MUI, Chakra)",
-        "whenToUse": "When you want centralized updates and you trust the library's defaults. Easier to onboard juniors who shouldn't be modifying components."
-      },
-      {
-        "approach": "Use Radix UI directly without shadcn",
-        "whenToUse": "When you want fully unstyled primitives and intend to build your own design layer over them. shadcn is essentially Radix plus a starting set of styles."
-      }
-    ],
-    "critique": "Newcomers sometimes worry 'what if shadcn fixes a bug — am I stuck with the old version?' Yes, technically. But shadcn components tend to be small (50–200 lines) and the bug fixes are usually obvious diffs you can re-apply manually. The trade is worth it for the control.",
-    "createdAt": "2026-05-19T00:00:00Z",
-    "tags": ["shadcn", "philosophy", "cli", "fundamentals"]
-  },
-  {
-    "id": "shadcn-ch3-reading-file",
-    "topicSlug": "shadcn",
-    "codebaseSlug": "learning-lab",
-    "type": "chapter",
-    "chapterNumber": 3,
-    "title": "Reading a shadcn component file",
-    "concept": "Most shadcn components follow the same shape, so once you can read one, you can read them all. A typical file has three parts. First, an import of a Radix primitive (or another unstyled base) — that's where the behavior comes from (keyboard handling, focus traps, accessibility). Second, a variant definition using `cva` (class-variance-authority) — that's a small helper that maps prop values like `variant=\"outline\"` or `size=\"sm\"` to bundles of Tailwind classes. Third, the component itself — a thin React wrapper that takes props, picks classes via `cva`, and renders the styled primitive. The pattern is consistent on purpose: it makes components feel like a family. You can predict what a new shadcn component will look like before you open it, and you can modify any of them with the same mental model.",
-    "example": {
-      "code": "// components/ui/button.tsx (shape, simplified)\nimport { Slot } from '@radix-ui/react-slot';\nimport { cva } from 'class-variance-authority';\n\nconst buttonVariants = cva('inline-flex items-center rounded-md', {\n  variants: {\n    variant: { default: 'bg-blue-600 text-white', outline: 'border' },\n    size: { sm: 'h-8 px-3', md: 'h-10 px-4' },\n  },\n  defaultVariants: { variant: 'default', size: 'md' },\n});\n\nexport function Button({ variant, size, className, ...props }) {\n  return <button className={buttonVariants({ variant, size, className })} {...props} />;\n}",
-      "language": "tsx",
-      "annotation": "cva defines variants; the component picks classes and renders."
-    },
-    "alternatives": [
-      {
-        "approach": "Write component variants with manual `if`/`else` className logic",
-        "whenToUse": "For very simple cases with one or two variants. Past that, `cva` is cleaner — variants are listed declaratively."
-      },
-      {
-        "approach": "Use styled-components or Emotion instead of Tailwind + cva",
-        "whenToUse": "When working in a project that already uses CSS-in-JS. shadcn is Tailwind-first by default."
-      }
-    ],
-    "critique": "When people first see `cva`, it looks like a black box. It's not — it's a tiny function (a few hundred lines of source) that just maps prop values to class strings. Once you read its docs once, every shadcn component reads more easily.",
-    "createdAt": "2026-05-19T00:00:00Z",
-    "tags": ["shadcn", "cva", "radix", "anatomy"]
-  },
-  {
-    "id": "shadcn-ch4-cn-helper",
-    "topicSlug": "shadcn",
-    "codebaseSlug": "learning-lab",
-    "type": "chapter",
-    "chapterNumber": 4,
-    "title": "The `cn()` helper",
-    "concept": "Open any shadcn component and you'll see `cn(...)` everywhere. It's a tiny helper that does two jobs: it joins class strings together (so you can pass multiple class names as arguments), and it resolves Tailwind conflicts (so if you pass `'px-4'` and `'px-8'`, the last one wins instead of both being in the final class string). Under the hood it combines two libraries — `clsx` for the joining and `tailwind-merge` for the conflict resolution. The reason it's everywhere: components often want to compose a base set of classes with caller-provided overrides, and without `cn` you'd get duplicate-and-conflicting classes in the output, which leads to subtle styling bugs. The idiom you'll see most: `cn(baseClasses, isActive && 'active-classes', className)` — base styling first, conditional in the middle, caller's `className` last so it can override.",
-    "example": {
-      "code": "import { cn } from '@/lib/utils';\n\nexport function Tab({ active, className }: { active: boolean; className?: string }) {\n  return (\n    <button\n      className={cn(\n        'px-3 py-2 text-sm rounded-md',\n        active ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:text-black',\n        className,\n      )}\n    />\n  );\n}",
-      "language": "tsx",
-      "annotation": "Base + conditional + caller override, joined by cn."
-    },
-    "alternatives": [
-      {
-        "approach": "Use template literals (`${active ? 'a' : 'b'} c`)",
-        "whenToUse": "For small components with one or two conditional classes. Past that, `cn` is more readable and handles conflict resolution."
-      },
-      {
-        "approach": "Use `clsx` directly without `tailwind-merge`",
-        "whenToUse": "When you're not using Tailwind. `clsx` alone joins classes; you need `tailwind-merge` only if you want Tailwind conflict resolution."
-      }
-    ],
-    "critique": "A common confusion: people forget that `cn` resolves conflicts and assume both `px-4` and `px-8` will be in the output. They won't — `tailwind-merge` picks the last one. This is usually what you want, but it can surprise you when debugging.",
-    "createdAt": "2026-05-19T00:00:00Z",
-    "tags": ["shadcn", "cn", "clsx", "tailwind-merge"]
-  },
-  {
-    "id": "typescript-ch1-what-is",
-    "topicSlug": "typescript",
-    "codebaseSlug": "learning-lab",
-    "type": "chapter",
-    "chapterNumber": 1,
-    "title": "What is TypeScript?",
-    "concept": "TypeScript is JavaScript with types. You write code that looks almost identical to JavaScript, but you can annotate variables, function parameters, and return values with type information. A TypeScript compiler then checks your code against those annotations and flags mismatches before you ever run the program. The compiler also produces plain JavaScript as its output — types are stripped out at build time. The runtime sees only JavaScript; the types exist purely to help you and the compiler. The point: catch bugs before runtime. If you accidentally pass a number where a string is expected, TypeScript tells you in your editor. If you typo a property name on an object, TypeScript tells you. If you forget that a value might be `null`, TypeScript tells you. None of this changes how the code runs — it changes how confidently you can change the code. Most modern frontend projects use TypeScript by default because the cost (a little extra typing) is far smaller than the benefit (fewer surprises at runtime).",
-    "example": {
-      "code": "function greet(name: string): string {\n  return `Hello, ${name}!`;\n}\n\ngreet('Anirudh');   // ok\ngreet(42);          // TS error: number is not assignable to string",
-      "language": "ts",
-      "annotation": "name: string and : string after the parens — those are the types."
-    },
-    "alternatives": [
-      {
-        "approach": "Plain JavaScript with JSDoc comments for types",
-        "whenToUse": "When you can't or don't want a build step. JSDoc gives you weaker type-checking but no compilation required. Common in some library code."
-      },
-      {
-        "approach": "Other typed languages compiled to JavaScript (ReScript, Elm)",
-        "whenToUse": "When you want a stronger type system than TypeScript offers and you're willing to use a smaller ecosystem. Rare outside specific niches."
-      }
-    ],
-    "critique": "Beginners panic at TypeScript errors and start adding `any` everywhere to silence them. That defeats the point. When an error appears, the type system is telling you something real — read the message and fix the underlying issue.",
-    "createdAt": "2026-05-19T00:00:00Z",
-    "tags": ["typescript", "types", "fundamentals"]
-  },
-  {
-    "id": "typescript-ch2-common-types",
-    "topicSlug": "typescript",
-    "codebaseSlug": "learning-lab",
-    "type": "chapter",
-    "chapterNumber": 2,
-    "title": "The most common types you'll see",
-    "concept": "Most TypeScript code you'll read uses a small set of types repeatedly. The primitives: `string` for text, `number` for any numeric value, `boolean` for true/false. The collections: `string[]` (or `Array<string>`) for an array of strings, with the same shape for any element type. The objects: `{ name: string; age: number }` describes an object with those two specific properties. The special: `void` for functions that don't return anything, `null` and `undefined` for absent values, `any` for 'I'm opting out of type-checking here.' There are also union types (`string | number` means either of these), literal types (`'small' | 'medium' | 'large'`), and `unknown` (like `any` but safer — you have to narrow it before using it). The mental model: types describe the shape and category of values. The same value can have multiple compatible types. Reading types in real code is the fastest way to learn them.",
-    "example": {
-      "code": "const username: string = 'anirudh';\nconst age: number = 30;\nconst isAdmin: boolean = false;\nconst tags: string[] = ['react', 'tailwind'];\nconst user: { name: string; age: number } = { name: username, age };\nconst status: 'active' | 'inactive' = 'active';",
-      "language": "ts",
-      "annotation": "Reading right-to-left: the colon introduces the type."
-    },
-    "alternatives": [
-      {
-        "approach": "Let TypeScript infer types instead of annotating",
-        "whenToUse": "Most of the time inside function bodies. TypeScript can usually figure out types from the initial value. Annotate function parameters and exports."
-      },
-      {
-        "approach": "Use `any` to skip type-checking",
-        "whenToUse": "Almost never deliberately. Sometimes acceptable at integration boundaries (parsing JSON from an unknown source), but prefer `unknown` and narrow it."
-      }
-    ],
-    "critique": "The trap is reaching for `any` whenever a type is hard to express. There's almost always a better answer — a union type, `unknown`, or a more specific shape. Sprinkling `any` defeats the purpose of TypeScript.",
-    "createdAt": "2026-05-19T00:00:00Z",
-    "tags": ["typescript", "types", "fundamentals", "primitives"]
-  },
-  {
-    "id": "typescript-ch3-type-vs-interface",
-    "topicSlug": "typescript",
-    "codebaseSlug": "learning-lab",
-    "type": "chapter",
-    "chapterNumber": 3,
-    "title": "What's a type vs an interface?",
-    "concept": "TypeScript has two ways to name the shape of an object: `type` and `interface`. They're nearly interchangeable. `type User = { name: string; age: number }` and `interface User { name: string; age: number }` mean the same thing in practice. The differences are mostly cosmetic and edge-case. Interfaces support 'declaration merging' — if you define `interface User` twice in the same scope, TypeScript combines them. Types don't. On the other hand, `type` aliases can express unions (`type Status = 'active' | 'inactive'`), intersections (`type A = B & C`), and tuples — interfaces can't. The community rule of thumb: use `interface` for plain object shapes (especially ones you expect to extend), and use `type` for unions, intersections, function signatures, or anything that isn't a basic object. But honestly: pick one for the project and stick with it. Mixing both works fine. The choice rarely matters as much as people argue it does.",
-    "example": {
-      "code": "// type alias\ntype Status = 'active' | 'inactive';\ntype User = { name: string; status: Status };\n\n// interface\ninterface Profile {\n  user: User;\n  bio?: string;\n}",
-      "language": "ts",
-      "annotation": "Use type for unions/aliases; use interface for object shapes. Either works for plain objects."
-    },
-    "alternatives": [
-      {
-        "approach": "Use `interface` for everything",
-        "whenToUse": "When your project is mostly object shapes and you might extend them. Works fine — just can't express unions or tuples directly."
-      },
-      {
-        "approach": "Use `type` for everything",
-        "whenToUse": "When you want one consistent syntax. Works fine — you lose declaration merging but that's rarely needed in app code."
-      }
-    ],
-    "critique": "People spend more time arguing about this than the choice deserves. The codebase you're in usually has a convention — follow it. If you're starting from scratch, pick `type` for unions and `interface` for shapes, but it's genuinely fine to use either.",
-    "createdAt": "2026-05-19T00:00:00Z",
-    "tags": ["typescript", "type", "interface", "fundamentals"]
-  },
-  {
-    "id": "typescript-ch4-function-signatures",
-    "topicSlug": "typescript",
-    "codebaseSlug": "learning-lab",
-    "type": "chapter",
-    "chapterNumber": 4,
-    "title": "Reading function signatures",
-    "concept": "A function signature in TypeScript tells you three things: what it takes (parameters), what it gives back (return type), and any constraints (generics). Read it like a sentence: name, parens with arguments, colon, return type. So `function greet(name: string): void` means 'a function called greet that takes one string argument and returns nothing.' The `void` means the function doesn't return a useful value. `function add(a: number, b: number): number` returns a number. Optional parameters get a `?`: `function greet(name?: string)`. Default values go after `=`: `function greet(name: string = 'friend')`. Generics use angle brackets to introduce a type variable: `function first<T>(items: T[]): T` says 'whatever type the array holds, the function returns one of that type.' Once you can read these, you can read most library documentation — function signatures are how APIs are described.",
-    "example": {
-      "code": "function add(a: number, b: number): number {\n  return a + b;\n}\n\nfunction greet(name?: string): string {\n  return name ? `Hi, ${name}` : 'Hi';\n}\n\nfunction first<T>(items: T[]): T | undefined {\n  return items[0];\n}",
-      "language": "ts",
-      "annotation": "Parameters typed before the colon, return type after."
-    },
-    "alternatives": [
-      {
-        "approach": "Skip return-type annotations and let TypeScript infer them",
-        "whenToUse": "Inside private helpers and function expressions. For exported functions, annotate the return type — it documents intent and prevents accidental changes."
-      },
-      {
-        "approach": "Use arrow function syntax with the same type annotations",
-        "whenToUse": "When defining functions as values (callbacks, function-typed props). The annotation syntax is slightly different but the meaning is the same."
-      }
-    ],
-    "critique": "Generics scare people off at first. They look like syntax soup, but the pattern is small: `<T>` is just a stand-in for 'some type, the same one in both places.' Read the same generic in a few standard library functions and it clicks.",
-    "createdAt": "2026-05-19T00:00:00Z",
-    "tags": ["typescript", "functions", "generics", "fundamentals"]
-  },
-  {
-    "id": "backend-basics-ch1-what-is-backend",
-    "topicSlug": "backend-basics",
-    "codebaseSlug": "learning-lab",
-    "type": "chapter",
-    "chapterNumber": 1,
-    "title": "What is a backend?",
-    "concept": "A backend is the server-side half of a web app. The frontend runs in the user's browser; the backend runs on a computer somewhere else (a cloud server, usually) and answers requests from the frontend. The split exists because some work shouldn't happen in the browser. Storing data permanently — frontends can't be trusted with it (browsers clear, users disconnect, multiple people share data). Talking to a database — the credentials shouldn't ship to every visitor. Heavy computation — the browser is slow and unreliable. Verifying who's logged in — a check that lives in the browser can be bypassed. So the backend holds the database, runs the business logic, enforces who can do what, and sends just the answers down to the frontend. The frontend's job is to show the data and collect user input. The backend's job is to be the source of truth. Communication between them happens over the network, almost always via HTTP requests to specific URLs called API endpoints.",
-    "example": {
-      "code": "# A simple backend endpoint (FastAPI / Python)\nfrom fastapi import FastAPI\napp = FastAPI()\n\n@app.get('/users/{user_id}')\ndef get_user(user_id: int):\n    user = db.query(User).get(user_id)\n    return { 'name': user.name, 'email': user.email }",
-      "language": "python",
-      "annotation": "The backend looks up the user in the database and returns just the needed fields."
-    },
-    "alternatives": [
-      {
-        "approach": "Backend-less architecture (everything in the browser)",
-        "whenToUse": "For purely local tools, calculators, and prototypes. Anything multi-user or persisting data eventually needs a backend."
-      },
-      {
-        "approach": "Backend-as-a-Service (Firebase, Supabase)",
-        "whenToUse": "When you want a backend without writing one. Authentication, database, and APIs come pre-built. Good for solo developers and early-stage products."
-      }
-    ],
-    "critique": "Beginners sometimes try to push everything into the browser — auth checks, secret keys, even database queries via shortcuts. It always backfires: anything in the browser is visible to the user and can be tampered with. The backend has to be the source of truth for anything that matters.",
-    "createdAt": "2026-05-19T00:00:00Z",
-    "tags": ["backend", "fundamentals", "client-server"]
-  },
-  {
-    "id": "backend-basics-ch2-api-endpoint",
-    "topicSlug": "backend-basics",
-    "codebaseSlug": "learning-lab",
-    "type": "chapter",
-    "chapterNumber": 2,
-    "title": "What is an API endpoint?",
-    "concept": "An API endpoint is a specific URL that the frontend can call to get data or trigger an action on the backend. Each endpoint has three parts: a method, a path, and (optionally) a body. The method is the HTTP verb — `GET` (read), `POST` (create), `PUT` or `PATCH` (update), `DELETE` (remove). The path identifies the resource — `/users`, `/users/42`, `/orders`. The body carries data for create/update operations — usually a JSON object. So `POST /users` with `{ name: 'Anirudh' }` in the body says 'create a new user with that name.' `GET /users/42` says 'give me user number 42.' The endpoint runs on the backend; the frontend just calls it. The response always includes a status code (200, 404, 500) and usually a body (JSON data or an error message). A whole backend is, mechanically, a list of these endpoints — every route the frontend can call.",
-    "example": {
-      "code": "# Backend defines the endpoint:\n@app.post('/lessons')\ndef create_lesson(lesson: LessonIn):\n    saved = db.lessons.insert(lesson.dict())\n    return saved\n\n// Frontend calls it:\nawait fetch('/api/lessons', {\n  method: 'POST',\n  headers: { 'Content-Type': 'application/json' },\n  body: JSON.stringify({ title: 'New chapter', topicSlug: 'react' }),\n});",
-      "language": "python",
-      "annotation": "Backend exposes the endpoint; frontend calls it with method, URL, and body."
-    },
-    "alternatives": [
-      {
-        "approach": "GraphQL — one endpoint, structured queries",
-        "whenToUse": "When the frontend needs lots of nested data per page and REST would require many round-trips. More setup; more flexibility."
-      },
-      {
-        "approach": "Server Actions (Next.js)",
-        "whenToUse": "When the frontend and backend live in the same Next.js app. You call a function directly from the client; no explicit endpoint."
-      }
-    ],
-    "critique": "Beginners forget the method matters and assume any URL works for anything. The method is half the contract — `GET /users` and `POST /users` mean different things even though the path is identical.",
-    "createdAt": "2026-05-19T00:00:00Z",
-    "tags": ["backend", "api", "endpoint", "fundamentals"]
-  },
-  {
-    "id": "backend-basics-ch3-database-table",
-    "topicSlug": "backend-basics",
-    "codebaseSlug": "learning-lab",
-    "type": "chapter",
-    "chapterNumber": 3,
-    "title": "What is a database table?",
-    "concept": "A database table is structured like a spreadsheet, but stricter. Each column has a name and a defined type — `id` is an integer, `email` is a string, `created_at` is a timestamp. Each row is one record — one user, one order, one lesson. Unlike a spreadsheet, the database enforces the types: you can't put text in a number column, you can't leave a required field blank, you can't have two rows with the same primary key. This enforcement is the value. The database also handles concurrent access — many requests reading and writing at the same time without corrupting data — and it can find rows fast even when there are millions of them, using indexes. Most backends store their data in relational databases (Postgres, MySQL, SQLite), which arrange tables and define relationships between them: a user has many orders, an order has many items. You read and write rows using SQL or, more often, through an ORM that turns code into SQL for you.",
-    "example": {
-      "code": "-- A users table\nCREATE TABLE users (\n  id        SERIAL PRIMARY KEY,\n  email     VARCHAR(255) UNIQUE NOT NULL,\n  name      VARCHAR(100),\n  created_at TIMESTAMP DEFAULT NOW()\n);\n\n-- Reading rows\nSELECT id, name FROM users WHERE email = 'anirudh@example.com';",
+      "code": "-- Developer writes:\nSELECT * FROM runs;\n\n-- Database silently runs:\nSELECT * FROM runs WHERE tenant_id = 'currently-set-tenant';",
       "language": "sql",
-      "annotation": "Each column has a type and constraints; each row is one record."
+      "annotation": "RLS auto-injects the tenant filter on every query"
     },
-    "alternatives": [
-      {
-        "approach": "Document database (MongoDB, Firestore)",
-        "whenToUse": "When records are nested and shapes vary. No fixed columns — each document is JSON-ish. Good for some workloads, but fewer guarantees than relational."
-      },
-      {
-        "approach": "Key-value store (Redis)",
-        "whenToUse": "For caches, sessions, queues, or simple lookups. Very fast, but no rich queries. Pair it with a primary database, don't replace one."
-      }
-    ],
-    "critique": "Beginners avoid databases out of intimidation and try to store everything in JSON files. That works for tiny apps and breaks the moment two requests write at once. Use SQLite for solo work if Postgres feels heavy — but use a real database.",
-    "createdAt": "2026-05-19T00:00:00Z",
-    "tags": ["backend", "database", "sql", "fundamentals"]
+    "alternatives": [],
+    "critique": "",
+    "createdAt": "2026-05-21T00:00:00Z",
+    "tags": [
+      "slotfusion",
+      "database",
+      "security"
+    ]
   },
   {
-    "id": "backend-basics-ch4-queue",
-    "topicSlug": "backend-basics",
-    "codebaseSlug": "learning-lab",
+    "id": "slotfusion-sessions-vs-jwt",
+    "topicSlug": "architecture",
+    "codebaseSlug": "slotfusion",
     "type": "chapter",
     "chapterNumber": 4,
-    "title": "What is a queue (and why we use one)?",
-    "concept": "A queue is a list of jobs waiting to be processed. You use one when work takes too long to fit inside a normal API request. A user uploads a video; the backend can't sit there for two minutes encoding it before responding — the request would time out. Instead, the backend takes the upload, drops a job onto a queue (`encode video X`), and immediately responds with 'okay, started.' A separate process — a worker — pulls jobs off the queue and does the heavy work in the background. When it's done, it updates the database or notifies the user. The frontend either polls a status endpoint or gets pushed an update. The queue itself is usually a piece of infrastructure (Redis with a job library like BullMQ, or a managed service). The pattern shows up everywhere: sending emails, generating PDFs, processing payments, training models. Any time the user clicks 'submit' and you need to do real work, a queue is the right shape.",
+    "title": "Sessions vs JWT — how login actually works",
+    "concept": "When you log in, how does the server know it's still you on the next click? HTTP is stateless — each request starts fresh. There are two main approaches.\n\n### Session-based (BetterAuth's default)\n\n1. You submit email + password\n2. Server checks the password, creates a row in the `sessions` table\n3. Server sends back a **cookie** — an invisible piece of data your browser stores\n4. Every future request includes the cookie automatically\n5. Server looks up the session, knows it's you\n6. When you log out, the row is deleted\n\nThink of it as: the server keeps a list of \"who's logged in\" and your cookie is the ID card pointing to your entry.\n\n### JWT (alternative approach)\n\n1. You submit email + password\n2. Server checks, generates a signed string containing your info (\"I am user 123, expires Tuesday\")\n3. Browser stores it (in `localStorage` or memory)\n4. Every request, the browser attaches the string in an `Authorization: Bearer ...` header\n5. Server verifies the signature, knows it's you — without checking any database\n\nThink of it as: the server hands you a tamper-proof ID card. You wave it on every request.\n\n### Which one SlotFusion uses\n\n**BetterAuth, which is session-based.** The architecture doc has some JWT references too, but those are probably stale — needs confirmation from engineering.\n\n### What this means for design\n\nThe login form is just email + password + submit. The browser handles the cookie automatically. The interesting design problem is **what happens when the session expires** — the UI needs to gracefully redirect to login, ideally preserving the user's intent (\"after you log in, take me back to that run\").",
     "example": {
-      "code": "// API request handler — pushes a job, returns fast\nawait queue.add('encode-video', { videoId: 123 });\nreturn { status: 'queued' };\n\n// Worker (separate process) — pulls and processes\nqueue.process('encode-video', async (job) => {\n  await encode(job.data.videoId);\n  await db.videos.update(job.data.videoId, { status: 'ready' });\n});",
-      "language": "ts",
-      "annotation": "Producer adds jobs; consumer processes them later. The API doesn't wait."
+      "code": "",
+      "language": "",
+      "annotation": ""
     },
-    "alternatives": [
-      {
-        "approach": "Do the work synchronously in the API handler",
-        "whenToUse": "When the work is fast (under a second) and reliable. Sending one email might fit. Encoding video, calling slow third-party APIs, batch processing — won't."
-      },
-      {
-        "approach": "Run periodic cron jobs that scan for pending work",
-        "whenToUse": "When latency doesn't matter (nightly reports, daily cleanups). Simpler than a real queue, but not suitable for user-triggered work."
-      }
-    ],
-    "critique": "Beginners often skip the queue and let long requests hang. The user sees a spinning page, the request times out, and the work is half-done. Adding a queue feels like extra infrastructure but saves you from a class of intermittent bugs that's brutal to debug.",
-    "createdAt": "2026-05-19T00:00:00Z",
-    "tags": ["backend", "queue", "background-jobs", "fundamentals"]
+    "alternatives": [],
+    "critique": "",
+    "createdAt": "2026-05-21T00:00:00Z",
+    "tags": [
+      "slotfusion",
+      "auth",
+      "betterauth"
+    ]
   },
   {
-    "id": "docker-ch1-container",
-    "topicSlug": "docker",
+    "id": "slotfusion-queues-and-async",
+    "topicSlug": "architecture",
+    "codebaseSlug": "slotfusion",
+    "type": "chapter",
+    "chapterNumber": 5,
+    "title": "Queues, async, and what the user sees",
+    "concept": "A **queue** is a list of messages waiting to be picked up. Like a printer queue, or the coffee shop order line.\n\nIn SlotFusion: when a user submits a run, the slotting algorithm takes 2–10 minutes. We can't keep the browser waiting that long. So Next.js does this instead:\n\n1. Drops a message in the Redis queue: \"process this job, here are the file URIs\"\n2. Tells the browser \"accepted, status is QUEUED\"\n3. Python workers are watching the queue. As soon as a message appears, one of them grabs it\n4. The worker processes the job, then comes back for the next message\n\nIt's a **producer-consumer pattern**. Next.js produces messages. Workers consume them. Redis is the message board between them.\n\n### The 6 statuses every run goes through\n\n- **CREATED** (milliseconds) — just submitted, too fast to see\n- **QUEUED** (seconds to minutes) — waiting for a worker\n- **RUNNING** (2–10 minutes) — worker is processing\n- **SUCCEEDED** — done\n- **FAILED** — something broke\n- **CANCELLED** — user pulled the plug\n\n### The \"user closed the tab\" problem\n\nA user submits, closes the tab, comes back later. The run keeps running regardless (the worker doesn't care about the browser). We need:\n\n- The Run Detail page to reflect current status when they return\n- Probably some notification — email when complete is the typical Phase 1 path\n- Maybe browser notifications or in-app badges later\n\n### Polling vs WebSockets\n\nPhase 1 uses **polling** — the UI asks `GET /api/runs/[id]` every few seconds. Probably 3–5s while running, slower when queued, with exponential backoff. WebSockets (push from server) would be smoother but more complex — probably Phase 2.\n\n### What this means for design\n\n- \"QUEUED\" is a real state with real duration. Our UI needs to make this feel intentional, not broken.\n- The \"waiting\" UX is its own design problem. Skeleton screens? Progress percentages? Estimated time? Real decisions, none specified by the architecture doc.\n- **Vercel's deployment detail page** is almost exactly the pattern we want for our Run Detail.",
+    "example": {
+      "code": "",
+      "language": "",
+      "annotation": ""
+    },
+    "alternatives": [],
+    "critique": "",
+    "createdAt": "2026-05-21T00:00:00Z",
+    "tags": [
+      "slotfusion",
+      "async",
+      "queues",
+      "redis"
+    ]
+  },
+  {
+    "id": "slotfusion-storage-presigned",
+    "topicSlug": "architecture",
+    "codebaseSlug": "slotfusion",
+    "type": "chapter",
+    "chapterNumber": 6,
+    "title": "S3, MinIO, and presigned URLs",
+    "concept": "**S3** is Amazon's file storage. Think Dropbox for app developers. You upload files, you get URIs back. We don't store Excel files in PostgreSQL because databases are bad at large binary blobs.\n\n**MinIO** is an open-source S3 clone you can run locally. Same API, runs on your laptop. SlotFusion uses MinIO for development and real S3 in production — the abstraction layer makes them interchangeable.\n\n### Presigned URLs — the clever trick\n\nWhen a user wants to download results, the file is in S3. The clever approach:\n\n1. User clicks \"Download results\"\n2. Browser → Next.js: `GET /api/artifacts/xyz/download`\n3. Next.js → S3: \"give me a temporary URL for this file\"\n4. Next.js → Browser: here's the URL (valid for 1 hour)\n5. Browser opens the URL, downloads directly from S3\n\nThe temporary URL has embedded permission. Anyone holding it for the next hour can download the file. Next.js doesn't pipe the bytes — it just hands off the URL.\n\n### What this means for design\n\n- **Download buttons aren't simple links.** They make an API call first to get the temporary URL.\n- The URL **expires after an hour**. If a user leaves the page open overnight, the URL stops working. We need to handle \"your download link expired\" gracefully — probably just refresh on click.\n- Uploads work in reverse. Phase 1 will probably route uploads through Next.js to S3 (simpler) before optimizing to direct browser-to-S3 uploads.",
+    "example": {
+      "code": "",
+      "language": "",
+      "annotation": ""
+    },
+    "alternatives": [],
+    "critique": "",
+    "createdAt": "2026-05-21T00:00:00Z",
+    "tags": [
+      "slotfusion",
+      "storage",
+      "s3"
+    ]
+  },
+  {
+    "id": "frontend-philosophy",
+    "topicSlug": "frontend",
     "codebaseSlug": "learning-lab",
     "type": "chapter",
     "chapterNumber": 1,
-    "title": "What is a container?",
-    "concept": "A container is a self-contained mini-environment that bundles your code together with everything it needs to run — the right runtime version, the right libraries, the right system tools. It runs on your machine but is isolated from the rest of it, like a sealed box. The point: the code runs the same way everywhere a container can run, because the container brings its dependencies with it. The 'works on my machine' problem disappears. Containers are lighter than virtual machines — they share the host's kernel instead of booting a full OS — so you can start and stop them in seconds. Docker is the most common tool for creating and running containers. You write a `Dockerfile` to describe how to build the box (what base image, what files to copy in, what command to run), then `docker build` packages it into an image, and `docker run` starts a container from that image. In practice, you'll mostly use containers others have built (Postgres, Redis, Node) and only occasionally build your own.",
+    "title": "How this tab grows",
+    "concept": "This tab starts almost empty. **That's intentional.**\n\nThe mistake beginners make with learning notebooks is pre-populating them with everything they \"should\" know. Then they never look at the notebook because nothing in it came from real work, so nothing is sticky.\n\n### The rule\n\nWhen I use a Tailwind class, React pattern, Next.js feature, TypeScript type, or shadcn component **in real SlotFusion (or learning-lab) work**, I add a note here. Not before.\n\nEach note should:\n\n- Be short — concept + one example + when it differs from alternatives\n- Use the structured lesson format (concept, example, alternatives, critique)\n- Link back to the codebase where I learned it via `codebaseSlug`\n\n### Why this works\n\nTwo weeks after using a class in real code, I remember the *context* of how I learned it. That memory is stickier than \"I read about this in a tutorial.\" The notebook becomes a second brain, not a textbook.",
     "example": {
-      "code": "# Run a Postgres container in one command\ndocker run --name dev-db -e POSTGRES_PASSWORD=secret -p 5432:5432 -d postgres:16\n\n# Now Postgres is running on localhost:5432, isolated, easy to delete.",
-      "language": "bash",
-      "annotation": "No installing Postgres on your machine. The container has it built in."
+      "code": "",
+      "language": "",
+      "annotation": ""
     },
-    "alternatives": [
-      {
-        "approach": "Install everything directly on your machine",
-        "whenToUse": "For very simple tooling that won't change versions. Anything you'd want to share with a teammate or deploy is easier in a container."
-      },
-      {
-        "approach": "Virtual machines (VirtualBox, VMware)",
-        "whenToUse": "When you need full OS-level isolation, not just process-level. Slower to start, heavier. Containers replaced VMs for most dev-environment use cases."
-      }
-    ],
-    "critique": "Beginners hit 'why is my port not reachable' and 'why doesn't my file change show up' as the two most common container confusions. Both come from the isolation — the container sees a different filesystem and network than your machine. Ports and volumes bridge them, and you have to set them up.",
-    "createdAt": "2026-05-19T00:00:00Z",
-    "tags": ["docker", "container", "fundamentals"]
+    "alternatives": [],
+    "critique": "",
+    "createdAt": "2026-05-21T00:00:00Z",
+    "tags": [
+      "meta",
+      "philosophy"
+    ]
   },
   {
-    "id": "docker-ch2-compose-up",
-    "topicSlug": "docker",
-    "codebaseSlug": "learning-lab",
-    "type": "chapter",
-    "chapterNumber": 2,
-    "title": "What is `docker compose up`?",
-    "concept": "`docker compose up` is one command that reads a `docker-compose.yml` file and starts every container described in it. The compose file lists services — a Postgres, a Redis, an API, a worker — and their settings: which image to use, which ports to expose, what environment variables to set, what volumes to attach. Running `up` spins them all up at once. Running `down` stops and removes them. Running `up -d` starts them in the background so your terminal is free. This is why every modern backend project ships with a `docker-compose.yml`: it's the one-command way to get the whole local stack running. Without it, you'd have to start the database container, then the cache container, then the API container, in the right order, with the right environment, by hand. Compose is the orchestration layer that makes 'one command, full stack' possible.",
-    "example": {
-      "code": "# docker-compose.yml\nservices:\n  db:\n    image: postgres:16\n    environment:\n      POSTGRES_PASSWORD: dev\n    ports: ['5432:5432']\n\n  cache:\n    image: redis:7\n    ports: ['6379:6379']\n\n# Then:\ndocker compose up        # foreground, see logs from all services\ndocker compose up -d     # background, returns immediately\ndocker compose down      # stop and remove",
-      "language": "yaml",
-      "annotation": "Two services, started together. Each runs in its own container."
-    },
-    "alternatives": [
-      {
-        "approach": "Start each container manually with `docker run`",
-        "whenToUse": "When you only need one service. Past two services, compose is much easier — the order, the dependencies, and the env vars all live in one file."
-      },
-      {
-        "approach": "Use Kubernetes (`kubectl apply`)",
-        "whenToUse": "For production multi-machine orchestration, not local dev. Compose is the right tool on your laptop; Kubernetes is the right tool in a cluster."
-      }
-    ],
-    "critique": "The first failure with `compose up` is almost always 'port already in use' — another Postgres or another stack is already running on the same port. Stop the other thing or change the port in the compose file. Past that, compose is the rare command that works on the first try.",
-    "createdAt": "2026-05-19T00:00:00Z",
-    "tags": ["docker", "compose", "local-dev", "fundamentals"]
-  },
-  {
-    "id": "docker-ch3-common-commands",
-    "topicSlug": "docker",
-    "codebaseSlug": "learning-lab",
-    "type": "chapter",
-    "chapterNumber": 3,
-    "title": "Common Docker commands",
-    "concept": "Five Docker commands cover ninety percent of daily use. `docker ps` lists the containers currently running — a quick way to answer 'what's up right now?' Add `-a` to include stopped containers. `docker logs <name>` shows the output a container has produced — your first stop when something isn't responding. Add `-f` to follow live logs as they appear. `docker compose down` stops and removes everything in your current compose stack — your reset button when state gets weird. `docker compose restart <service>` kicks one service without taking down the rest. `docker exec -it <name> sh` opens a shell inside a running container — handy when you need to poke around the filesystem or run a one-off command. The mental model: `ps` to see, `logs` to read, `down`/`restart` to reset, `exec` to enter. Memorize these five and you can do most local backend work without consulting the docs.",
-    "example": {
-      "code": "docker ps                     # what's running\ndocker logs -f dev-db         # follow Postgres logs live\ndocker compose restart api    # restart just the api service\ndocker exec -it dev-db psql -U postgres   # open a psql shell inside the db container\ndocker compose down           # stop and remove the whole stack",
-      "language": "bash",
-      "annotation": "ps, logs, restart, exec, down. The everyday five."
-    },
-    "alternatives": [
-      {
-        "approach": "Use Docker Desktop's GUI",
-        "whenToUse": "When you want to see container state visually or you're new to Docker. The GUI mirrors the CLI commands; both work."
-      },
-      {
-        "approach": "Use `lazydocker` or another TUI",
-        "whenToUse": "When you want a keyboard-driven dashboard. Personal preference — the CLI is enough for most workflows."
-      }
-    ],
-    "critique": "The first reflex when a container misbehaves is often `docker compose down -v` (which also wipes volumes). That nukes your local database. Try `restart` first; only escalate to `down -v` when you actually want to start over.",
-    "createdAt": "2026-05-19T00:00:00Z",
-    "tags": ["docker", "commands", "ps", "logs", "exec"]
-  },
-  {
-    "id": "git-ch1-repo-commit-remote",
-    "topicSlug": "git",
+    "id": "tools-philosophy",
+    "topicSlug": "tools",
     "codebaseSlug": "learning-lab",
     "type": "chapter",
     "chapterNumber": 1,
-    "title": "What is a repo, a commit, a remote?",
-    "concept": "Three words you'll hear constantly. A repo (short for repository) is a project tracked by Git — a folder where Git is recording every change. You make a folder into a repo with `git init`. A commit is a snapshot of the project at a single moment, with a message describing what changed. Every commit has a unique ID (a long hash) and points to the commit before it, forming a chain — the project's history. You create one with `git add` to stage files and `git commit` to snapshot them. A remote is a copy of the repo that lives somewhere else, usually on GitHub. The remote called `origin` is the most common — it's the one you pushed to or cloned from. You sync between your local repo and the remote with `git pull` (download their commits) and `git push` (upload yours). The mental model: repo is the project, commits are its history, remotes are copies you share with others.",
+    "title": "How this tab grows",
+    "concept": "Same idea as the Frontend tab — but for **workflow commands** I'll repeat constantly.\n\nGit, Bitbucket, Docker, terminal. Not concepts to understand, but **muscle memory to build**.\n\n### What goes here\n\n- Commands I forget and have to look up\n- Common workflows (e.g. \"how I commit and push\", \"how I spin up Docker compose\")\n- Gotchas I hit once and want to avoid hitting again\n- Cheat sheets for tools I touch weekly but not daily\n\n### What doesn't go here\n\n- Deep theory (\"how git internals work\") — that's the Architecture tab if relevant\n- Things I run once and never again\n\n### The first real entry will likely be\n\nA `git` cheat sheet capturing the daily loop: `status`, `add`, `commit`, `pull --rebase`, `push`. I'll add it the moment I'm doing real work that needs it.",
     "example": {
-      "code": "# Create a new repo from scratch\ngit init\ngit add .\ngit commit -m 'initial commit'\n\n# Or clone an existing one\ngit clone https://github.com/user/project.git\n\n# Check the remote\ngit remote -v\n# origin  https://github.com/user/project.git (fetch)\n# origin  https://github.com/user/project.git (push)",
-      "language": "bash",
-      "annotation": "init makes a repo; clone copies one. Origin is the default remote name."
+      "code": "",
+      "language": "",
+      "annotation": ""
     },
-    "alternatives": [
-      {
-        "approach": "Version control by manually copying folders (`project-final-v3-real-final/`)",
-        "whenToUse": "Never. The folder-copy approach loses history, breaks on multiple people, and doesn't scale past one weekend."
-      },
-      {
-        "approach": "Mercurial, Bazaar, or other version control systems",
-        "whenToUse": "Rare today. Git won, especially with GitHub as the de-facto remote host. Use Git unless you're forced into another."
-      }
-    ],
-    "critique": "Beginners confuse 'the repo on my machine' with 'the repo on GitHub' and assume they're the same. They're not — they're two copies that you sync with push and pull. Forgetting that is the source of half the 'why isn't this updated' confusions.",
-    "createdAt": "2026-05-19T00:00:00Z",
-    "tags": ["git", "fundamentals", "repo", "commit", "remote"]
+    "alternatives": [],
+    "critique": "",
+    "createdAt": "2026-05-21T00:00:00Z",
+    "tags": [
+      "meta",
+      "philosophy"
+    ]
   },
   {
-    "id": "git-ch2-daily-workflow",
-    "topicSlug": "git",
-    "codebaseSlug": "learning-lab",
-    "type": "chapter",
-    "chapterNumber": 2,
-    "title": "The daily 5-step workflow",
-    "concept": "There's a rhythm to working with Git day to day, and it's five commands in a specific order. First, `git status` — see what's changed in your working directory. Second, `git pull --rebase` — bring down any commits teammates pushed since you last synced. Doing this first prevents conflicts later. Third, `git add <files>` — stage the changes you want to commit (use `git add .` to stage everything, or list specific files). Fourth, `git commit -m \"message\"` — snapshot the staged changes with a short message describing what you did. Fifth, `git push` — send your new commits up to the remote so others can see them. The rhythm: status, pull, add, commit, push. Skipping pull leads to merge conflicts later. Skipping push means your commits live only on your machine. Doing all five in order, frequently, keeps your work safe and your history clean.",
-    "example": {
-      "code": "git status                       # what changed?\ngit pull --rebase origin main    # get teammates' commits first\ngit add components/quiz-card.tsx data/lessons.json\ngit commit -m 'Add quiz MCQ rebuild'\ngit push                         # share it",
-      "language": "bash",
-      "annotation": "Status, pull, add, commit, push. The five-step rhythm."
-    },
-    "alternatives": [
-      {
-        "approach": "`git commit -am 'message'` (stage tracked files and commit in one step)",
-        "whenToUse": "When you've only modified files Git already tracks (no new files). Saves one step. Won't pick up untracked files."
-      },
-      {
-        "approach": "Use a Git GUI (GitHub Desktop, Tower, Fork, GitKraken)",
-        "whenToUse": "When the CLI feels overwhelming. The same five steps exist as buttons. Most engineers eventually drift back to the CLI for speed."
-      }
-    ],
-    "critique": "The trap is committing without pulling. You write a great commit; you push; the push is rejected because the remote has commits you don't. Then you panic-pull and create an ugly merge. Pulling (with `--rebase`) before working prevents this entirely.",
-    "createdAt": "2026-05-19T00:00:00Z",
-    "tags": ["git", "workflow", "daily", "fundamentals"]
-  },
-  {
-    "id": "git-ch3-branch",
-    "topicSlug": "git",
-    "codebaseSlug": "learning-lab",
-    "type": "chapter",
-    "chapterNumber": 3,
-    "title": "What is a branch?",
-    "concept": "A branch is a parallel version of your project's history. You create one when you want to make changes without affecting the main version. `git checkout -b add-quiz-feature` creates a branch called `add-quiz-feature` and switches to it. From now on, every commit you make goes onto this branch, not the main one. Your teammates' work on `main` doesn't touch you, and your half-finished work doesn't touch them. When you're done, you merge the branch back into main — your commits join the main history. The mental model: `main` is the canonical version, and branches are experiments. Bug fixes, new features, refactors — they all live on their own branches until they're ready. Once merged, the branch can be deleted; the commits stay in `main`. This is how teams of any size work without stepping on each other. Even when working solo, branches let you keep main always shippable and play with bigger changes safely.",
-    "example": {
-      "code": "git checkout -b add-quiz-feature  # create + switch to a new branch\n# ... make commits ...\ngit push -u origin add-quiz-feature  # push the branch to GitHub\n\n# When done, merge back to main:\ngit checkout main\ngit pull --rebase\ngit merge add-quiz-feature\ngit push\ngit branch -d add-quiz-feature  # delete the local branch",
-      "language": "bash",
-      "annotation": "Branch off main, work in isolation, merge back when ready."
-    },
-    "alternatives": [
-      {
-        "approach": "Commit everything directly to `main`",
-        "whenToUse": "For tiny solo projects with no risk. As soon as another person joins or the project gets real, branches save you from constant interruption."
-      },
-      {
-        "approach": "Use `git worktree` to check out multiple branches in parallel folders",
-        "whenToUse": "When switching branches loses too much state (running servers, big builds). Advanced; not needed for daily work."
-      }
-    ],
-    "critique": "Beginners create branches and forget to push them, then panic when their laptop dies. A branch only exists on your machine until you `git push -u origin <branch-name>` for the first time. Make pushing part of the branch-creation reflex.",
-    "createdAt": "2026-05-19T00:00:00Z",
-    "tags": ["git", "branch", "workflow", "fundamentals"]
-  },
-  {
-    "id": "git-ch4-merge-conflict",
-    "topicSlug": "git",
-    "codebaseSlug": "learning-lab",
-    "type": "chapter",
-    "chapterNumber": 4,
-    "title": "What is a merge conflict?",
-    "concept": "A merge conflict happens when two people change the same lines of the same file, and Git can't decide which version to keep. Most merges aren't conflicts — Git figures out which changes go where automatically. But when the same lines are touched, Git stops, marks the conflicted areas in your files, and waits for you to choose. Conflict markers look like this: `<<<<<<< HEAD` (your version), then `=======`, then `>>>>>>> branch-name` (their version). Your job is to edit the file, pick what should be there (yours, theirs, or a combination), remove all the markers, then `git add` the resolved file and `git commit` (or continue the rebase). Conflicts feel scary because the file is in a half-broken state until you fix it, but the fix is straightforward: open each conflict, decide, save, stage, commit. Most conflicts are over in a minute. The bigger the conflicts get, the longer your branch has been diverging — short-lived branches conflict less.",
-    "example": {
-      "code": "# A conflicted file looks like:\nfunction greet(name) {\n<<<<<<< HEAD\n  return `Hi, ${name}!`;\n=======\n  return `Hello, ${name}.`;\n>>>>>>> feature-branch\n}\n\n# After you edit it (pick one or merge them):\nfunction greet(name) {\n  return `Hi, ${name}!`;\n}\n\n# Then:\ngit add greet.js\ngit commit  # or: git rebase --continue",
-      "language": "bash",
-      "annotation": "<<<<<<< marks your side; >>>>>>> marks theirs. Edit, save, add, commit."
-    },
-    "alternatives": [
-      {
-        "approach": "Use a merge tool (VS Code's built-in, `meld`, `kdiff3`)",
-        "whenToUse": "When conflicts are big or visual. The tool shows both sides side-by-side and lets you pick chunks. For small conflicts, editing by hand is faster."
-      },
-      {
-        "approach": "Abort the merge/rebase and try a different strategy",
-        "whenToUse": "When conflicts are overwhelming and you'd rather start over. `git merge --abort` or `git rebase --abort` returns you to the pre-merge state."
-      }
-    ],
-    "critique": "Beginners panic at conflict markers and think the repo is broken. It isn't — Git is just asking for a decision. The fix is mechanical: open the file, remove the markers, leave what you want, add, commit. The scary part is mostly imagination.",
-    "createdAt": "2026-05-19T00:00:00Z",
-    "tags": ["git", "merge", "conflict", "fundamentals"]
-  },
-  {
-    "id": "apis-ch1-rest",
-    "topicSlug": "apis",
-    "codebaseSlug": "learning-lab",
+    "id": "ai-decompose-instructions",
+    "topicSlug": "ai-craft",
+    "codebaseSlug": "slotfusion",
     "type": "chapter",
     "chapterNumber": 1,
-    "title": "What is REST?",
-    "concept": "REST is the most common style of API on the web. The idea is small: every piece of data the backend has is a 'resource,' and each resource gets its own URL. Actions on resources are expressed by HTTP methods. So `/users` is the collection of users. `/users/42` is one specific user. `GET /users/42` reads it. `POST /users` creates a new one (with the data in the request body). `PUT /users/42` replaces user 42 with new data. `DELETE /users/42` removes it. That's the whole pattern: URLs name resources, methods name actions. REST APIs are popular because they're predictable — once you know the conventions, you can guess what URLs to call without reading docs. They also map cleanly onto how browsers and HTTP already work, so caching, security, and tooling all just fit. Most public APIs (Stripe, GitHub, Twilio) are REST or close to it.",
+    "title": "Decompose vague AI instructions into clear deliverables",
+    "concept": "**The pattern:** when you give an AI a single instruction with multiple implicit deliverables, output gets muddy. When you decompose into named deliverables routed to the right channel, output gets clean.\n\n### Vague instruction (avoid)\n\n> \"Clean up the tabs, answer all those questions, and prep me for tomorrow's meeting.\"\n\nThree things in one sentence. The AI will try to do all three at once and do all three poorly.\n\n### Decomposed instruction (do this)\n\n1. **For chat:** write a long-form architecture explainer covering these questions\n2. **For Claude Code:** write a prompt that wipes the current tabs and seeds new content\n3. **For tomorrow's meeting:** write a focused list of questions for engineering\n\nThree deliverables, three channels, each clear. The AI executes cleanly because each task has a single owner.\n\n### Why this works\n\nAI tools have implicit \"channels\" — what they output well, where the output goes. Chat is for thinking and explaining. Claude Code is for executing changes. Markdown docs are for reference material. **Routing each piece to the right channel is half the skill.**\n\n### When you'll feel this most\n\nWhen you ask \"do X\" and the AI gives you a wall of text mixing thinking, code, and lists. That's a routing failure. Push back: \"split this into [thinking], [code], [reference].\"",
     "example": {
-      "code": "GET    /api/lessons         // list all lessons\nGET    /api/lessons/42      // get one lesson\nPOST   /api/lessons         // create a lesson (body: { title: ... })\nPUT    /api/lessons/42      // replace lesson 42 (body: { title: ... })\nDELETE /api/lessons/42      // remove lesson 42",
-      "language": "http",
-      "annotation": "Same path, different methods do different things."
+      "code": "",
+      "language": "",
+      "annotation": ""
     },
-    "alternatives": [
-      {
-        "approach": "GraphQL — one endpoint, query language",
-        "whenToUse": "When the frontend needs lots of nested data per page. You write one query that fetches exactly the shape you need."
-      },
-      {
-        "approach": "RPC-style APIs (`/api/createUser`, `/api/getUser`)",
-        "whenToUse": "When the operations don't map cleanly onto resources (e.g. `chargeCard`, `sendEmail`). Less predictable than REST but sometimes more honest."
-      }
-    ],
-    "critique": "REST gets dogmatic — people argue about whether something is 'truly REST' or 'just HTTP.' For practical purposes, if your URLs are resources and your methods are actions, you're doing REST. Don't agonize over RESTful purity; build endpoints that are obvious to call.",
-    "createdAt": "2026-05-19T00:00:00Z",
-    "tags": ["apis", "rest", "http", "fundamentals"]
+    "alternatives": [],
+    "critique": "",
+    "createdAt": "2026-05-21T00:00:00Z",
+    "tags": [
+      "claude-code",
+      "prompting",
+      "patterns"
+    ]
   },
   {
-    "id": "apis-ch2-get-vs-post",
-    "topicSlug": "apis",
-    "codebaseSlug": "learning-lab",
+    "id": "ai-source-of-truth",
+    "topicSlug": "ai-craft",
+    "codebaseSlug": "slotfusion",
     "type": "chapter",
     "chapterNumber": 2,
-    "title": "GET vs POST in plain language",
-    "concept": "GET is 'give me.' POST is 'here's something new.' That's the core of it. A GET request asks the server for data without changing anything. The parameters go in the URL (`/users?role=admin`). The browser can cache the response. You can bookmark a GET URL and revisit it any number of times — it should return the same thing. POST sends data to the server to create something or trigger an action. The data goes in the request body, not the URL — bodies can be much larger, and they don't show up in browser history. Browsers don't cache POST responses by default, and they won't replay a POST when you refresh (you'll see the 'resubmit form?' warning). The split matters for safety: GETs should be safe to repeat; POSTs change things, so they shouldn't be triggered accidentally. Treating them the same is a class of bug — searching with a POST means broken back buttons; creating with a GET means duplicate records when a search engine crawls your site.",
+    "title": "Force a source of truth when docs disagree",
+    "concept": "When two documents contradict each other, the team needs exactly **one source of truth** — picked deliberately.\n\nThe beginner instinct is to try to satisfy both. Don't. Specs that contradict each other create rework and confusion downstream. **Force the question:** which document do we treat as law?\n\n### Example from SlotFusion\n\nTwo docs existed:\n\n- **Phase 1 PDF** — earlier, lighter, \"standard POC scope\"\n- **Backend Architecture Solution Design (Updated)** — later, deeper, with thought-through decisions\n\nWhen asked, I picked the architecture doc as source of truth and demoted the Phase 1 PDF to historical context. Done. Now every contradiction has a clear winner.\n\n### The pattern, generalized\n\nThis applies everywhere:\n\n- Two design files for the same screen → pick one as canon\n- Two Slack threads about the same decision → link the canonical one\n- Spec doc says X, Jira ticket says Y → force the team to align\n\n### The senior move\n\nIsn't \"I'll handle the ambiguity gracefully.\" It's \"I'll force the team to pick before I write a line of code.\" That's where time is saved.",
     "example": {
-      "code": "// GET — read a list, parameters in URL\nawait fetch('/api/lessons?topic=react&limit=10');\n\n// POST — create a new lesson, data in body\nawait fetch('/api/lessons', {\n  method: 'POST',\n  headers: { 'Content-Type': 'application/json' },\n  body: JSON.stringify({ title: 'New chapter', topicSlug: 'react' }),\n});",
-      "language": "ts",
-      "annotation": "GET parameters in the URL; POST data in the body."
+      "code": "",
+      "language": "",
+      "annotation": ""
     },
-    "alternatives": [
-      {
-        "approach": "PUT for updates, DELETE for deletes",
-        "whenToUse": "When the action specifically replaces or removes a resource. POST also works for these in many APIs, but PUT/DELETE are more precise."
-      },
-      {
-        "approach": "PATCH for partial updates",
-        "whenToUse": "When you want to update some fields of a resource without replacing the whole thing. Closer to common app behavior than PUT."
-      }
-    ],
-    "critique": "Beginners use POST for everything because 'it always works.' Technically true, but you lose caching, bookmarkability, and the ability to share a link to a search result. Use GET for reads; use POST for writes.",
-    "createdAt": "2026-05-19T00:00:00Z",
-    "tags": ["apis", "rest", "get", "post", "fundamentals"]
-  },
-  {
-    "id": "apis-ch3-json",
-    "topicSlug": "apis",
-    "codebaseSlug": "learning-lab",
-    "type": "chapter",
-    "chapterNumber": 3,
-    "title": "What is JSON?",
-    "concept": "JSON (JavaScript Object Notation) is the format APIs use to send data over the wire. It's a tiny set of rules for writing structured data as plain text: objects with curly braces, arrays with square brackets, keys as quoted strings, values as strings, numbers, booleans, null, or nested objects/arrays. Almost every modern API speaks JSON, in both directions. The frontend sends a JSON string in the request body; the backend parses it, does work, then sends a JSON string back. Browsers, every language, and every framework can produce and consume JSON natively. The format has a few quirks worth knowing: trailing commas aren't allowed, all strings must be double-quoted (not single), and the keys must be strings even when they look like identifiers. There's no comments either. These constraints make JSON small, predictable, and machine-parseable — the cost is that hand-writing it is fussier than hand-writing JavaScript objects.",
-    "example": {
-      "code": "{\n  \"id\": 42,\n  \"name\": \"Anirudh\",\n  \"isAdmin\": false,\n  \"tags\": [\"react\", \"tailwind\"],\n  \"profile\": {\n    \"bio\": \"learning frontend\",\n    \"website\": null\n  }\n}",
-      "language": "json",
-      "annotation": "Objects, arrays, primitives, nesting. Double quotes mandatory, no trailing commas."
-    },
-    "alternatives": [
-      {
-        "approach": "XML — older structured-data format",
-        "whenToUse": "When working with legacy systems, SOAP APIs, or older enterprise stacks. Mostly replaced by JSON for new work."
-      },
-      {
-        "approach": "Protocol Buffers, MessagePack (binary formats)",
-        "whenToUse": "When you need smaller payloads or faster parsing (high-throughput systems, mobile). Not human-readable, requires schemas."
-      }
-    ],
-    "critique": "The most common JSON gotcha is malformed strings — single quotes instead of double, or a trailing comma copied from JavaScript. Parsers reject these silently, leaving you with a confusing 'unexpected token' error. Run questionable JSON through a validator before suspecting the network.",
-    "createdAt": "2026-05-19T00:00:00Z",
-    "tags": ["apis", "json", "data-format", "fundamentals"]
-  },
-  {
-    "id": "apis-ch4-status-code",
-    "topicSlug": "apis",
-    "codebaseSlug": "learning-lab",
-    "type": "chapter",
-    "chapterNumber": 4,
-    "title": "What is a status code?",
-    "concept": "Every HTTP response carries a three-digit number called a status code. It's the first thing your code should check — it summarizes whether the request worked. The codes are grouped by the first digit. `2xx` means success: `200 OK` (generic success), `201 Created` (something new was made). `3xx` means redirect: the resource lives somewhere else. `4xx` means the client (your frontend) did something wrong: `400 Bad Request` (malformed data), `401 Unauthorized` (not logged in), `403 Forbidden` (logged in but not allowed), `404 Not Found` (resource doesn't exist). `5xx` means the server (the backend) broke: `500 Internal Server Error` is the generic 'something blew up.' The five you must recognize on sight: 200, 201, 400, 404, 500. They cover most of what you'll see day to day. Reading the status code before reading the body saves you from a class of bugs where the body is an error message you're treating as data.",
-    "example": {
-      "code": "const res = await fetch('/api/lessons/999');\n\nif (res.status === 404) {\n  return showNotFound();\n}\nif (!res.ok) {\n  // ok is true for 2xx; false for everything else\n  throw new Error(`Request failed: ${res.status}`);\n}\nconst data = await res.json();",
-      "language": "ts",
-      "annotation": "res.ok is true for 200–299, false otherwise. Always check before parsing."
-    },
-    "alternatives": [
-      {
-        "approach": "Use `res.ok` as a catch-all",
-        "whenToUse": "When you just need to know success vs failure and the specific code doesn't matter. For specific handling (auth, not-found), check the exact status."
-      },
-      {
-        "approach": "Return errors in the body with status 200 (\"envelope\" pattern)",
-        "whenToUse": "Rarely. Some legacy APIs do this. Status codes exist exactly to avoid this — using them properly is cleaner."
-      }
-    ],
-    "critique": "Beginners learn that `fetch` doesn't throw on 4xx and assume that means the request succeeded. It doesn't. `fetch` only rejects on network failures. Always check `res.ok` or `res.status` before trusting the response.",
-    "createdAt": "2026-05-19T00:00:00Z",
-    "tags": ["apis", "http", "status-code", "fundamentals"]
+    "alternatives": [],
+    "critique": "",
+    "createdAt": "2026-05-21T00:00:00Z",
+    "tags": [
+      "prompting",
+      "patterns",
+      "decisions"
+    ]
   }
 ]
