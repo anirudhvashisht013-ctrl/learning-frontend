@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Inter, Source_Serif_4, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
+import { LessonPanelProvider } from "@/lib/lesson-panel-context";
+import { LessonPanel } from "@/components/lesson-panel";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -35,7 +37,12 @@ export default function RootLayout({
       lang="en"
       className={`${inter.variable} ${sourceSerif.variable} ${jetbrainsMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-paper text-ink">{children}</body>
+      <body className="min-h-full flex flex-col bg-paper text-ink">
+        <LessonPanelProvider>
+          {children}
+          <LessonPanel />
+        </LessonPanelProvider>
+      </body>
     </html>
   );
 }

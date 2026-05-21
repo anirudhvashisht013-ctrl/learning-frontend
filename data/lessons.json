@@ -6,7 +6,7 @@
     "type": "chapter",
     "chapterNumber": 1,
     "title": "The whole system in one breath",
-    "concept": "SlotFusion has **three pieces of software** and **four services they share**.\n\nThe three pieces are:\n\n- **Next.js app** — runs at one URL, serves both the UI and the API. This is our home base as designers.\n- **Python workers** — run in the background. They pick up \"do this slotting job\" messages and execute the heavy algorithm.\n- **The browser** — where the user actually is.\n\nThe four shared services are:\n\n- **PostgreSQL** — the database. Stores users, runs, jobs, audit logs.\n- **Redis** — the queue. A short-term message board where the app drops jobs for workers to pick up.\n- **S3 / MinIO** — file storage. Excel uploads in, result Excels out. Big files don't live in the database.\n- **Logs** — structured JSON records of everything happening, for debugging.\n\n### The user flow when they submit a run\n\n1. User uploads three Excel files and clicks \"Run slotting\"\n2. Browser sends data to Next.js\n3. Next.js stores files in S3\n4. Next.js creates a `run` row in PostgreSQL\n5. Next.js creates a `job` row in PostgreSQL\n6. Next.js drops a message in Redis\n7. Next.js responds instantly: \"accepted, here's your run ID\"\n8. Browser navigates to the run detail page, starts polling\n9. Python worker pulls the message from Redis\n10. Worker downloads files from S3\n11. Worker runs the slotting algorithm\n12. Worker uploads results back to S3\n13. Worker updates PostgreSQL to mark the run as succeeded\n14. Browser's next poll sees the new status\n\nThat's the entire core flow. Everything else is detail.",
+    "concept": "SlotFusion has **three pieces of software** and **four services they share**.\n\nThe three pieces are:\n\n- **Next.js app** — runs at one URL, serves both the UI and the API. This is our home base as designers.\n- **Python workers** — run in the background. They pick up \"do this slotting job\" messages and execute the heavy algorithm.\n- **The browser** — where the user actually is.\n\nThe four shared services are:\n\n- **PostgreSQL** — the database. Stores users, runs, jobs, audit logs.\n- **Redis** — the [queue](lesson://slotfusion-queues-and-async). A short-term message board where the app drops jobs for workers to pick up.\n- **S3 / MinIO** — [file storage](lesson://slotfusion-storage-presigned). Excel uploads in, result Excels out. Big files don't live in the database.\n- **Logs** — structured JSON records of everything happening, for debugging.\n\n### The user flow when they submit a run\n\n1. User uploads three Excel files and clicks \"Run slotting\"\n2. Browser sends data to Next.js\n3. Next.js stores files in S3\n4. Next.js creates a `run` row in PostgreSQL\n5. Next.js creates a `job` row in PostgreSQL\n6. Next.js drops a message in Redis\n7. Next.js responds instantly: \"accepted, here's your run ID\"\n8. Browser navigates to the run detail page, starts polling\n9. Python worker pulls the message from Redis\n10. Worker downloads files from S3\n11. Worker runs the slotting algorithm\n12. Worker uploads results back to S3\n13. Worker updates PostgreSQL to mark the run as succeeded\n14. Browser's next poll sees the new status\n\nThat's the entire core flow. Everything else is detail.",
     "example": {
       "code": "",
       "language": "",
@@ -18,7 +18,9 @@
     "tags": [
       "slotfusion",
       "overview",
-      "system-design"
+      "system-design",
+      "infrastructure",
+      "three-tier"
     ]
   },
   {
@@ -28,7 +30,7 @@
     "type": "chapter",
     "chapterNumber": 2,
     "title": "Tenants and multi-tenancy",
-    "concept": "A **tenant** is a customer company in a multi-customer SaaS.\n\nIn SlotFusion, a tenant is a warehouse company. Examples: Acme Logistics, Globex Distribution, Initech Storage. Each tenant has their own users, runs, and data. They share the same servers and the same app — but their data is **completely isolated**.\n\nWhen Sarah signs up for Acme, she gets a user with `tenant_id = acme-uuid`. Every run she submits has that same `tenant_id`. When Bob from Globex logs in, the system filters everything to `tenant_id = globex-uuid`. Sarah and Bob never see each other's data.\n\n### Why anyone does this\n\nThe alternative is **single-tenant** — one app deployment per customer. Three customers means three databases, three servers, three deployments to update. **Multi-tenancy** means one app, infinite customers, instant onboarding. Big operational win, but you have to be obsessive about isolation.\n\n### What this means for design\n\n- Every screen should make the user's tenant visible. Most multi-tenant apps put the tenant name in the top-left header (Slack, Linear, Notion, Figma all do this).\n- The dashboard implicitly shows \"your tenant's data.\" No \"search all tenants\" feature for regular users.\n- Tenants can be `ACTIVE`, `SUSPENDED`, or `ARCHIVED`. We need to design what users see when their tenant gets suspended.\n\n### Reference apps\n\nLinear, Notion, Figma, Vercel — all great examples of workspace identity treatment.",
+    "concept": "A **tenant** is a customer company in a multi-customer SaaS.\n\nIn SlotFusion, a tenant is a warehouse company. Examples: Acme Logistics, Globex Distribution, Initech Storage. Each tenant has their own users, runs, and data. They share the same servers and the same app — but their data is **completely isolated** — enforced by [RLS](lesson://slotfusion-rls).\n\nWhen Sarah signs up for Acme, she gets a user with `tenant_id = acme-uuid`. Every run she submits has that same `tenant_id`. When Bob from Globex [logs in](lesson://slotfusion-sessions-vs-jwt), the system filters everything to `tenant_id = globex-uuid`. Sarah and Bob never see each other's data.\n\n### Why anyone does this\n\nThe alternative is **single-tenant** — one app deployment per customer. Three customers means three databases, three servers, three deployments to update. **Multi-tenancy** means one app, infinite customers, instant onboarding. Big operational win, but you have to be obsessive about isolation.\n\n### What this means for design\n\n- Every screen should make the user's tenant visible. Most multi-tenant apps put the tenant name in the top-left header (Slack, Linear, Notion, Figma all do this).\n- The dashboard implicitly shows \"your tenant's data.\" No \"search all tenants\" feature for regular users.\n- Tenants can be `ACTIVE`, `SUSPENDED`, or `ARCHIVED`. We need to design what users see when their tenant gets suspended.\n\n### Reference apps\n\nLinear, Notion, Figma, Vercel — all great examples of workspace identity treatment.",
     "example": {
       "code": "",
       "language": "",
@@ -40,7 +42,9 @@
     "tags": [
       "slotfusion",
       "multi-tenancy",
-      "saas"
+      "saas",
+      "isolation",
+      "workspace"
     ]
   },
   {
@@ -50,7 +54,7 @@
     "type": "chapter",
     "chapterNumber": 3,
     "title": "RLS — Row-Level Security",
-    "concept": "RLS is a PostgreSQL feature that makes data isolation **bulletproof**.\n\nWithout RLS, every database query has to manually filter by tenant. If a developer forgets the `WHERE` clause even once, Acme sees everyone's data. Bad.\n\nWith RLS, the database itself enforces the filter. The current tenant is set as a session variable at the start of the connection. The database refuses to return rows that don't match — *even if the developer forgets the WHERE clause*.\n\nIt's **belt and suspenders**. Even if the application has a bug, the database won't leak.\n\n### What this means for design\n\nWe can trust the data we get. Whatever the API returns to our UI, it's already correctly filtered. We design as if every list is automatically \"your tenant only\" — because it is.\n\nA small bonus: error messages can be cleaner. We don't need to design for \"404 — does this run not exist, or does it exist but you don't have permission?\" The DB just says \"not found\" — neat from a UX standpoint.",
+    "concept": "RLS is a PostgreSQL feature that makes [data isolation](lesson://slotfusion-tenants) **bulletproof**.\n\nWithout RLS, every database query has to manually filter by tenant. If a developer forgets the `WHERE` clause even once, Acme sees everyone's data. Bad.\n\nWith RLS, the database itself enforces the filter. The current tenant is set as a session variable at the start of the connection. The database refuses to return rows that don't match — *even if the developer forgets the WHERE clause*.\n\nIt's **belt and suspenders**. Even if the application has a bug, the database won't leak.\n\n### What this means for design\n\nWe can trust the data we get. Whatever the API returns to our UI, it's already correctly filtered. We design as if every list is automatically \"your tenant only\" — because it is.\n\nA small bonus: error messages can be cleaner. We don't need to design for \"404 — does this run not exist, or does it exist but you don't have permission?\" The DB just says \"not found\" — neat from a UX standpoint.",
     "example": {
       "code": "-- Developer writes:\nSELECT * FROM runs;\n\n-- Database silently runs:\nSELECT * FROM runs WHERE tenant_id = 'currently-set-tenant';",
       "language": "sql",
@@ -62,7 +66,10 @@
     "tags": [
       "slotfusion",
       "database",
-      "security"
+      "security",
+      "postgres",
+      "isolation",
+      "defense-in-depth"
     ]
   },
   {
@@ -72,7 +79,7 @@
     "type": "chapter",
     "chapterNumber": 4,
     "title": "Sessions vs JWT — how login actually works",
-    "concept": "When you log in, how does the server know it's still you on the next click? HTTP is stateless — each request starts fresh. There are two main approaches.\n\n### Session-based (BetterAuth's default)\n\n1. You submit email + password\n2. Server checks the password, creates a row in the `sessions` table\n3. Server sends back a **cookie** — an invisible piece of data your browser stores\n4. Every future request includes the cookie automatically\n5. Server looks up the session, knows it's you\n6. When you log out, the row is deleted\n\nThink of it as: the server keeps a list of \"who's logged in\" and your cookie is the ID card pointing to your entry.\n\n### JWT (alternative approach)\n\n1. You submit email + password\n2. Server checks, generates a signed string containing your info (\"I am user 123, expires Tuesday\")\n3. Browser stores it (in `localStorage` or memory)\n4. Every request, the browser attaches the string in an `Authorization: Bearer ...` header\n5. Server verifies the signature, knows it's you — without checking any database\n\nThink of it as: the server hands you a tamper-proof ID card. You wave it on every request.\n\n### Which one SlotFusion uses\n\n**BetterAuth, which is session-based.** The architecture doc has some JWT references too, but those are probably stale — needs confirmation from engineering.\n\n### What this means for design\n\nThe login form is just email + password + submit. The browser handles the cookie automatically. The interesting design problem is **what happens when the session expires** — the UI needs to gracefully redirect to login, ideally preserving the user's intent (\"after you log in, take me back to that run\").",
+    "concept": "When you log in, how does the server know it's still you on the next click? HTTP is stateless — each request starts fresh. There are two main approaches.\n\n### Session-based (BetterAuth's default)\n\n1. You submit email + password\n2. Server checks the password, creates a row in the `sessions` table\n3. Server sends back a **cookie** — an invisible piece of data your browser stores\n4. Every future request includes the cookie automatically\n5. Server looks up the session, knows it's you\n6. When you log out, the row is deleted\n\nThink of it as: the server keeps a list of \"who's logged in\" and your cookie is the ID card pointing to your entry.\n\n### JWT (alternative approach)\n\n1. You submit email + password\n2. Server checks, generates a signed string containing your info (\"I am user 123, expires Tuesday\")\n3. Browser stores it (in `localStorage` or memory)\n4. Every request, the browser attaches the string in an `Authorization: Bearer ...` header\n5. Server verifies the signature, knows it's you — without checking any database\n\nThink of it as: the server hands you a tamper-proof ID card. You wave it on every request.\n\n### Which one SlotFusion uses\n\n**BetterAuth, which is session-based.** The architecture doc has some JWT references too, but those are probably stale — needs confirmation from engineering.\n\n### What this means for design\n\nThe login form is just email + password + submit. The browser handles the cookie automatically. The interesting design problem is **what happens when the session expires** — the UI needs to gracefully redirect to login, ideally preserving the user's intent (\"after you log in, take me back to that run\").\n\nSee also: [multi-tenancy](lesson://slotfusion-tenants).",
     "example": {
       "code": "",
       "language": "",
@@ -84,7 +91,9 @@
     "tags": [
       "slotfusion",
       "auth",
-      "betterauth"
+      "betterauth",
+      "cookies",
+      "http"
     ]
   },
   {
@@ -94,7 +103,7 @@
     "type": "chapter",
     "chapterNumber": 5,
     "title": "Queues, async, and what the user sees",
-    "concept": "A **queue** is a list of messages waiting to be picked up. Like a printer queue, or the coffee shop order line.\n\nIn SlotFusion: when a user submits a run, the slotting algorithm takes 2–10 minutes. We can't keep the browser waiting that long. So Next.js does this instead:\n\n1. Drops a message in the Redis queue: \"process this job, here are the file URIs\"\n2. Tells the browser \"accepted, status is QUEUED\"\n3. Python workers are watching the queue. As soon as a message appears, one of them grabs it\n4. The worker processes the job, then comes back for the next message\n\nIt's a **producer-consumer pattern**. Next.js produces messages. Workers consume them. Redis is the message board between them.\n\n### The 6 statuses every run goes through\n\n- **CREATED** (milliseconds) — just submitted, too fast to see\n- **QUEUED** (seconds to minutes) — waiting for a worker\n- **RUNNING** (2–10 minutes) — worker is processing\n- **SUCCEEDED** — done\n- **FAILED** — something broke\n- **CANCELLED** — user pulled the plug\n\n### The \"user closed the tab\" problem\n\nA user submits, closes the tab, comes back later. The run keeps running regardless (the worker doesn't care about the browser). We need:\n\n- The Run Detail page to reflect current status when they return\n- Probably some notification — email when complete is the typical Phase 1 path\n- Maybe browser notifications or in-app badges later\n\n### Polling vs WebSockets\n\nPhase 1 uses **polling** — the UI asks `GET /api/runs/[id]` every few seconds. Probably 3–5s while running, slower when queued, with exponential backoff. WebSockets (push from server) would be smoother but more complex — probably Phase 2.\n\n### What this means for design\n\n- \"QUEUED\" is a real state with real duration. Our UI needs to make this feel intentional, not broken.\n- The \"waiting\" UX is its own design problem. Skeleton screens? Progress percentages? Estimated time? Real decisions, none specified by the architecture doc.\n- **Vercel's deployment detail page** is almost exactly the pattern we want for our Run Detail.",
+    "concept": "A **queue** is a list of messages waiting to be picked up. Like a printer queue, or the coffee shop order line.\n\nIn SlotFusion: when a user [submits a run](lesson://slotfusion-system-in-one-breath), the slotting algorithm takes 2–10 minutes. We can't keep the browser waiting that long. So Next.js does this instead:\n\n1. Drops a message in the Redis queue: \"process this job, here are the [file URIs](lesson://slotfusion-storage-presigned)\"\n2. Tells the browser \"accepted, status is QUEUED\"\n3. Python workers are watching the queue. As soon as a message appears, one of them grabs it\n4. The worker processes the job, then comes back for the next message\n\nIt's a **producer-consumer pattern**. Next.js produces messages. Workers consume them. Redis is the message board between them.\n\n### The 6 statuses every run goes through\n\n- **CREATED** (milliseconds) — just submitted, too fast to see\n- **QUEUED** (seconds to minutes) — waiting for a worker\n- **RUNNING** (2–10 minutes) — worker is processing\n- **SUCCEEDED** — done\n- **FAILED** — something broke\n- **CANCELLED** — user pulled the plug\n\n### The \"user closed the tab\" problem\n\nA user submits, closes the tab, comes back later. The run keeps running regardless (the worker doesn't care about the browser). We need:\n\n- The Run Detail page to reflect current status when they return\n- Probably some notification — email when complete is the typical Phase 1 path\n- Maybe browser notifications or in-app badges later\n\n### Polling vs WebSockets\n\nPhase 1 uses **polling** — the UI asks `GET /api/runs/[id]` every few seconds. Probably 3–5s while running, slower when queued, with exponential backoff. WebSockets (push from server) would be smoother but more complex — probably Phase 2.\n\n### What this means for design\n\n- \"QUEUED\" is a real state with real duration. Our UI needs to make this feel intentional, not broken.\n- The \"waiting\" UX is its own design problem. Skeleton screens? Progress percentages? Estimated time? Real decisions, none specified by the architecture doc.\n- **Vercel's deployment detail page** is almost exactly the pattern we want for our Run Detail.",
     "example": {
       "code": "",
       "language": "",
@@ -107,7 +116,10 @@
       "slotfusion",
       "async",
       "queues",
-      "redis"
+      "redis",
+      "worker",
+      "polling",
+      "vercel-deployment-pattern"
     ]
   },
   {
@@ -117,7 +129,7 @@
     "type": "chapter",
     "chapterNumber": 6,
     "title": "S3, MinIO, and presigned URLs",
-    "concept": "**S3** is Amazon's file storage. Think Dropbox for app developers. You upload files, you get URIs back. We don't store Excel files in PostgreSQL because databases are bad at large binary blobs.\n\n**MinIO** is an open-source S3 clone you can run locally. Same API, runs on your laptop. SlotFusion uses MinIO for development and real S3 in production — the abstraction layer makes them interchangeable.\n\n### Presigned URLs — the clever trick\n\nWhen a user wants to download results, the file is in S3. The clever approach:\n\n1. User clicks \"Download results\"\n2. Browser → Next.js: `GET /api/artifacts/xyz/download`\n3. Next.js → S3: \"give me a temporary URL for this file\"\n4. Next.js → Browser: here's the URL (valid for 1 hour)\n5. Browser opens the URL, downloads directly from S3\n\nThe temporary URL has embedded permission. Anyone holding it for the next hour can download the file. Next.js doesn't pipe the bytes — it just hands off the URL.\n\n### What this means for design\n\n- **Download buttons aren't simple links.** They make an API call first to get the temporary URL.\n- The URL **expires after an hour**. If a user leaves the page open overnight, the URL stops working. We need to handle \"your download link expired\" gracefully — probably just refresh on click.\n- Uploads work in reverse. Phase 1 will probably route uploads through Next.js to S3 (simpler) before optimizing to direct browser-to-S3 uploads.",
+    "concept": "**S3** is Amazon's file storage. Think Dropbox for app developers. You upload files, you get URIs back. We don't store Excel files in PostgreSQL because databases are bad at large binary blobs.\n\n**MinIO** is an open-source S3 clone you can run locally. Same API, runs on your laptop. SlotFusion uses MinIO for development and real S3 in production — the abstraction layer makes them interchangeable.\n\n### Presigned URLs — the clever trick\n\nWhen a user wants to download results from a [completed run](lesson://slotfusion-queues-and-async), the file is in S3. The clever approach:\n\n1. User clicks \"Download results\"\n2. Browser → Next.js: `GET /api/artifacts/xyz/download`\n3. Next.js → S3: \"give me a temporary URL for this file\"\n4. Next.js → Browser: here's the URL (valid for 1 hour)\n5. Browser opens the URL, downloads directly from S3\n\nThe temporary URL has embedded permission. Anyone holding it for the next hour can download the file. Next.js doesn't pipe the bytes — it just hands off the URL.\n\n### What this means for design\n\n- **Download buttons aren't simple links.** They make an API call first to get the temporary URL.\n- The URL **expires after an hour**. If a user leaves the page open overnight, the URL stops working. We need to handle \"your download link expired\" gracefully — probably just refresh on click.\n- Uploads work in reverse. Phase 1 will probably route uploads through Next.js to S3 (simpler) before optimizing to direct browser-to-S3 uploads.",
     "example": {
       "code": "",
       "language": "",
@@ -129,7 +141,11 @@
     "tags": [
       "slotfusion",
       "storage",
-      "s3"
+      "s3",
+      "minio",
+      "aws",
+      "upload",
+      "download"
     ]
   },
   {
@@ -150,7 +166,10 @@
     "createdAt": "2026-05-21T00:00:00Z",
     "tags": [
       "meta",
-      "philosophy"
+      "philosophy",
+      "frontend",
+      "second-brain",
+      "learning"
     ]
   },
   {
@@ -171,7 +190,10 @@
     "createdAt": "2026-05-21T00:00:00Z",
     "tags": [
       "meta",
-      "philosophy"
+      "philosophy",
+      "tools",
+      "workflow",
+      "muscle-memory"
     ]
   },
   {
@@ -181,7 +203,7 @@
     "type": "chapter",
     "chapterNumber": 1,
     "title": "Decompose vague AI instructions into clear deliverables",
-    "concept": "**The pattern:** when you give an AI a single instruction with multiple implicit deliverables, output gets muddy. When you decompose into named deliverables routed to the right channel, output gets clean.\n\n### Vague instruction (avoid)\n\n> \"Clean up the tabs, answer all those questions, and prep me for tomorrow's meeting.\"\n\nThree things in one sentence. The AI will try to do all three at once and do all three poorly.\n\n### Decomposed instruction (do this)\n\n1. **For chat:** write a long-form architecture explainer covering these questions\n2. **For Claude Code:** write a prompt that wipes the current tabs and seeds new content\n3. **For tomorrow's meeting:** write a focused list of questions for engineering\n\nThree deliverables, three channels, each clear. The AI executes cleanly because each task has a single owner.\n\n### Why this works\n\nAI tools have implicit \"channels\" — what they output well, where the output goes. Chat is for thinking and explaining. Claude Code is for executing changes. Markdown docs are for reference material. **Routing each piece to the right channel is half the skill.**\n\n### When you'll feel this most\n\nWhen you ask \"do X\" and the AI gives you a wall of text mixing thinking, code, and lists. That's a routing failure. Push back: \"split this into [thinking], [code], [reference].\"",
+    "concept": "**The pattern:** when you give an AI a single instruction with multiple implicit deliverables, output gets muddy. When you decompose into named deliverables routed to the right channel, output gets clean.\n\n### Vague instruction (avoid)\n\n> \"Clean up the tabs, answer all those questions, and prep me for tomorrow's meeting.\"\n\nThree things in one sentence. The AI will try to do all three at once and do all three poorly.\n\n### Decomposed instruction (do this)\n\n1. **For chat:** write a long-form architecture explainer covering these questions\n2. **For Claude Code:** write a prompt that wipes the current tabs and seeds new content\n3. **For tomorrow's meeting:** write a focused list of questions for engineering\n\nThree deliverables, three channels, each clear. The AI executes cleanly because each task has a single owner.\n\n### Why this works\n\nAI tools have implicit \"channels\" — what they output well, where the output goes. Chat is for thinking and explaining. Claude Code is for executing changes. Markdown docs are for reference material. **Routing each piece to the right channel is half the skill.**\n\n### When you'll feel this most\n\nWhen you ask \"do X\" and the AI gives you a wall of text mixing thinking, code, and lists. That's a routing failure. Push back: \"split this into [thinking], [code], [reference].\"\n\nSee also: [force a source of truth](lesson://ai-source-of-truth).",
     "example": {
       "code": "",
       "language": "",
@@ -193,7 +215,9 @@
     "tags": [
       "claude-code",
       "prompting",
-      "patterns"
+      "patterns",
+      "workflow",
+      "meta"
     ]
   },
   {
@@ -203,7 +227,7 @@
     "type": "chapter",
     "chapterNumber": 2,
     "title": "Force a source of truth when docs disagree",
-    "concept": "When two documents contradict each other, the team needs exactly **one source of truth** — picked deliberately.\n\nThe beginner instinct is to try to satisfy both. Don't. Specs that contradict each other create rework and confusion downstream. **Force the question:** which document do we treat as law?\n\n### Example from SlotFusion\n\nTwo docs existed:\n\n- **Phase 1 PDF** — earlier, lighter, \"standard POC scope\"\n- **Backend Architecture Solution Design (Updated)** — later, deeper, with thought-through decisions\n\nWhen asked, I picked the architecture doc as source of truth and demoted the Phase 1 PDF to historical context. Done. Now every contradiction has a clear winner.\n\n### The pattern, generalized\n\nThis applies everywhere:\n\n- Two design files for the same screen → pick one as canon\n- Two Slack threads about the same decision → link the canonical one\n- Spec doc says X, Jira ticket says Y → force the team to align\n\n### The senior move\n\nIsn't \"I'll handle the ambiguity gracefully.\" It's \"I'll force the team to pick before I write a line of code.\" That's where time is saved.",
+    "concept": "When two documents contradict each other, the team needs exactly **one source of truth** — picked deliberately.\n\nThe beginner instinct is to try to satisfy both. Don't. Specs that contradict each other create rework and confusion downstream. **Force the question:** which document do we treat as law?\n\n### Example from SlotFusion\n\nTwo docs existed:\n\n- **Phase 1 PDF** — earlier, lighter, \"standard POC scope\"\n- **Backend Architecture Solution Design (Updated)** — later, deeper, with thought-through decisions\n\nWhen asked, I picked the architecture doc as source of truth and demoted the Phase 1 PDF to historical context. Done. Now every contradiction has a clear winner.\n\n### The pattern, generalized\n\nThis applies everywhere:\n\n- Two design files for the same screen → pick one as canon\n- Two Slack threads about the same decision → link the canonical one\n- Spec doc says X, Jira ticket says Y → force the team to align\n\n### The senior move\n\nIsn't \"I'll handle the ambiguity gracefully.\" It's \"I'll force the team to pick before I write a line of code.\" That's where time is saved.\n\nSee also: [scope reality](lesson://slotfusion-scope-reality).",
     "example": {
       "code": "",
       "language": "",
@@ -215,7 +239,156 @@
     "tags": [
       "prompting",
       "patterns",
-      "decisions"
+      "decisions",
+      "meta",
+      "team"
+    ]
+  },
+  {
+    "id": "slotfusion-north-star-principles",
+    "topicSlug": "architecture",
+    "codebaseSlug": "slotfusion",
+    "type": "chapter",
+    "chapterNumber": 7,
+    "title": "North star principles — how we work on SlotFusion",
+    "concept": "Four principles that govern how design + frontend work on SlotFusion. Established after reading the [legacy codebase](lesson://slotfusion-legacy-codebase-tour), the architecture docs, and the V30 build notes.\n\n## 1. Source of truth on *what* is the client's\n\nThe client owns the product vision: what the system does, which features matter, what the algorithm guarantees, what KPIs mean. We honor this completely.\n\nThe client's documents — Slotting Design Review, Detailed Developer Design Model, V30 build notes — describe a patent-pending warehouse slotting engine. The functional surface area, the algorithmic constraints, and the data model are *theirs*. We do not casually override these.\n\n## 2. Source of truth on *how* and *when* is ours\n\nWe own the design execution: how users encounter the vision, what the interface looks like, how flows are structured, what gets simplified, what gets emphasized.\n\nWe also own (with the engineering team) the **phasing** decisions: what ships in Phase 1, what ships later. The client's V30 vision is a roadmap, not a Phase 1 spec. The engineering team has already phased it. We follow that phasing — not the client's \"everything everywhere\" framing.\n\n## 3. The client's UI is not our reference\n\nThe existing [Streamlit POC](lesson://slotfusion-legacy-codebase-tour) is 15,729 lines in a single file, with raw HTML hacks fighting the framework, emoji as visual hierarchy, and a results screen that's two tables and two download buttons.\n\nWe are not \"redesigning what the client built.\" We are building the **right** UI for what the client *envisioned* — two different things.\n\nOur job: make their vision **legible and beautiful** in a way they couldn't.\n\n## 4. Some client requests get filtered\n\nThe client is actively co-designing V30 with ChatGPT. New ideas land in their notes regularly. Some are excellent product thinking. Some are noise — features that don't fit, additions that aren't sufficient, scope that doesn't match our boundaries.\n\n**We do not preemptively decide what to ignore.** Anirudh makes those calls in the moment when something is explicitly raised. The default is \"respect the client's input.\" The exception is \"Anirudh explicitly flagged it as out of scope.\"\n\n## Why these four matter together\n\nPrinciple 1 keeps us humble about domain. The client knows warehouse slotting better than we ever will. Principle 2 keeps us authoritative about craft. We know UX better than they do. Principle 3 prevents us from anchoring to a bad reference. Principle 4 keeps the loop honest — the client gets respected, and we don't drown in every passing idea.\n\nIf we lose any one of these, the project tilts toward dysfunction.",
+    "example": {
+      "code": "",
+      "language": "",
+      "annotation": ""
+    },
+    "alternatives": [],
+    "critique": "",
+    "createdAt": "2026-05-21T00:00:00Z",
+    "tags": [
+      "slotfusion",
+      "principles",
+      "decisions",
+      "team",
+      "client",
+      "scope"
+    ]
+  },
+  {
+    "id": "slotfusion-legacy-codebase-tour",
+    "topicSlug": "architecture",
+    "codebaseSlug": "slotfusion",
+    "type": "chapter",
+    "chapterNumber": 8,
+    "title": "What's actually in the legacy POC",
+    "concept": "The legacy POC lives in the `slotfusion_legacy/` repo. Structure at a glance:\n\n- `Slotting 3.0/SlotFusionV3_Move_Prep.py` — the **main app entry point**, 15,729 lines in one file\n- `Slotting 3.0/Slotfusion/` — algorithm core (pipeline, normalize, io_loaders, debug)\n- `Slotting 3.0/designer/` — Build Warehouse module (the \"Design Optimal Warehouse\" mode)\n- `Slotting 3.0/designer/media/` — 8 storage type definitions (selective, shelving, bulk, pushback, pallet_flow, case_flow, automated_bin, automated_shelf)\n- `Slotting 3.0/designer/ui/preview.py` — 3D warehouse preview rendering\n- `Design Review/` — three client-authored documents (the most useful one is `Slotting_Design_Review.docx`)\n- Excel templates at the root (Bin_Master, Current_Inventory, Item_History)\n\n## The 15,729-line monolith\n\nThe main file is roughly 3-10x larger than any healthy single-file project should be. This is what happens when a single person builds with an AI assistant, never refactors, and just keeps appending. It contains accumulated layers, parallel versions of the same screen, dead code, and live code all sitting together.\n\n**You are not expected to read it.** When we need specific UI information, we use `grep` to extract just the `st.` calls (Streamlit UI primitives) and read those. The pattern from this conversation:\n\n```bash\ngrep -n \"st\\.\\(title\\|header\\|button\\|file_uploader\\|...\\)\" file.py\n```\n\nThis pulls out every line that defines a UI element and shows its line number. Reading 300 grep results is much more productive than reading 15,729 lines.\n\n## The implicit app structure (from grep analysis)\n\n| Line range | Screen / surface |\n|---|---|\n| 8847–8861 | Login (email + password) |\n| 8888–8924 | Sticky header with WCIS branding |\n| 9250 | Mode selector (Slot Existing vs Design Optimal) |\n| 9260 | Excel vs API toggle |\n| 9355–9475 | Data input (uploaders or API endpoints) |\n| 9510–9530 | Export Designed Warehouse |\n| 9569–11000+ | Build Warehouse configuration (per storage medium) |\n| 5408–5424 | Results (picking + overstock tables, download buttons) |\n\n## What this tells us\n\nThe product is genuinely substantial — way bigger than \"vibe-coded POC.\" But the UX execution is rough: emoji-based visual hierarchy, raw HTML injected to escape Streamlit's defaults, no real KPI cards, no visualization on the results screen.\n\nPer our [north star principles](lesson://slotfusion-north-star-principles), this is the reference for *what the product does*, not *how it should look*.\n\n## Build Warehouse depth (worth knowing)\n\nThe Build Warehouse mode alone has roughly **160+ configuration fields** across 8 storage mediums. Each medium has ~20 fields covering structural specs, MHE compatibility, layout dimensions, classification, and generator controls.\n\nThis is Phase 2+ territory. But knowing it exists shapes how we design the design system: components must scale to dense, multi-section configuration forms without breaking down.",
+    "example": {
+      "code": "",
+      "language": "",
+      "annotation": ""
+    },
+    "alternatives": [],
+    "critique": "",
+    "createdAt": "2026-05-21T00:00:00Z",
+    "tags": [
+      "slotfusion",
+      "legacy",
+      "codebase",
+      "streamlit",
+      "python",
+      "exploration"
+    ]
+  },
+  {
+    "id": "slotfusion-scope-reality",
+    "topicSlug": "architecture",
+    "codebaseSlug": "slotfusion",
+    "type": "chapter",
+    "chapterNumber": 9,
+    "title": "Phase 1 vs V30 — the scope reality",
+    "concept": "Three documents describe SlotFusion. They are not equal.\n\n| Doc | What it is | Authority |\n|---|---|---|\n| SlotFusion Beginner Master Guide PDF | Onboarding doc | Historical context only |\n| SlotFusion Phase 1 Development Plan PDF | Engineering's phased scope | Defines what ships in Phase 1 |\n| Backend Architecture Solution Design (Updated) | Engineering's technical authority | Source of truth for the build |\n| Slotting Design Review (client) | Functional spec of existing product | Source of truth for what features mean |\n| V30 build notes (client) | Client's ChatGPT-driven evolution | Future vision, not Phase 1 |\n| Detailed Developer Design Model (client) | Patent-aligned algorithm spec | Algorithmic invariants |\n\n## The Phase 1 vs V30 split\n\nThe Phase 1 doc and the V30 docs *contradict each other on scope*.\n\n- **Phase 1 says:** Slot Existing Warehouse is the only mode. Design Optimal Warehouse is deferred. Email/password auth. Standard reports.\n- **V30 notes describe:** Build Warehouse with 8 storage types, seasonality logic, massive new KPI calculations, demand planning per-zone/per-class/per-item, API integration toggles, 3D visualization with toggle modes.\n\nPer the team's framing, **the engineering team has deliberately phased the V30 stuff out of Phase 1.** This is not an oversight — it's a scope reduction decision.\n\n## What this means for us\n\n1. **Phase 1 ships the Slot Existing Warehouse flow only.** Build Warehouse / Design Optimal does not ship in Phase 1.\n2. **We hide Design Optimal Warehouse in the Phase 1 UI** — not \"coming soon,\" hidden entirely. The mode picker becomes either a non-decision or shows the option grayed without explanation.\n3. **We design components that can scale to V30** without redesign. The configuration screen has 15+ fields in Phase 1 and 100+ in V30. Our component patterns should accommodate both.\n4. **The client's V30 momentum is a feature, not a bug.** The client is actively defining the future product. We absorb the direction without committing to deliver it.\n\n## The IP signal\n\nThe Detailed Developer Design Model explicitly mentions patent-pending status:\n\n> *\"This section directly supports utility patent drafting. Distinguishing technical advantages (patent-relevant): demand-driven warehouse generation, iterative overflow algorithm with single-bin re-evaluation, zone + XYZ proximity co-optimization, one-SKU-per-location enforcement, capacity-sufficient geometry synthesis.\"*\n\nWe design the UI. We do not touch the algorithm. **When we encounter an algorithm constraint that feels like a UX problem, we route it to engineering rather than designing around it.** That constraint might be the patent claim.\n\nSee also: [north star principles](lesson://slotfusion-north-star-principles).",
+    "example": {
+      "code": "",
+      "language": "",
+      "annotation": ""
+    },
+    "alternatives": [],
+    "critique": "",
+    "createdAt": "2026-05-21T00:00:00Z",
+    "tags": [
+      "slotfusion",
+      "scope",
+      "phase-1",
+      "v30",
+      "planning",
+      "team"
+    ]
+  },
+  {
+    "id": "slotfusion-mock-data-convention",
+    "topicSlug": "architecture",
+    "codebaseSlug": "slotfusion",
+    "type": "chapter",
+    "chapterNumber": 10,
+    "title": "Mock data convention for the prototype repo",
+    "concept": "The [slotfusion-prototype](lesson://slotfusion-north-star-principles) repo is where design iteration happens without the real backend. To keep migration to the real `slotfusion-app` painless later, we follow a mock-data convention.\n\n## The rule\n\nAll mocked data lives in `lib/mock/` as TypeScript files exporting strongly-typed objects. Each file mirrors a real entity from the [SlotFusion architecture](lesson://slotfusion-system-in-one-breath):\n\n- `lib/mock/user.ts` — current logged-in user\n- `lib/mock/tenant.ts` — current tenant (workspace)\n- `lib/mock/runs.ts` — list of past runs in various states\n- `lib/mock/results.ts` — slotting result data for completed runs\n- `lib/mock/artifacts.ts` — downloadable artifacts associated with results\n\n## Why TypeScript files, not JSON\n\nType safety. When a component imports `mockUser`, the IDE knows the exact shape. If the [User type](lesson://slotfusion-sessions-vs-jwt) changes in `types/slotfusion.ts`, every mock file gets a type error immediately — no silent drift.\n\n## The migration discipline\n\nWhen we later swap mock data for real API calls, the pattern is:\n\n```tsx\n// Before (prototype):\nimport { mockRuns } from \"@/lib/mock/runs\";\nconst runs = mockRuns;\n\n// After (real backend):\nconst runs = await fetch(\"/api/runs\").then(r => r.json());\n```\n\nSame variable name, same shape, different source. If we keep mocked data shaped exactly like the API response, the migration is a 1-line swap per usage.\n\n## What NOT to do\n\n- **Don't hardcode data inside components.** Always import from `lib/mock/`.\n- **Don't generate random data inline.** Deterministic mocks make screenshots and demos reproducible.\n- **Don't mock things that aren't real entities.** The mock should map 1:1 to a backend concept.\n- **Don't add fields that don't exist in the real schema.** Lying to ourselves now creates pain later.\n\nSee also: [the whole system in one breath](lesson://slotfusion-system-in-one-breath), [sessions vs JWT](lesson://slotfusion-sessions-vs-jwt).",
+    "example": {
+      "code": "",
+      "language": "",
+      "annotation": ""
+    },
+    "alternatives": [],
+    "critique": "",
+    "createdAt": "2026-05-21T00:00:00Z",
+    "tags": [
+      "slotfusion",
+      "prototype",
+      "mock-data",
+      "frontend",
+      "patterns"
+    ]
+  },
+  {
+    "id": "ai-reading-the-client",
+    "topicSlug": "ai-craft",
+    "codebaseSlug": "slotfusion",
+    "type": "chapter",
+    "chapterNumber": 3,
+    "title": "Reading the client's mind — when the client is also vibe-coding",
+    "concept": "The SlotFusion client is a domain expert who is also building with AI. Their specs are:\n\n- Detailed in functional logic (algorithm steps, validation rules, KPI math)\n- Less detailed on UX (they care that the feature exists, less so how it lands)\n- Authored in conversation with ChatGPT (entire sections of their docs include \"ChatGPT said:\" headers)\n- Not always internally consistent (the V30 build notes contradict the Phase 1 doc on scope)\n\nThis is **a new kind of stakeholder**. Not the traditional \"non-technical client\" who hands you a brief and disappears. Not the engineer-founder who has strong UX opinions. It's something in between — a builder using AI to extend themselves into domains they couldn't otherwise reach.\n\n## The interpretation skill\n\nWhen a client of this type says \"add a button for X,\" they often mean \"I need this functional capability.\" The literal button is a guess. The capability is the request.\n\nThe interpretation move:\n1. **Identify the underlying capability.** What can the user *do* now that they couldn't before?\n2. **Identify the user moment.** When in the flow does this need to happen?\n3. **Design the right interface for that moment.** This may or may not be a button.\n\nExample: V30 notes say \"add a radio button for ADD SEASONALITY below Pick UOM selection in column 2.\" Literal interpretation: place a radio button at that location. Capability interpretation: users need to enable seasonal slotting behavior and configure its window. The right interface might be a section toggle, an expander, an inline drawer, or yes maybe a radio button — but only after we've thought about the user moment.\n\n## When to push back, when to absorb\n\n**Absorb without pushing back:**\n- Algorithm logic and constraints (these are patent-claimed)\n- KPI definitions and math (domain expertise)\n- Feature scope decisions made by the [engineering team's phasing](lesson://slotfusion-scope-reality)\n- Specific data fields and their meanings\n\n**Push back, with reasoning:**\n- UI placement decisions (\"put this in column 2\")\n- Visual hierarchy (\"show this in neon yellow\")\n- Workflow ordering (\"ask for X before Y\")\n- Anything where the client is reaching outside their domain\n\n**Filter quietly (only with Anirudh's flag):**\n- Additions that don't match scope\n- Ideas that come in mid-build and would derail momentum\n- Requests that contradict earlier decisions without acknowledging the change\n\nThe default is \"respect the client.\" The exception is \"Anirudh explicitly flagged this as out.\"\n\nSee also: [north star principles](lesson://slotfusion-north-star-principles), [force a source of truth](lesson://ai-source-of-truth).",
+    "example": {
+      "code": "",
+      "language": "",
+      "annotation": ""
+    },
+    "alternatives": [],
+    "critique": "",
+    "createdAt": "2026-05-21T00:00:00Z",
+    "tags": [
+      "client",
+      "interpretation",
+      "spec",
+      "ai-collaboration",
+      "design"
+    ]
+  },
+  {
+    "id": "ai-tagging-conventions",
+    "topicSlug": "ai-craft",
+    "codebaseSlug": "learning-lab",
+    "type": "chapter",
+    "chapterNumber": 4,
+    "title": "Tagging and cross-referencing — Zettelkasten lite",
+    "concept": "This notebook uses two distinct systems for connecting lessons. Each has a different job.\n\n## Tags — for filtering\n\nEvery lesson has a `tags` array. Tags answer the question \"find me everything related to X.\"\n\nTag categories I use:\n\n- **Domain:** `slotfusion`, `learning-lab`\n- **Concept area:** `auth`, `multi-tenancy`, `async`, `queues`, `storage`, `api`\n- **Code surface:** `frontend`, `backend`, `database`, `infrastructure`\n- **Meta:** `principles`, `patterns`, `philosophy`, `decisions`, `meta`\n- **People-process:** `team`, `client`, `scope`, `planning`\n\nA lesson can carry tags from multiple categories. A frontend component that talks to a backend API would have `frontend`, `api`, `backend`. That makes it discoverable from any of those entry points.\n\n**Discipline:** never use a tag you wouldn't search for. If `react-component-naming` is too specific to ever search by, it's not a useful tag. Use `patterns` instead.\n\n## Cross-references — for drilling\n\nWhen a lesson body mentions a concept defined elsewhere, link it inline using the `lesson://` URL scheme:\n\n```markdown\nThis builds on [multi-tenancy](lesson://slotfusion-tenants) — the foundation for tenant isolation.\n```\n\nClicking the link opens the referenced lesson in a side panel without leaving the current page. You read the cited concept, close the panel, and continue. Context preserved.\n\nThis is the Wikipedia hover pattern, applied to a personal notebook.\n\n## When to cross-reference vs. when to re-explain\n\nIf a concept needs more than two sentences to summarize *and* I'm relying on the reader having understood it: cross-reference.\n\nIf a concept can be glossed in a single phrase (\"queues are a producer-consumer pattern\"): don't bother. Inline gloss is faster than a click.\n\nIf a concept is *defined here* and referenced elsewhere: this is the canonical lesson, others link in.\n\n## What this enables\n\nSix months from now, when I'm writing portfolio narrative or refactoring the design system, I can:\n\n- Filter by tag `slotfusion + auth` to see everything I learned about SlotFusion auth\n- Click into a frontend lesson and immediately preview the backend concept it depends on\n- Trace decisions backward — \"why did I do this?\" follows the cross-reference chain to the principle that grounded it\n\nThe notebook becomes a second brain that **resists context loss**. That's the whole point.\n\nSee also: [decompose AI instructions](lesson://ai-decompose-instructions), [force a source of truth](lesson://ai-source-of-truth).",
+    "example": {
+      "code": "",
+      "language": "",
+      "annotation": ""
+    },
+    "alternatives": [],
+    "critique": "",
+    "createdAt": "2026-05-21T00:00:00Z",
+    "tags": [
+      "notebook",
+      "tags",
+      "cross-references",
+      "patterns",
+      "meta"
     ]
   }
 ]
