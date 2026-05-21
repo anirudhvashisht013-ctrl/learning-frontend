@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { KEYS, readString, readViewMode } from "@/lib/storage";
-import { topics, codebases } from "@/lib/data";
+import { topics, codebases, getCodebase, getTopic } from "@/lib/data";
 
 export default function RootPage() {
   const router = useRouter();
@@ -11,10 +11,12 @@ export default function RootPage() {
   useEffect(() => {
     const mode = readViewMode();
     if (mode === "codebase") {
-      const slug = readString(KEYS.lastCodebase) ?? codebases[0]?.slug;
+      const saved = readString(KEYS.lastCodebase);
+      const slug = (saved && getCodebase(saved) ? saved : codebases[0]?.slug);
       router.replace(`/codebases/${slug}`);
     } else {
-      const slug = readString(KEYS.lastTopic) ?? topics[0]?.slug;
+      const saved = readString(KEYS.lastTopic);
+      const slug = (saved && getTopic(saved) ? saved : topics[0]?.slug);
       router.replace(`/topics/${slug}`);
     }
   }, [router]);
